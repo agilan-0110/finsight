@@ -118,3 +118,5 @@ if __name__ == "__main__":
         get_live_price("Tata Communications")  # company name, not a symbol — should fail
     except ValueError as e:
         print(f"Caught expected error: {e}")
+
+    
