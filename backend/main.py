@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from backend.data.data_fetch import get_live_price, get_fundamentals, get_price_history
 from backend.db.database import get_db, init_db
 from backend.db import crud
+from backend.agent.direct_chat import get_chat_response
 
 app = FastAPI(title="FinSight API")
 
@@ -73,8 +74,24 @@ def delete_holding(holding_id: int, db: Session = Depends(get_db)):
     if not deleted:
         raise HTTPException(status_code=404, detail="Holding not found")
     return {"message": "Holding deleted"}
+class ChatRequest(BaseModel):
+    message: str
+
+class ChatResponse(BaseModel):
+    response: str
+
+@app.post("/chat", response_model=ChatResponse)
+def chat(request: ChatRequest):
+    """
+    Main chat endpoint. Takes a user message, routes it through
+    direct_chat.py (which decides if portfolio context is needed),
+    and returns FinSight's response.
+    """
+    reply = get_chat_response(request.message)
+    return ChatResponse(response=reply)
 
 
 @app.get("/")
 def root():
     return {"status": "FinSight API is running"}
+
