@@ -1,53 +1,123 @@
 """
 direct_chat.py
 Phase 3 — Direct Context Injection.
-
-This is the orchestration layer between the user's chat message and Groq.
-It decides whether portfolio context is needed, pulls live market data for
-relevant holdings, builds a single grounded prompt, and calls groq_client.
-
-NOTE: adjust the imports below to match your actual module paths/function
-names for portfolio CRUD and data_fetch — these are written to match what's
-described in your project so far, but double check against your real files.
+Phase 4 — RAG news context + dynamic ticker resolution added.
 """
 
+import yfinance as yf
+
 from backend.agent.groq_client import ask_groq, FINSIGHT_SYSTEM_PROMPT
+from backend.agent.retrieval import retrieve_relevant_news
+from backend.agent.alias_map import ALIAS_MAP
+from backend.agent.ticker_map import TICKER_MAP
 from backend.data.data_fetch import get_live_price, get_fundamentals
 from backend.db.crud import get_portfolio
-from backend.db.database import SessionLocal  # adjust if your session factory lives elsewhere
+from backend.db.database import SessionLocal
 
 
-# Keywords that suggest the user is asking about THEIR portfolio,
-# not just general market questions.
 PORTFOLIO_KEYWORDS = [
     "my portfolio", "my holdings", "my stocks", "i own",
     "rebalance", "diversif", "concentration", "my investment",
     "my positions", "how am i doing"
 ]
 
+NEWS_KEYWORDS = [
+    "news", "sentiment", "opinion", "headline", "buzz",
+    "recent development", "what's happening", "market talk"
+]
+
+# Simple in-memory cache so repeated questions about the same company
+# don't trigger a fresh API call every time within a session
+_ticker_lookup_cache: dict[str, str | None] = {}
+
 
 def needs_portfolio_context(user_message: str) -> bool:
-    """
-    Cheap keyword check to decide if we should spend tokens pulling
-    portfolio + live data into the prompt. Not perfect, but good enough
-    for Phase 3 — a real intent classifier is a later-phase upgrade, not
-    a Phase 3 requirement.
-    """
     message_lower = user_message.lower()
     return any(keyword in message_lower for keyword in PORTFOLIO_KEYWORDS)
 
 
+def needs_news_context(user_message: str) -> bool:
+    message_lower = user_message.lower()
+    return any(keyword in message_lower for keyword in NEWS_KEYWORDS)
+
+
+def lookup_ticker_dynamic(query_text: str) -> str | None:
+    """
+    Falls back to Yahoo Finance's search API when the name isn't found
+    in the portfolio or the static map. Restricts to NSE (.NS) results
+    since FinSight is scoped to Indian equities.
+    """
+    if query_text in _ticker_lookup_cache:
+        return _ticker_lookup_cache[query_text]
+
+    ticker = None
+    try:
+        search = yf.Search(query_text, max_results=5)
+        quotes = search.quotes  # list of dicts with 'symbol', 'shortname', etc.
+
+        for quote in quotes:
+            symbol = quote.get("symbol", "")
+            if symbol.endswith(".NS"):
+                ticker = symbol
+                break  # take the first NSE match
+    except Exception:
+        ticker = None  # network hiccup, bad query, etc. — fail gracefully
+
+    _ticker_lookup_cache[query_text] = ticker
+    return ticker
+
+
+# Common words that shouldn't count as a meaningful company-name match
+STOPWORDS = {"the", "and", "of", "a", "an", "ltd", "limited", "co", "company", "india"}
+
+
+def extract_ticker_from_message(user_message: str) -> str | None:
+    """
+    Four-tier ticker detection, most-precise/cheapest first:
+    1. User's own portfolio holdings
+    2. Curated ALIAS_MAP (short, common names — unambiguous by design)
+    3. Auto-generated TICKER_MAP (Nifty 500 official names) —
+       full-name substring match ONLY, no single-word matching,
+       since official names are too ambiguous for that
+    4. Dynamic Yahoo search (last resort)
+    """
+    message_lower = user_message.lower()
+
+    # Tier 1: portfolio holdings
+    db = SessionLocal()
+    try:
+        holdings = get_portfolio(db)
+    finally:
+        db.close()
+
+    for holding in holdings:
+        ticker = holding.ticker
+        base_name = ticker.replace(".NS", "").lower()
+        if base_name in message_lower:
+            return ticker
+
+    # Tier 2: curated aliases — check both directions since these are short and precise
+    for name in sorted(ALIAS_MAP.keys(), key=len, reverse=True):
+        if name in message_lower:
+            return ALIAS_MAP[name]
+
+    # Tier 3: auto-generated official names — full phrase match only
+    # (no first-word matching here; too many companies share first words)
+    for name in sorted(TICKER_MAP.keys(), key=len, reverse=True):
+        if name in message_lower:
+            return TICKER_MAP[name]
+
+    # Tier 4: dynamic lookup via Yahoo search
+    dynamic_result = lookup_ticker_dynamic(user_message)
+    if dynamic_result:
+        return dynamic_result
+
+    return None
+
 def build_portfolio_context() -> str:
     """
-    Fetches the user's holdings from the DB, then pulls live price +
-    fundamentals for each ticker, and formats it into a readable block
-    the LLM can reason over.
-
-    This app is single-user (get_portfolio() returns ALL holdings —
-    no user filtering), so no user_id is needed anywhere in this flow.
-
-    Returns a plain-text block, NOT raw JSON — LLMs reason better over
-    labeled, structured text than over dumped JSON.
+    Fetches the user's holdings from the DB, pulls live price + fundamentals
+    for each ticker, and formats it into a readable block for the LLM.
     """
     db = SessionLocal()
     try:
@@ -78,45 +148,65 @@ def build_portfolio_context() -> str:
                 f"| Current price: ₹{current_price} | P/E: {pe_ratio} | Sector: {sector}"
             )
         except Exception as e:
-            # If one ticker fails (bad data, rate limit, etc.), don't kill
-            # the whole context block — just note it's missing.
             context_lines.append(f"- {ticker}: {quantity} shares | Live data unavailable ({str(e)})")
+
+    return "\n".join(context_lines)
+
+
+def build_news_context(user_message: str) -> str:
+    """
+    Retrieves relevant news chunks (filtered to a ticker if one is detected
+    in the message) and formats them into a labeled, LLM-readable block.
+    """
+    ticker = extract_ticker_from_message(user_message)
+    results = retrieve_relevant_news(query=user_message, ticker=ticker, top_k=3)
+
+    if not results:
+        return "No relevant recent news found."
+
+    context_lines = ["RELEVANT RECENT NEWS:"]
+    for r in results:
+        context_lines.append(f"- ({r['title']}) {r['text'][:400]}...")
 
     return "\n".join(context_lines)
 
 
 def get_chat_response(user_message: str) -> str:
     """
-    Main entry point — this is what the /chat endpoint will call.
-
-    Args:
-        user_message: The raw message the user typed.
-
-    Returns:
-        FinSight's text response.
+    Main entry point — this is what the /chat endpoint calls.
     """
-    context_block = ""
+    context_blocks = []
 
     if needs_portfolio_context(user_message):
-        context_block = build_portfolio_context()
+        context_blocks.append(build_portfolio_context())
 
-    if context_block:
+    if needs_news_context(user_message):
+        context_blocks.append(build_news_context(user_message))
+
+    if context_blocks:
+        combined_context = "\n\n".join(context_blocks)
         full_prompt = (
-            f"{context_block}\n\n"
+            f"{combined_context}\n\n"
             f"USER QUESTION: {user_message}\n\n"
-            f"Answer using the portfolio data above where relevant. "
-            f"If the question needs data not shown above, say so instead of guessing."
+            f"Answer using the data above where relevant. "
+            f"If the question needs data not shown above, say so instead of guessing. "
+            f"If using news, treat it as informational signal only — never convert it into a buy/sell recommendation."
         )
     else:
-        # No portfolio context needed — just pass the question through
         full_prompt = user_message
 
     return ask_groq(prompt=full_prompt, system_prompt=FINSIGHT_SYSTEM_PROMPT)
 
 
 if __name__ == "__main__":
-    print("--- Generic question (no portfolio pulled) ---")
+    print("--- Generic question ---")
     print(get_chat_response("What does a P/E ratio mean?"))
 
-    print("\n--- Portfolio question (should pull holdings + live data) ---")
+    print("\n--- Portfolio question ---")
     print(get_chat_response("How diversified is my portfolio?"))
+
+    print("\n--- News/sentiment question (in portfolio) ---")
+    print(get_chat_response("What's the recent news sentiment on Reliance?"))
+
+    print("\n--- Dynamic ticker lookup test (not in portfolio/map) ---")
+    print("Resolved ticker:", extract_ticker_from_message("what's the news on Zomato?"))

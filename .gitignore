@@ -14,3 +14,6 @@ data_store/chroma_db/
 # OS
 .DS_Store
 Thumbs.db
+
+data_store/*
+!data_store/.gitkeep
