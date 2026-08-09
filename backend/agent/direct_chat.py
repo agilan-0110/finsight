@@ -13,6 +13,7 @@ from backend.agent.ticker_map import TICKER_MAP
 from backend.data.data_fetch import get_live_price, get_fundamentals
 from backend.db.crud import get_portfolio
 from backend.db.database import SessionLocal
+from backend.agent.ingest_news import ingest_news_for_ticker
 
 
 PORTFOLIO_KEYWORDS = [
@@ -154,12 +155,18 @@ def build_portfolio_context() -> str:
 
 
 def build_news_context(user_message: str) -> str:
-    """
-    Retrieves relevant news chunks (filtered to a ticker if one is detected
-    in the message) and formats them into a labeled, LLM-readable block.
-    """
     ticker = extract_ticker_from_message(user_message)
+    print(f"[DEBUG] Resolved ticker: {ticker}")  # temporary
+
     results = retrieve_relevant_news(query=user_message, ticker=ticker, top_k=3)
+    print(f"[DEBUG] Initial results count: {len(results)}")  # temporary
+
+    if not results and ticker:
+        ingested_count = ingest_news_for_ticker(ticker)
+        print(f"[DEBUG] Auto-ingested {ingested_count} chunks")  # temporary
+        if ingested_count > 0:
+            results = retrieve_relevant_news(query=user_message, ticker=ticker, top_k=3)
+            print(f"[DEBUG] Retry results count: {len(results)}")  # temporary
 
     if not results:
         return "No relevant recent news found."

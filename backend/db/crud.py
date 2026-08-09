@@ -10,10 +10,29 @@ from sqlalchemy.orm import Session
 from backend.db.models import Portfolio, ChatHistory, Alert
 
 
+def normalize_ticker(ticker: str) -> str:
+    """
+    Ensures a ticker has the .NS (NSE) suffix, since FinSight is
+    scoped to Indian equities and everything downstream (data_fetch,
+    news ingestion, retrieval) assumes .NS-suffixed tickers.
+    Silently appends .NS if missing rather than rejecting bad input —
+    keeps the UX forgiving while guaranteeing consistent data.
+    """
+    ticker = ticker.strip().upper()
+    if not ticker.endswith(".NS"):
+        ticker = f"{ticker}.NS"
+    return ticker
+
+
 # ---------- Portfolio ----------
 
 def add_holding(db: Session, ticker: str, quantity: float, avg_buy_price: float, currency: str = "INR") -> Portfolio:
-    holding = Portfolio(ticker=ticker.upper(), quantity=quantity, avg_buy_price=avg_buy_price, currency=currency)
+    holding = Portfolio(
+        ticker=normalize_ticker(ticker),
+        quantity=quantity,
+        avg_buy_price=avg_buy_price,
+        currency=currency,
+    )
     db.add(holding)
     db.commit()
     db.refresh(holding)  # loads the auto-generated id back onto the object
@@ -51,7 +70,7 @@ def get_recent_messages(db: Session, limit: int = 20) -> list[ChatHistory]:
 # ---------- Alerts ----------
 
 def add_alert(db: Session, ticker: str, condition: str, threshold: float) -> Alert:
-    alert = Alert(ticker=ticker.upper(), condition=condition, threshold=threshold)
+    alert = Alert(ticker=normalize_ticker(ticker), condition=condition, threshold=threshold)
     db.add(alert)
     db.commit()
     db.refresh(alert)
