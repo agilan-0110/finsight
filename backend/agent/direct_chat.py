@@ -155,18 +155,20 @@ def build_portfolio_context() -> str:
 
 
 def build_news_context(user_message: str) -> str:
+    """
+    Retrieves relevant news chunks for the detected ticker.
+    If nothing's been ingested for that ticker yet, triggers ingestion
+    on the spot (auto-ingest on demand) and retries once before giving up.
+    """
     ticker = extract_ticker_from_message(user_message)
-    print(f"[DEBUG] Resolved ticker: {ticker}")  # temporary
-
     results = retrieve_relevant_news(query=user_message, ticker=ticker, top_k=3)
-    print(f"[DEBUG] Initial results count: {len(results)}")  # temporary
 
     if not results and ticker:
+        # Nothing found for this specific ticker — likely never ingested.
+        # Ingest now, then retry the same query once.
         ingested_count = ingest_news_for_ticker(ticker)
-        print(f"[DEBUG] Auto-ingested {ingested_count} chunks")  # temporary
         if ingested_count > 0:
             results = retrieve_relevant_news(query=user_message, ticker=ticker, top_k=3)
-            print(f"[DEBUG] Retry results count: {len(results)}")  # temporary
 
     if not results:
         return "No relevant recent news found."
@@ -176,7 +178,6 @@ def build_news_context(user_message: str) -> str:
         context_lines.append(f"- ({r['title']}) {r['text'][:400]}...")
 
     return "\n".join(context_lines)
-
 
 def get_chat_response(user_message: str) -> str:
     """
