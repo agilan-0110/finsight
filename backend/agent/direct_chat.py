@@ -14,12 +14,16 @@ from backend.data.data_fetch import get_live_price, get_fundamentals
 from backend.db.crud import get_portfolio
 from backend.db.database import SessionLocal
 from backend.agent.ingest_news import ingest_news_for_ticker
-
+from backend.agent.sentiment import attach_sentiment
 
 PORTFOLIO_KEYWORDS = [
     "my portfolio", "my holdings", "my stocks", "i own",
     "rebalance", "diversif", "concentration", "my investment",
-    "my positions", "how am i doing"
+    "my positions", "how am i doing",
+    "p&l", "profit and loss", "my gain", "my loss", "am i up", "am i down",
+    "my return", "how much have i made", "my performance",
+    "sector exposure", "too exposed", "overexposed", "am i exposed",
+    "my allocation", "asset allocation"
 ]
 
 NEWS_KEYWORDS = [
@@ -140,7 +144,7 @@ def build_portfolio_context() -> str:
             price_data = get_live_price(ticker)
             fundamentals = get_fundamentals(ticker)
 
-            current_price = price_data.get("last_price", "N/A")
+            current_price = round(price_data.get("last_price", "N/A"), 2) if isinstance(price_data.get("last_price"), (int, float)) else "N/A"
             pe_ratio = fundamentals.get("pe_ratio", "N/A")
             sector = fundamentals.get("sector", "N/A")
 
@@ -156,7 +160,8 @@ def build_portfolio_context() -> str:
 
 def build_news_context(user_message: str) -> str:
     """
-    Retrieves relevant news chunks for the detected ticker.
+    Retrieves relevant news chunks for the detected ticker, classifies each
+    chunk's sentiment (FinBERT), and formats it for the LLM.
     If nothing's been ingested for that ticker yet, triggers ingestion
     on the spot (auto-ingest on demand) and retries once before giving up.
     """
@@ -173,9 +178,15 @@ def build_news_context(user_message: str) -> str:
     if not results:
         return "No relevant recent news found."
 
+    results = attach_sentiment(results)
+
     context_lines = ["RELEVANT RECENT NEWS:"]
     for r in results:
-        context_lines.append(f"- ({r['title']}) {r['text'][:400]}...")
+        sentiment = r["sentiment"]
+        context_lines.append(
+            f"- [{sentiment['label'].upper()} | confidence {sentiment['confidence']}] "
+            f"({r['title']}) {r['text'][:400]}..."
+        )
 
     return "\n".join(context_lines)
 
