@@ -23,3 +23,14 @@ def get_news_collection():
         name="news_articles",
         embedding_function=embedding_fn,
     )
+
+
+def get_memory_collection():
+    """
+    Returns the ChromaDB collection used to store long-term user memories and context.
+    Created automatically on first call if it doesn't exist.
+    """
+    return client.get_or_create_collection(
+        name="user_memories",
+        embedding_function=embedding_fn,
+    )

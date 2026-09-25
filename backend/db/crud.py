@@ -67,6 +67,13 @@ def get_recent_messages(db: Session, limit: int = 20) -> list[ChatHistory]:
     return list(reversed(rows))  # oldest first — ready to feed into a prompt
 
 
+def clear_chat_history(db: Session) -> int:
+    """Deletes all stored chat history and returns the number of deleted records."""
+    count = db.query(ChatHistory).delete()
+    db.commit()
+    return count
+
+
 # ---------- Alerts ----------
 
 def add_alert(db: Session, ticker: str, condition: str, threshold: float) -> Alert:
@@ -79,3 +86,25 @@ def add_alert(db: Session, ticker: str, condition: str, threshold: float) -> Ale
 
 def get_active_alerts(db: Session) -> list[Alert]:
     return db.query(Alert).filter(Alert.active == True).all()  # noqa: E712 (SQLAlchemy needs == True, not `is True`)
+
+
+def deactivate_alert(db: Session, alert_id: int) -> bool:
+    alert = db.query(Alert).filter(Alert.id == alert_id).first()
+    if alert is None:
+        return False
+    alert.active = False
+    db.commit()
+    return True
+
+
+def delete_alert(db: Session, alert_id: int) -> bool:
+    alert = db.query(Alert).filter(Alert.id == alert_id).first()
+    if alert is None:
+        return False
+    db.delete(alert)
+    db.commit()
+    return True
+
+
+def get_all_alerts(db: Session, limit: int = 50) -> list[Alert]:
+    return db.query(Alert).order_by(Alert.id.desc()).limit(limit).all()

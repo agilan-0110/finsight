@@ -22,14 +22,27 @@ def _to_nse_ticker(ticker: str) -> str:
     return f"{ticker}.NS"
 
 
+import time
+
+# In-memory TTL cache: {ticker: (timestamp, data)}
+_price_cache: dict[str, tuple[float, dict]] = {}
+_fundamentals_cache: dict[str, tuple[float, dict]] = {}
+CACHE_TTL = 60.0  # seconds
+
+
 def get_live_price(ticker: str) -> dict:
     """
     Returns the current price snapshot for a stock.
-    Uses fast_info — much quicker than .info for just price data.
-    Raises ValueError if the ticker doesn't resolve to real data
-    (bad symbol, typo, or a company name instead of a ticker).
+    Uses in-memory 60s TTL cache to avoid redundant network calls.
     """
     nse_ticker = _to_nse_ticker(ticker)
+    now = time.time()
+
+    if nse_ticker in _price_cache:
+        ts, cached_data = _price_cache[nse_ticker]
+        if now - ts < CACHE_TTL:
+            return cached_data
+
     stock = yf.Ticker(nse_ticker)
 
     try:
@@ -45,7 +58,7 @@ def get_live_price(ticker: str) -> dict:
             f"only exact NSE symbols like 'TCS' or 'TATACOMM'."
         )
 
-    return {
+    res = {
         "ticker": nse_ticker,
         "last_price": last_price,
         "previous_close": info.get("previousClose"),
@@ -53,14 +66,23 @@ def get_live_price(ticker: str) -> dict:
         "day_low": info.get("dayLow"),
         "currency": info.get("currency"),
     }
+    _price_cache[nse_ticker] = (now, res)
+    return res
 
 
 def get_fundamentals(ticker: str) -> dict:
     """
     Returns key fundamental ratios used later for risk checks and K-Means clustering.
-    Uses .info — slower, so call this less frequently than get_live_price.
+    Uses in-memory 60s TTL cache.
     """
     nse_ticker = _to_nse_ticker(ticker)
+    now = time.time()
+
+    if nse_ticker in _fundamentals_cache:
+        ts, cached_data = _fundamentals_cache[nse_ticker]
+        if now - ts < CACHE_TTL:
+            return cached_data
+
     stock = yf.Ticker(nse_ticker)
 
     try:
@@ -76,7 +98,7 @@ def get_fundamentals(ticker: str) -> dict:
             f"only exact NSE symbols like 'TCS' or 'TATACOMM'."
         )
 
-    return {
+    res = {
         "ticker": nse_ticker,
         "name": info.get("longName"),
         "sector": info.get("sector"),
@@ -85,6 +107,8 @@ def get_fundamentals(ticker: str) -> dict:
         "debt_to_equity": info.get("debtToEquity"),
         "market_cap": info.get("marketCap"),
     }
+    _fundamentals_cache[nse_ticker] = (now, res)
+    return res
 
 
 def get_price_history(ticker: str, period: str = "3mo", interval: str = "1d") -> pd.DataFrame:
@@ -96,8 +120,15 @@ def get_price_history(ticker: str, period: str = "3mo", interval: str = "1d") ->
     nse_ticker = _to_nse_ticker(ticker)
     stock = yf.Ticker(nse_ticker)
     hist = stock.history(period=period, interval=interval)
+    if hist.empty:
+        raise ValueError(
+            f"Could not find price history for '{ticker}' (tried '{nse_ticker}'). "
+            f"Check the ticker symbol is correct — company names won't work, "
+            f"only exact NSE symbols like 'TCS' or 'TATACOMM'."
+        )
     hist = hist.reset_index()
-    return hist[["Date", "Open", "High", "Low", "Close", "Volume"]]
+    cols = [col for col in ["Date", "Open", "High", "Low", "Close", "Volume"] if col in hist.columns]
+    return hist[cols]
 
 
 if __name__ == "__main__":
