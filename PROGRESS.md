@@ -138,6 +138,38 @@
 
 ---
 
+### 11. Minimalist Institutional Light Theme & Adult-Focused Typography Redesign
+- **Goal:** Redesign the entire frontend interface into a crisp, minimal, and highly professional light theme with high-legibility typography optimized for mature/adult investors and institutional readability.
+- **Design Principles:**
+  - **Color Palette:**
+    - Canvas Background: `#F8FAFC` (Slate 50 — soft, glare-free light background)
+    - Card Surfaces: `#FFFFFF` (Pure white with subtle `#E2E8F0` structural borders)
+    - Primary Text: `#0F172A` (Deep Slate 900 — high-contrast, easily readable)
+    - Secondary Body: `#334155` (Slate 700) and `#64748B` (Slate 500 labels)
+    - Financial Indicators: Accessible Emerald `#047857` (`#ECFDF5` pill), Crimson `#B91C1C` (`#FEF2F2` pill), Amber `#B45309` (`#FFFBEB` pill)
+    - Brand Accents: Deep Institutional Navy `#1E3A8A` / Royal Blue `#2563EB`
+  - **Typography:**
+    - Integrated Google Font **Plus Jakarta Sans** for clean, modern, and readable body & headings.
+    - Integrated **JetBrains Mono** for financial figures, tickers, and percentages.
+- **Components Updated:**
+  - `frontend/index.html`: Google Fonts integration & updated page metadata.
+  - `frontend/tailwind.config.js`: Light theme token system & font family definitions.
+  - `frontend/src/index.css`: Light theme root variables, body defaults, and light scrollbar.
+  - `frontend/src/components/Navbar.tsx`: Crisp white navbar with high-contrast actions and live heartbeat indicator.
+  - `frontend/src/components/PortfolioSummary.tsx`: Light KPI metric cards and clean observation banner.
+  - `frontend/src/components/HoldingsTable.tsx`: Pure white positions table with soft hover states and light add-position modal.
+  - `frontend/src/components/SectorChart.tsx`: Recharts donut chart with accessible palette and light tooltip.
+  - `frontend/src/components/PriceChart.tsx`: Area chart with light grid and high-contrast tooltip.
+  - `frontend/src/components/StockDeepDive.tsx`: Light valuation explorer, ratio cards, and range slider.
+  - `frontend/src/components/AIChatPanel.tsx`: High-contrast institutional research chat terminal.
+  - `frontend/src/components/AlertsModal.tsx` & `MemoriesModal.tsx`: Pure white modal dialogs with crisp borders.
+  - `frontend/src/App.tsx`: Light canvas layout and crisp footer.
+- **Verification:**
+  - `npm run build` completed with zero errors (`dist/` bundle compiled in ~1.08s).
+  - Dev server active at `http://localhost:5173/`.
+
+---
+
 ## 📊 Current Project Status
 
 | Phase | Description | Status |
@@ -149,7 +181,7 @@
 | **Phase 5** | Background Alert Engine & Telegram Push (`alert_engine.py`) | ✅ Complete |
 | **Phase 6** | Conversational Memory (Short-Term + Gemini Long-Term) | ✅ Complete |
 | **Phase 7** | Portfolio Analytics & Live P&L (`analytics.py`) | ✅ Complete |
-| **Phase 8** | React + Vite + Tailwind Institutional Dashboard (Option 1 Theme) | ✅ Complete |
+| **Phase 8** | React + Vite Institutional Dashboard (Minimalist Light Theme) | ✅ Complete |
 | **Phase 9** | Production Hardening & Docker Containerization | 🔜 Next Up |
 
 ---
@@ -158,3 +190,4 @@
 - Create `Dockerfile` and `docker-compose.yml` for unified backend, frontend, PostgreSQL, and ChromaDB deployment.
 - Configure environment variables and production reverse proxy / serve settings.
 - Write end-to-end integration and smoke test suite.
+

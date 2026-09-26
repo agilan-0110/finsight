@@ -59,7 +59,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({ ticker }) => {
 
   const isPositive =
     data.length >= 2 ? data[data.length - 1].Close >= data[0].Close : true;
-  const strokeColor = isPositive ? "#10B981" : "#EF4444";
+  const strokeColor = isPositive ? "#059669" : "#DC2626";
   const gradientId = `priceGrad-${ticker}-${period}`;
 
   const minPrice =
@@ -80,16 +80,16 @@ export const PriceChart: React.FC<PriceChartProps> = ({ ticker }) => {
     <div className="flex flex-col h-full">
       {/* Period Selector Tabs */}
       <div className="flex items-center justify-between pb-3">
-        <span className="text-xs font-medium text-slate-400">Historical Performance</span>
-        <div className="flex items-center bg-slate-900 border border-slate-750 rounded-lg p-0.5">
+        <span className="text-xs font-bold text-ink-muted uppercase tracking-wider">Historical Performance</span>
+        <div className="flex items-center bg-surface-subtle border border-border rounded-lg p-0.5 shadow-2xs">
           {PERIODS.map((p) => (
             <button
               key={p.value}
               onClick={() => setPeriod(p.value)}
-              className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
+              className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
                 period === p.value
-                  ? "bg-slate-750 text-slate-100 shadow-sm"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "bg-surface text-ink shadow-xs"
+                  : "text-ink-muted hover:text-ink"
               }`}
             >
               {p.label}
@@ -101,16 +101,16 @@ export const PriceChart: React.FC<PriceChartProps> = ({ ticker }) => {
       {/* Chart Canvas */}
       <div className="flex-1 w-full min-h-[220px] relative flex items-center justify-center">
         {loading ? (
-          <div className="flex items-center gap-2 text-slate-400 text-xs">
-            <Loader2 className="animate-spin" size={16} />
+          <div className="flex items-center gap-2 text-ink-muted text-xs font-medium">
+            <Loader2 className="animate-spin text-brand-accent" size={16} />
             <span>Loading historical quotes...</span>
           </div>
         ) : error ? (
-          <div className="text-loss text-xs text-center p-4">
+          <div className="text-loss text-xs text-center p-4 font-medium">
             <p>{error}</p>
           </div>
         ) : data.length === 0 ? (
-          <div className="text-slate-400 text-xs text-center p-4">
+          <div className="text-ink-muted text-xs text-center p-4 font-medium">
             No historical data found for {ticker}
           </div>
         ) : (
@@ -118,24 +118,24 @@ export const PriceChart: React.FC<PriceChartProps> = ({ ticker }) => {
             <AreaChart data={data} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
               <defs>
                 <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={strokeColor} stopOpacity={0.3} />
+                  <stop offset="5%" stopColor={strokeColor} stopOpacity={0.2} />
                   <stop offset="95%" stopColor={strokeColor} stopOpacity={0.0} />
                 </linearGradient>
               </defs>
               <XAxis
                 dataKey="Date"
                 tickFormatter={formatDate}
-                stroke="#475569"
+                stroke="#64748B"
                 fontSize={10}
                 tickLine={false}
-                axisLine={{ stroke: "#223049" }}
+                axisLine={{ stroke: "#E2E8F0" }}
               />
               <YAxis
                 domain={[minPrice, maxPrice]}
-                stroke="#475569"
+                stroke="#64748B"
                 fontSize={10}
                 tickLine={false}
-                axisLine={{ stroke: "#223049" }}
+                axisLine={{ stroke: "#E2E8F0" }}
                 tickFormatter={(val) => `₹${val.toFixed(0)}`}
               />
               <Tooltip
@@ -143,16 +143,16 @@ export const PriceChart: React.FC<PriceChartProps> = ({ ticker }) => {
                   if (active && payload && payload.length) {
                     const pt = payload[0].payload as PriceHistoryPoint;
                     return (
-                      <div className="bg-slate-900 border border-slate-700 p-2.5 rounded-lg shadow-xl text-xs font-mono">
-                        <p className="text-slate-400 text-[10px] mb-1">
+                      <div className="bg-surface border border-border p-3 rounded-lg shadow-md text-xs font-mono">
+                        <p className="text-ink-muted text-[11px] mb-1 font-sans font-medium">
                           {new Date(pt.Date).toLocaleDateString("en-IN", {
                             year: "numeric",
                             month: "short",
                             day: "numeric",
                           })}
                         </p>
-                        <p className="font-bold text-slate-100">Close: ₹{pt.Close.toFixed(2)}</p>
-                        <div className="text-[10px] text-slate-400 flex gap-2 mt-1">
+                        <p className="font-bold text-ink text-sm">Close: ₹{pt.Close.toFixed(2)}</p>
+                        <div className="text-[11px] text-ink-muted flex gap-3 mt-1 font-sans">
                           <span>H: ₹{pt.High.toFixed(2)}</span>
                           <span>L: ₹{pt.Low.toFixed(2)}</span>
                         </div>

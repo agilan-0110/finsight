@@ -109,7 +109,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
     try {
       const res = await api.checkAlertsNow();
       setCheckResult(
-        `Checked live prices. ${res.triggered_count} alert(s) triggered and sent to Telegram.`
+        `Checked live prices. ${res.triggered_count} alert(s) triggered and dispatched to Telegram.`
       );
       await fetchAlerts();
     } catch (err: any) {
@@ -122,42 +122,42 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-850 border border-slate-750 rounded-xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-surface border border-border rounded-xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
         {/* Modal Header */}
-        <div className="p-4 border-b border-slate-750 flex items-center justify-between bg-slate-900/80">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-accent-bg text-accent">
+        <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between bg-surface-subtle">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-brand-light text-brand-accent">
               <Bell size={18} />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-100">
+              <h2 className="text-base font-bold text-ink">
                 Automated Price Target Alerts
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-ink-muted font-medium">
                 Dispatches real-time Telegram notifications when triggers fire
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-ink-muted hover:text-ink hover:bg-surface transition-colors"
           >
             <X size={18} />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-5 overflow-y-auto space-y-6">
+        <div className="p-5 sm:p-6 overflow-y-auto space-y-6">
           {/* Create Alert Form */}
-          <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-750 space-y-3">
-            <h3 className="text-xs font-semibold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-              <Plus size={14} className="text-accent" />
+          <div className="p-4 rounded-xl bg-surface-subtle border border-border space-y-3">
+            <h3 className="text-xs font-bold text-ink uppercase tracking-wider flex items-center gap-1.5">
+              <Plus size={14} className="text-brand-accent" />
               Set New Alert
             </h3>
 
             {formError && (
-              <p className="text-xs text-loss bg-loss-bg p-2 rounded border border-loss/20">
+              <p className="text-xs text-loss bg-loss-bg p-2.5 rounded-lg border border-loss-border font-medium">
                 {formError}
               </p>
             )}
@@ -169,7 +169,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
                   placeholder="Ticker (e.g. INFY)"
                   value={ticker}
                   onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                  className="w-full bg-slate-850 border border-slate-750 text-slate-100 text-xs font-mono rounded-lg px-3 py-2 focus:outline-none focus:border-accent"
+                  className="w-full bg-surface border border-border text-ink text-xs font-mono font-medium rounded-lg px-3 py-2 focus:outline-none focus:border-brand-accent shadow-2xs"
                 />
               </div>
 
@@ -177,7 +177,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
                 <select
                   value={condition}
                   onChange={(e) => setCondition(e.target.value as "above" | "below")}
-                  className="w-full bg-slate-850 border border-slate-750 text-slate-100 text-xs rounded-lg px-2 py-2 focus:outline-none focus:border-accent"
+                  className="w-full bg-surface border border-border text-ink text-xs font-medium rounded-lg px-2.5 py-2 focus:outline-none focus:border-brand-accent shadow-2xs"
                 >
                   <option value="above">rises above (≥)</option>
                   <option value="below">drops below (≤)</option>
@@ -191,7 +191,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
                   placeholder="Target Price (₹)"
                   value={threshold}
                   onChange={(e) => setThreshold(e.target.value)}
-                  className="w-full bg-slate-850 border border-slate-750 text-slate-100 text-xs font-mono rounded-lg px-3 py-2 focus:outline-none focus:border-accent"
+                  className="w-full bg-surface border border-border text-ink text-xs font-mono font-medium rounded-lg px-3 py-2 focus:outline-none focus:border-brand-accent shadow-2xs"
                 />
               </div>
 
@@ -199,7 +199,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full h-full min-h-[34px] bg-accent hover:bg-sky-400 text-slate-950 font-semibold rounded-lg text-xs transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
+                  className="w-full h-full min-h-[36px] bg-ink hover:bg-ink-secondary text-white font-semibold rounded-lg text-xs transition-colors flex items-center justify-center gap-1 disabled:opacity-50 shadow-xs"
                 >
                   {submitting ? <Loader2 className="animate-spin" size={14} /> : "Create Alert"}
                 </button>
@@ -208,15 +208,15 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
           </div>
 
           {/* Manual Run Engine Banner */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 rounded-xl bg-slate-900/40 border border-slate-750/70 text-xs">
-            <div className="flex items-center gap-2 text-slate-300">
-              <Clock size={15} className="text-accent flex-shrink-0" />
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 rounded-xl bg-surface-subtle border border-border text-xs">
+            <div className="flex items-center gap-2 text-ink-secondary font-medium">
+              <Clock size={15} className="text-brand-accent flex-shrink-0" />
               <span>Background engine polls automatically every 60 seconds.</span>
             </div>
             <button
               onClick={handleCheckNow}
               disabled={checking}
-              className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-200 text-xs font-medium flex items-center gap-1.5 transition-colors disabled:opacity-50 flex-shrink-0"
+              className="px-3.5 py-1.5 rounded-lg bg-surface hover:bg-surface-subtle border border-border text-ink text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 flex-shrink-0 shadow-2xs"
             >
               {checking ? (
                 <Loader2 className="animate-spin" size={13} />
@@ -228,30 +228,30 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
           </div>
 
           {checkResult && (
-            <div className="p-2.5 rounded-lg bg-accent-bg border border-accent/30 text-accent text-xs">
+            <div className="p-3 rounded-lg bg-brand-light border border-brand-border text-brand-accent text-xs font-semibold">
               {checkResult}
             </div>
           )}
 
           {/* Tabs: Active vs History */}
           <div className="space-y-3">
-            <div className="flex items-center gap-4 border-b border-slate-750 pb-2">
+            <div className="flex items-center gap-4 border-b border-border pb-2">
               <button
                 onClick={() => setActiveTab("active")}
-                className={`text-xs font-semibold pb-1 relative transition-colors ${
+                className={`text-xs font-bold pb-1.5 relative transition-colors ${
                   activeTab === "active"
-                    ? "text-accent border-b-2 border-accent"
-                    : "text-slate-400 hover:text-slate-200"
+                    ? "text-ink border-b-2 border-ink"
+                    : "text-ink-muted hover:text-ink"
                 }`}
               >
                 Active Monitoring ({activeAlerts.length})
               </button>
               <button
                 onClick={() => setActiveTab("history")}
-                className={`text-xs font-semibold pb-1 relative transition-colors ${
+                className={`text-xs font-bold pb-1.5 relative transition-colors ${
                   activeTab === "history"
-                    ? "text-accent border-b-2 border-accent"
-                    : "text-slate-400 hover:text-slate-200"
+                    ? "text-ink border-b-2 border-ink"
+                    : "text-ink-muted hover:text-ink"
                 }`}
               >
                 Triggered History ({historyAlerts.length})
@@ -259,12 +259,12 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
             </div>
 
             {loading ? (
-              <div className="py-8 flex justify-center text-slate-400 text-xs">
-                <Loader2 className="animate-spin text-accent" size={18} />
+              <div className="py-8 flex justify-center text-ink-muted text-xs">
+                <Loader2 className="animate-spin text-brand-accent" size={18} />
               </div>
             ) : activeTab === "active" ? (
               activeAlerts.length === 0 ? (
-                <p className="text-center py-6 text-slate-500 text-xs">
+                <p className="text-center py-6 text-ink-muted text-xs font-medium">
                   No active price target alerts. Add one above.
                 </p>
               ) : (
@@ -272,14 +272,14 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
                   {activeAlerts.map((alert) => (
                     <div
                       key={alert.id}
-                      className="p-3 rounded-lg bg-slate-900 border border-slate-750 flex items-center justify-between text-xs"
+                      className="p-3 rounded-lg bg-surface border border-border flex items-center justify-between text-xs shadow-2xs"
                     >
                       <div className="flex items-center gap-3">
                         <div
-                          className={`p-1.5 rounded ${
+                          className={`p-1.5 rounded-md border ${
                             alert.condition === "above"
-                              ? "bg-profit-bg text-profit"
-                              : "bg-loss-bg text-loss"
+                              ? "bg-profit-bg text-profit border-profit-border"
+                              : "bg-loss-bg text-loss border-loss-border"
                           }`}
                         >
                           {alert.condition === "above" ? (
@@ -290,17 +290,17 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-bold font-mono text-slate-100">
+                            <span className="font-bold font-mono text-ink">
                               {alert.ticker}
                             </span>
-                            <span className="text-slate-400">
+                            <span className="text-ink-muted font-medium">
                               target {alert.condition}
                             </span>
-                            <span className="font-mono font-semibold text-slate-100">
+                            <span className="font-mono font-bold text-ink">
                               ₹{alert.threshold.toLocaleString("en-IN")}
                             </span>
                           </div>
-                          <span className="text-[10px] text-slate-500">
+                          <span className="text-[11px] text-ink-muted font-medium">
                             Created {new Date(alert.created_at).toLocaleDateString()}
                           </span>
                         </div>
@@ -308,7 +308,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
 
                       <button
                         onClick={() => handleDelete(alert.id)}
-                        className="p-1.5 rounded text-slate-400 hover:text-loss hover:bg-slate-800 transition-colors"
+                        className="p-1.5 rounded-md text-ink-muted hover:text-loss hover:bg-loss-bg transition-colors"
                         title="Delete Alert"
                       >
                         <Trash2 size={14} />
@@ -318,7 +318,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
                 </div>
               )
             ) : historyAlerts.length === 0 ? (
-              <p className="text-center py-6 text-slate-500 text-xs">
+              <p className="text-center py-6 text-ink-muted text-xs font-medium">
                 No past triggered alerts recorded.
               </p>
             ) : (
@@ -326,25 +326,25 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
                 {historyAlerts.map((alert) => (
                   <div
                     key={alert.id}
-                    className="p-3 rounded-lg bg-slate-900/50 border border-slate-750/70 flex items-center justify-between text-xs opacity-75"
+                    className="p-3 rounded-lg bg-surface-subtle border border-border/80 flex items-center justify-between text-xs opacity-80"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="p-1.5 rounded bg-slate-800 text-slate-400">
+                      <div className="p-1.5 rounded-md bg-surface border border-border text-ink-muted">
                         <CheckCircle2 size={14} />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold font-mono text-slate-300">
+                          <span className="font-bold font-mono text-ink-secondary">
                             {alert.ticker}
                           </span>
-                          <span className="text-slate-400">
+                          <span className="text-ink-muted font-medium">
                             was {alert.condition} ₹{alert.threshold.toLocaleString("en-IN")}
                           </span>
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-400">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-surface border border-border text-ink-muted">
                             TRIGGERED
                           </span>
                         </div>
-                        <span className="text-[10px] text-slate-500">
+                        <span className="text-[11px] text-ink-muted font-medium">
                           {new Date(alert.created_at).toLocaleDateString()}
                         </span>
                       </div>
@@ -352,7 +352,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
 
                     <button
                       onClick={() => handleDelete(alert.id)}
-                      className="p-1.5 rounded text-slate-500 hover:text-loss transition-colors"
+                      className="p-1.5 rounded-md text-ink-muted hover:text-loss hover:bg-loss-bg transition-colors"
                       title="Delete History Item"
                     >
                       <Trash2 size={14} />

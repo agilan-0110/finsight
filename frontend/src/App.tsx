@@ -113,7 +113,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-accent/30 selection:text-white">
+    <div className="min-h-screen bg-canvas text-ink flex flex-col font-sans selection:bg-brand-light selection:text-brand-accent">
       {/* Top Navigation */}
       <Navbar
         isConnected={isConnected}
@@ -130,16 +130,16 @@ export function App() {
 
       {/* Toast Alert */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 shadow-2xl text-xs max-w-md animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl bg-surface border border-border shadow-xl text-xs max-w-md animate-in fade-in slide-in-from-bottom-3 duration-200">
           {toast.type === "success" ? (
             <CheckCircle className="w-4 h-4 text-profit flex-shrink-0" />
           ) : (
             <AlertTriangle className="w-4 h-4 text-loss flex-shrink-0" />
           )}
-          <span className="text-slate-200 font-medium flex-1">{toast.message}</span>
+          <span className="text-ink font-semibold flex-1">{toast.message}</span>
           <button
             onClick={() => setToast(null)}
-            className="text-slate-400 hover:text-slate-200 p-0.5"
+            className="text-ink-muted hover:text-ink p-0.5 rounded-md hover:bg-surface-subtle"
           >
             <X size={14} />
           </button>
@@ -147,7 +147,7 @@ export function App() {
       )}
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
         {/* Row 1: Executive KPI Summary & Health Banner */}
         <PortfolioSummary analytics={analytics} loading={loading} />
 
@@ -186,12 +186,12 @@ export function App() {
       </main>
 
       {/* Institutional Footer */}
-      <footer className="border-t border-slate-750/70 bg-slate-900/50 py-5 px-6 mt-12 text-center text-xs text-slate-500">
+      <footer className="border-t border-border bg-surface py-6 px-6 mt-12 text-center text-xs text-ink-muted shadow-2xs">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p>
+          <p className="font-semibold text-ink-secondary">
             FinSight — AI Financial Intelligence & Portfolio Analytics for Indian Equities
           </p>
-          <p className="text-[11px] text-slate-600">
+          <p className="text-[11px] text-ink-muted font-medium">
             For educational & research analysis only. Not SEBI-registered investment advice.
           </p>
         </div>

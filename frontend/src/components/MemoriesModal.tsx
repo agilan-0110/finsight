@@ -88,53 +88,53 @@ export const MemoriesModal: React.FC<MemoriesModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-850 border border-slate-750 rounded-xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-surface border border-border rounded-xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="p-4 border-b border-slate-750 flex items-center justify-between bg-slate-900/80">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-accent-bg text-accent">
+        <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between bg-surface-subtle">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-brand-light text-brand-accent">
               <Brain size={18} />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-100">
+              <h2 className="text-base font-bold text-ink">
                 Agent Memory Store
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-ink-muted font-medium">
                 Persistent long-term memories and user investment context (ChromaDB)
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-ink-muted hover:text-ink hover:bg-surface transition-colors"
           >
             <X size={18} />
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-5 overflow-y-auto space-y-6">
+        <div className="p-5 sm:p-6 overflow-y-auto space-y-6">
           {/* Explanation Banner */}
-          <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-750 flex items-start gap-3 text-xs text-slate-300">
-            <Info size={16} className="text-accent flex-shrink-0 mt-0.5" />
+          <div className="p-4 rounded-xl bg-brand-light border border-brand-border flex items-start gap-3 text-xs text-ink-secondary">
+            <Info size={16} className="text-brand-accent flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-slate-200">Zero-Cost Semantic Memory</p>
-              <p className="text-slate-400 mt-0.5 leading-relaxed">
+              <p className="font-bold text-ink">Zero-Cost Semantic Memory</p>
+              <p className="text-ink-muted font-medium mt-0.5 leading-relaxed">
                 FinSight extracts user preferences and risk appetite directly from chat conversations without extra LLM extraction calls. Facts are injected contextually during analysis.
               </p>
             </div>
           </div>
 
           {/* Add Manual Memory Form */}
-          <form onSubmit={handleAddMemory} className="p-4 rounded-xl bg-slate-900/40 border border-slate-750 space-y-3">
-            <h3 className="text-xs font-semibold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-              <Plus size={14} className="text-accent" />
+          <form onSubmit={handleAddMemory} className="p-4 rounded-xl bg-surface-subtle border border-border space-y-3">
+            <h3 className="text-xs font-bold text-ink uppercase tracking-wider flex items-center gap-1.5">
+              <Plus size={14} className="text-brand-accent" />
               Add Remembered Context
             </h3>
 
             {error && (
-              <p className="text-xs text-loss bg-loss-bg p-2 rounded border border-loss/20">
+              <p className="text-xs text-loss bg-loss-bg p-2.5 rounded-lg border border-loss-border font-medium">
                 {error}
               </p>
             )}
@@ -143,7 +143,7 @@ export const MemoriesModal: React.FC<MemoriesModalProps> = ({
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="bg-slate-850 border border-slate-750 text-slate-200 text-xs rounded-lg px-2.5 py-2 focus:outline-none focus:border-accent"
+                className="bg-surface border border-border text-ink text-xs font-medium rounded-lg px-3 py-2 focus:outline-none focus:border-brand-accent shadow-2xs"
               >
                 <option value="preference">Preference</option>
                 <option value="risk_tolerance">Risk Profile</option>
@@ -157,13 +157,13 @@ export const MemoriesModal: React.FC<MemoriesModalProps> = ({
                 placeholder="e.g. Target 5-year horizon with low exposure to PSU banks"
                 value={newMemory}
                 onChange={(e) => setNewMemory(e.target.value)}
-                className="flex-1 bg-slate-850 border border-slate-750 text-slate-100 text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-accent"
+                className="flex-1 bg-surface border border-border text-ink text-xs font-medium rounded-lg px-3 py-2 focus:outline-none focus:border-brand-accent shadow-2xs"
               />
 
               <button
                 type="submit"
                 disabled={submitting || !newMemory.trim()}
-                className="px-4 py-2 bg-accent hover:bg-sky-400 text-slate-950 font-semibold rounded-lg text-xs transition-colors disabled:opacity-50 flex items-center justify-center gap-1"
+                className="px-4 py-2 bg-ink hover:bg-ink-secondary text-white font-semibold rounded-lg text-xs transition-colors disabled:opacity-50 flex items-center justify-center gap-1 shadow-xs"
               >
                 {submitting ? <Loader2 className="animate-spin" size={14} /> : "Save"}
               </button>
@@ -172,14 +172,14 @@ export const MemoriesModal: React.FC<MemoriesModalProps> = ({
 
           {/* Memories List */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-750">
-              <span className="text-xs font-semibold text-slate-300">
+            <div className="flex items-center justify-between pb-2 border-b border-border">
+              <span className="text-xs font-bold text-ink">
                 Stored Memories ({memories.length})
               </span>
               {memories.length > 0 && (
                 <button
                   onClick={handleClearAll}
-                  className="text-xs text-loss hover:text-red-400 font-medium transition-colors"
+                  className="text-xs text-loss hover:text-red-700 font-semibold transition-colors"
                 >
                   Clear All
                 </button>
@@ -187,14 +187,14 @@ export const MemoriesModal: React.FC<MemoriesModalProps> = ({
             </div>
 
             {loading ? (
-              <div className="py-8 flex justify-center text-slate-400 text-xs">
-                <Loader2 className="animate-spin text-accent" size={18} />
+              <div className="py-8 flex justify-center text-ink-muted text-xs">
+                <Loader2 className="animate-spin text-brand-accent" size={18} />
               </div>
             ) : memories.length === 0 ? (
-              <div className="py-10 text-center text-slate-500 text-xs">
-                <Sparkles size={20} className="mx-auto mb-2 text-slate-600" />
-                <p>No memories stored yet.</p>
-                <p className="text-[11px] text-slate-600 mt-1">
+              <div className="py-10 text-center text-ink-muted text-xs">
+                <Sparkles size={20} className="mx-auto mb-2 text-ink-faint" />
+                <p className="font-semibold text-ink-secondary">No memories stored yet.</p>
+                <p className="text-[11px] text-ink-muted mt-1 font-medium">
                   Chat with FinSight or add preferences manually above.
                 </p>
               </div>
@@ -203,28 +203,28 @@ export const MemoriesModal: React.FC<MemoriesModalProps> = ({
                 {memories.map((mem) => (
                   <div
                     key={mem.id}
-                    className="p-3 rounded-lg bg-slate-900 border border-slate-750 flex items-start justify-between gap-3 text-xs"
+                    className="p-3.5 rounded-lg bg-surface border border-border flex items-start justify-between gap-3 text-xs shadow-2xs"
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-accent border border-slate-700 flex items-center gap-1">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-brand-light text-brand-accent border border-brand-border flex items-center gap-1">
                           <Tag size={10} />
                           {mem.category}
                         </span>
                         {mem.created_at && (
-                          <span className="text-[10px] text-slate-500">
+                          <span className="text-[11px] text-ink-muted font-medium">
                             {new Date(mem.created_at).toLocaleDateString()}
                           </span>
                         )}
                       </div>
-                      <p className="text-slate-200 font-medium leading-relaxed">
+                      <p className="text-ink font-medium leading-relaxed">
                         {mem.memory}
                       </p>
                     </div>
 
                     <button
                       onClick={() => handleDelete(mem.id)}
-                      className="p-1.5 rounded text-slate-400 hover:text-loss hover:bg-slate-800 transition-colors flex-shrink-0"
+                      className="p-1.5 rounded-md text-ink-muted hover:text-loss hover:bg-loss-bg transition-colors flex-shrink-0"
                       title="Delete Memory"
                     >
                       <Trash2 size={14} />

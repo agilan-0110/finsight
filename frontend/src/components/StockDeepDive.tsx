@@ -93,21 +93,20 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
 
   const formatMarketCapCr = (cap: number | null) => {
     if (!cap) return "N/A";
-    // Yahoo marketCap is in INR. 1 Cr = 10,000,000
     const inCrores = cap / 10000000;
     return `₹${inCrores.toLocaleString("en-IN", { maximumFractionDigits: 0 })} Cr`;
   };
 
   return (
-    <div className="bg-slate-850 border border-slate-750 rounded-xl p-5 shadow-sm space-y-5">
+    <div className="bg-surface border border-border rounded-xl p-5 sm:p-6 shadow-xs space-y-6">
       {/* Top Search & Filter Bar */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
-            <Activity className="text-accent" size={18} />
+          <h2 className="text-base font-bold text-ink flex items-center gap-2">
+            <Activity className="text-brand-accent" size={18} />
             Institutional Stock Deep Dive
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-ink-muted font-medium">
             Real-time quotes, technical charts, and fundamental valuation metrics
           </p>
         </div>
@@ -115,19 +114,19 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
         {/* Search Bar */}
         <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
           <div className="relative flex-1 sm:w-64">
-            <Search className="absolute left-3 top-2.5 text-slate-400" size={14} />
+            <Search className="absolute left-3 top-2.5 text-ink-muted" size={14} />
             <input
               type="text"
               value={tickerInput}
               onChange={(e) => setTickerInput(e.target.value.toUpperCase())}
               placeholder="Enter ticker (e.g. INFY)..."
-              className="w-full bg-slate-900 border border-slate-750 text-slate-100 placeholder-slate-500 rounded-lg pl-9 pr-3 py-1.5 text-xs font-mono focus:outline-none focus:border-accent transition-colors"
+              className="w-full bg-surface border border-border text-ink placeholder-ink-faint rounded-lg pl-9 pr-3 py-2 text-xs font-mono font-medium focus:outline-none focus:border-brand-accent transition-colors shadow-2xs"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="px-3.5 py-1.5 bg-accent-blue hover:bg-blue-600 disabled:opacity-50 text-white rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5"
+            className="px-4 py-2 bg-ink hover:bg-ink-secondary disabled:opacity-50 text-white rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-xs"
           >
             {loading ? <Loader2 className="animate-spin" size={13} /> : "Search"}
           </button>
@@ -136,7 +135,7 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
 
       {/* Quick Select Tickers */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
-        <span className="text-slate-400 flex-shrink-0 text-[11px] font-semibold uppercase tracking-wider">
+        <span className="text-ink-muted flex-shrink-0 text-[11px] font-bold uppercase tracking-wider">
           Quick Picks:
         </span>
         {POPULAR_TICKERS.map((t) => (
@@ -146,10 +145,10 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
               setTickerInput(t);
               fetchStockData(t);
             }}
-            className={`px-2 py-0.5 rounded text-[11px] font-mono transition-colors ${
+            className={`px-2.5 py-1 rounded-md text-xs font-mono font-medium transition-colors ${
               selectedTicker === t
-                ? "bg-accent/20 text-accent border border-accent/40 font-semibold"
-                : "bg-slate-900 text-slate-400 border border-slate-750 hover:text-slate-200 hover:border-slate-650"
+                ? "bg-brand-light text-brand-accent border border-brand-border font-bold shadow-2xs"
+                : "bg-surface-subtle text-ink-secondary border border-border hover:bg-surface hover:text-ink"
             }`}
           >
             {t}
@@ -159,43 +158,43 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
 
       {/* Main Stock Card / Details */}
       {error ? (
-        <div className="p-4 rounded-lg bg-loss-bg border border-loss/30 text-loss text-xs">
-          <p className="font-semibold">Query Error</p>
+        <div className="p-4 rounded-xl bg-loss-bg border border-loss-border text-loss text-xs font-medium">
+          <p className="font-bold">Query Error</p>
           <p>{error}</p>
         </div>
       ) : loading && !priceData ? (
-        <div className="py-20 flex flex-col items-center justify-center text-slate-400 gap-2">
-          <Loader2 className="animate-spin text-accent" size={24} />
+        <div className="py-20 flex flex-col items-center justify-center text-ink-muted gap-2 font-medium">
+          <Loader2 className="animate-spin text-brand-accent" size={24} />
           <span className="text-xs">Fetching market depth for {selectedTicker}...</span>
         </div>
       ) : (
-        <div className="space-y-5">
+        <div className="space-y-6">
           {/* Header Row: Price & Meta */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-750/70 gap-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-border gap-4">
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-xl font-bold text-slate-100 tracking-tight">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h3 className="text-xl font-bold text-ink tracking-tight">
                   {fundamentals?.name || selectedTicker}
                 </h3>
-                <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-750 text-slate-400 font-mono text-xs">
+                <span className="px-2 py-0.5 rounded-md bg-surface-subtle border border-border text-ink-secondary font-mono text-xs font-semibold">
                   NSE: {selectedTicker}
                 </span>
                 {fundamentals?.sector && (
-                  <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-xs">
+                  <span className="px-2.5 py-0.5 rounded-md bg-brand-light text-brand-accent border border-brand-border text-xs font-semibold">
                     {fundamentals.sector}
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-400 mt-1">National Stock Exchange of India (INR)</p>
+              <p className="text-xs text-ink-muted font-medium mt-1">National Stock Exchange of India (INR)</p>
             </div>
 
             <div className="flex items-center gap-4">
               <div className="text-left md:text-right">
-                <div className="text-2xl font-bold font-mono text-slate-100">
+                <div className="text-2xl font-bold font-mono text-ink">
                   {priceData ? formatRupee(priceData.last_price) : "--"}
                 </div>
                 <div
-                  className={`flex items-center md:justify-end gap-1 text-xs font-mono font-medium ${
+                  className={`flex items-center md:justify-end gap-1 text-xs font-mono font-bold ${
                     isUp ? "text-profit" : "text-loss"
                   }`}
                 >
@@ -205,7 +204,7 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
                     {dayChange.toFixed(2)} ({isUp ? "+" : ""}
                     {dayChangePercent.toFixed(2)}%)
                   </span>
-                  <span className="text-slate-500 font-sans text-[11px] ml-1">Today</span>
+                  <span className="text-ink-muted font-sans text-[11px] ml-1 font-medium">Today</span>
                 </div>
               </div>
 
@@ -214,7 +213,7 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
                 {onAskAI && (
                   <button
                     onClick={() => onAskAI(selectedTicker)}
-                    className="p-2 rounded-lg bg-slate-900 border border-slate-750 hover:border-accent text-slate-300 hover:text-accent transition-colors"
+                    className="p-2.5 rounded-lg bg-surface border border-border hover:border-brand-accent text-ink-secondary hover:text-brand-accent shadow-xs transition-colors"
                     title={`Ask FinSight AI about ${selectedTicker}`}
                   >
                     <MessageSquare size={16} />
@@ -223,7 +222,7 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
                 {onOpenAlert && (
                   <button
                     onClick={() => onOpenAlert(selectedTicker)}
-                    className="p-2 rounded-lg bg-slate-900 border border-slate-750 hover:border-accent text-slate-300 hover:text-accent transition-colors"
+                    className="p-2.5 rounded-lg bg-surface border border-border hover:border-brand-accent text-ink-secondary hover:text-brand-accent shadow-xs transition-colors"
                     title={`Set Alert for ${selectedTicker}`}
                   >
                     <Bell size={16} />
@@ -236,74 +235,74 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
           {/* Middle: Chart + Fundamentals Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Chart Column (2 cols) */}
-            <div className="lg:col-span-2 bg-slate-900/60 border border-slate-750/70 rounded-xl p-4">
+            <div className="lg:col-span-2 bg-surface-subtle/50 border border-border rounded-xl p-4 shadow-2xs">
               <PriceChart ticker={selectedTicker} />
             </div>
 
             {/* Fundamentals Column (1 col) */}
             <div className="space-y-3">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <Layers size={13} className="text-accent" />
+              <h4 className="text-xs font-bold uppercase tracking-wider text-ink-muted flex items-center gap-1.5">
+                <Layers size={13} className="text-brand-accent" />
                 Fundamental Ratios
               </h4>
 
               <div className="grid grid-cols-2 gap-2.5">
                 {/* P/E Ratio */}
-                <div className="p-3 rounded-lg bg-slate-900/80 border border-slate-750">
-                  <div className="text-[11px] text-slate-400 flex items-center gap-1">
-                    <Percent size={11} />
+                <div className="p-3.5 rounded-xl bg-surface-subtle border border-border/80">
+                  <div className="text-xs text-ink-muted flex items-center gap-1 font-semibold">
+                    <Percent size={12} />
                     <span>P/E Ratio</span>
                   </div>
-                  <div className="text-sm font-bold font-mono text-slate-100 mt-1">
+                  <div className="text-base font-bold font-mono text-ink mt-1">
                     {fundamentals?.pe_ratio ? fundamentals.pe_ratio.toFixed(2) : "N/A"}
                   </div>
                 </div>
 
                 {/* ROE */}
-                <div className="p-3 rounded-lg bg-slate-900/80 border border-slate-750">
-                  <div className="text-[11px] text-slate-400 flex items-center gap-1">
-                    <TrendingUp size={11} />
+                <div className="p-3.5 rounded-xl bg-surface-subtle border border-border/80">
+                  <div className="text-xs text-ink-muted flex items-center gap-1 font-semibold">
+                    <TrendingUp size={12} />
                     <span>ROE</span>
                   </div>
-                  <div className="text-sm font-bold font-mono text-slate-100 mt-1">
+                  <div className="text-base font-bold font-mono text-ink mt-1">
                     {fundamentals?.roe ? `${(fundamentals.roe * 100).toFixed(2)}%` : "N/A"}
                   </div>
                 </div>
 
                 {/* Debt to Equity */}
-                <div className="p-3 rounded-lg bg-slate-900/80 border border-slate-750">
-                  <div className="text-[11px] text-slate-400 flex items-center gap-1">
-                    <Activity size={11} />
+                <div className="p-3.5 rounded-xl bg-surface-subtle border border-border/80">
+                  <div className="text-xs text-ink-muted flex items-center gap-1 font-semibold">
+                    <Activity size={12} />
                     <span>Debt / Equity</span>
                   </div>
-                  <div className="text-sm font-bold font-mono text-slate-100 mt-1">
+                  <div className="text-base font-bold font-mono text-ink mt-1">
                     {fundamentals?.debt_to_equity ? fundamentals.debt_to_equity.toFixed(2) : "N/A"}
                   </div>
                 </div>
 
                 {/* Market Cap */}
-                <div className="p-3 rounded-lg bg-slate-900/80 border border-slate-750">
-                  <div className="text-[11px] text-slate-400 flex items-center gap-1">
-                    <Building2 size={11} />
+                <div className="p-3.5 rounded-xl bg-surface-subtle border border-border/80">
+                  <div className="text-xs text-ink-muted flex items-center gap-1 font-semibold">
+                    <Building2 size={12} />
                     <span>Market Cap</span>
                   </div>
-                  <div className="text-xs font-bold font-mono text-slate-100 mt-1 truncate">
+                  <div className="text-xs font-bold font-mono text-ink mt-1.5 truncate">
                     {formatMarketCapCr(fundamentals?.market_cap ?? null)}
                   </div>
                 </div>
 
                 {/* Day Range */}
-                <div className="p-3 rounded-lg bg-slate-900/80 border border-slate-750 col-span-2">
-                  <div className="text-[11px] text-slate-400 flex items-center justify-between">
+                <div className="p-3.5 rounded-xl bg-surface-subtle border border-border/80 col-span-2">
+                  <div className="text-xs text-ink-muted flex items-center justify-between font-semibold">
                     <span>Day Range</span>
-                    <span className="font-mono text-slate-300">
+                    <span className="font-mono text-ink font-bold">
                       ₹{priceData?.day_low.toFixed(1)} — ₹{priceData?.day_high.toFixed(1)}
                     </span>
                   </div>
-                  <div className="w-full bg-slate-800 rounded-full h-1.5 mt-2 overflow-hidden">
+                  <div className="w-full bg-surface border border-border rounded-full h-2 mt-2.5 overflow-hidden">
                     {priceData && (
                       <div
-                        className="bg-accent h-full rounded-full"
+                        className="bg-brand-accent h-full rounded-full"
                         style={{
                           width: `${Math.min(
                             100,
