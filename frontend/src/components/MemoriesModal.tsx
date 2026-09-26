@@ -1,0 +1,241 @@
+import React, { useState, useEffect } from "react";
+import { api, type MemoryItem } from "../api/client";
+import {
+  X,
+  Brain,
+  Plus,
+  Trash2,
+  Sparkles,
+  Loader2,
+  Tag,
+  Info,
+} from "lucide-react";
+
+interface MemoriesModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export const MemoriesModal: React.FC<MemoriesModalProps> = ({
+  isOpen,
+  onClose,
+}) => {
+  const [memories, setMemories] = useState<MemoryItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [newMemory, setNewMemory] = useState<string>("");
+  const [category, setCategory] = useState<string>("preference");
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchMemories = async () => {
+    setLoading(true);
+    try {
+      const data = await api.getMemories();
+      setMemories(data);
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchMemories();
+    }
+  }, [isOpen]);
+
+  const handleAddMemory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMemory.trim()) return;
+
+    setSubmitting(true);
+    setError(null);
+    try {
+      await api.createMemory({
+        memory: newMemory.trim(),
+        category,
+      });
+      setNewMemory("");
+      await fetchMemories();
+    } catch (err: any) {
+      setError(err.message || "Failed to store memory.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await api.deleteMemory(id);
+      await fetchMemories();
+    } catch (err: any) {
+      alert("Failed to delete memory: " + err.message);
+    }
+  };
+
+  const handleClearAll = async () => {
+    if (window.confirm("Are you sure you want to erase all long-term memories?")) {
+      try {
+        await api.clearMemories();
+        setMemories([]);
+      } catch (err: any) {
+        alert("Failed to clear memories: " + err.message);
+      }
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-slate-850 border border-slate-750 rounded-xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+        {/* Header */}
+        <div className="p-4 border-b border-slate-750 flex items-center justify-between bg-slate-900/80">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-lg bg-accent-bg text-accent">
+              <Brain size={18} />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-slate-100">
+                Agent Memory Store
+              </h2>
+              <p className="text-xs text-slate-400">
+                Persistent long-term memories and user investment context (ChromaDB)
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="p-5 overflow-y-auto space-y-6">
+          {/* Explanation Banner */}
+          <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-750 flex items-start gap-3 text-xs text-slate-300">
+            <Info size={16} className="text-accent flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-slate-200">Zero-Cost Semantic Memory</p>
+              <p className="text-slate-400 mt-0.5 leading-relaxed">
+                FinSight extracts user preferences and risk appetite directly from chat conversations without extra LLM extraction calls. Facts are injected contextually during analysis.
+              </p>
+            </div>
+          </div>
+
+          {/* Add Manual Memory Form */}
+          <form onSubmit={handleAddMemory} className="p-4 rounded-xl bg-slate-900/40 border border-slate-750 space-y-3">
+            <h3 className="text-xs font-semibold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+              <Plus size={14} className="text-accent" />
+              Add Remembered Context
+            </h3>
+
+            {error && (
+              <p className="text-xs text-loss bg-loss-bg p-2 rounded border border-loss/20">
+                {error}
+              </p>
+            )}
+
+            <div className="flex flex-col sm:flex-row gap-2.5">
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="bg-slate-850 border border-slate-750 text-slate-200 text-xs rounded-lg px-2.5 py-2 focus:outline-none focus:border-accent"
+              >
+                <option value="preference">Preference</option>
+                <option value="risk_tolerance">Risk Profile</option>
+                <option value="portfolio_goal">Goal</option>
+                <option value="strategy">Strategy</option>
+                <option value="general">General</option>
+              </select>
+
+              <input
+                type="text"
+                placeholder="e.g. Target 5-year horizon with low exposure to PSU banks"
+                value={newMemory}
+                onChange={(e) => setNewMemory(e.target.value)}
+                className="flex-1 bg-slate-850 border border-slate-750 text-slate-100 text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-accent"
+              />
+
+              <button
+                type="submit"
+                disabled={submitting || !newMemory.trim()}
+                className="px-4 py-2 bg-accent hover:bg-sky-400 text-slate-950 font-semibold rounded-lg text-xs transition-colors disabled:opacity-50 flex items-center justify-center gap-1"
+              >
+                {submitting ? <Loader2 className="animate-spin" size={14} /> : "Save"}
+              </button>
+            </div>
+          </form>
+
+          {/* Memories List */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-750">
+              <span className="text-xs font-semibold text-slate-300">
+                Stored Memories ({memories.length})
+              </span>
+              {memories.length > 0 && (
+                <button
+                  onClick={handleClearAll}
+                  className="text-xs text-loss hover:text-red-400 font-medium transition-colors"
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
+
+            {loading ? (
+              <div className="py-8 flex justify-center text-slate-400 text-xs">
+                <Loader2 className="animate-spin text-accent" size={18} />
+              </div>
+            ) : memories.length === 0 ? (
+              <div className="py-10 text-center text-slate-500 text-xs">
+                <Sparkles size={20} className="mx-auto mb-2 text-slate-600" />
+                <p>No memories stored yet.</p>
+                <p className="text-[11px] text-slate-600 mt-1">
+                  Chat with FinSight or add preferences manually above.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {memories.map((mem) => (
+                  <div
+                    key={mem.id}
+                    className="p-3 rounded-lg bg-slate-900 border border-slate-750 flex items-start justify-between gap-3 text-xs"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-accent border border-slate-700 flex items-center gap-1">
+                          <Tag size={10} />
+                          {mem.category}
+                        </span>
+                        {mem.created_at && (
+                          <span className="text-[10px] text-slate-500">
+                            {new Date(mem.created_at).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-slate-200 font-medium leading-relaxed">
+                        {mem.memory}
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => handleDelete(mem.id)}
+                      className="p-1.5 rounded text-slate-400 hover:text-loss hover:bg-slate-800 transition-colors flex-shrink-0"
+                      title="Delete Memory"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
