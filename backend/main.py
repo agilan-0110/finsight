@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from backend.data.data_fetch import get_live_price, get_fundamentals, get_price_history
+from backend.data.data_fetch import get_live_price, get_fundamentals, get_price_history, search_stocks
 from backend.db.database import get_db, init_db
 from backend.db import crud
 from backend.agent.direct_chat import get_chat_response
@@ -67,6 +67,12 @@ def history(ticker: str, period: str = "3mo"):
         return df.to_dict(orient="records")
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+@app.get("/search/stocks")
+def search(q: str = ""):
+    """Search Indian stocks by company name, brand, ticker or keywords."""
+    return search_stocks(q)
 
 
 # ---------- Portfolio Endpoints ----------

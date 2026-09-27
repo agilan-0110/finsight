@@ -170,6 +170,30 @@
 
 ---
 
+### 12. Intelligent Stock Search by Company Name, Brand & Autocomplete Dropdown
+- **Goal:** Enable users to search for Indian equities using regular company names (e.g. "tata", "reliance", "state bank", "infosys", "hdfc", "zomato") instead of requiring exact ticker symbols.
+- **Backend Architecture & Indexing:**
+  - Created `backend/data/stock_directory.py`: Comprehensive curated index covering premier Nifty 50 / Nifty 500 equities, brand aliases, and product keywords.
+  - Implemented multi-tier relevance scoring (exact symbol match > symbol prefix > company name prefix > all-word matching > brand/product keywords).
+  - Integrated corporate restructuring & symbol alias mappings (e.g. `TATAMOTORS` automatically resolves to active NSE tickers `TMCV` / `TMPV`, `SBI` -> `SBIN`, `HDFC` -> `HDFCBANK`).
+  - Added hybrid search fallback in `backend/data/data_fetch.py`: checks the local directory first, then supplements with live Yahoo Finance search for lesser-known equities with a 5-minute TTL query cache.
+  - Added REST endpoint `GET /search/stocks?q={query}` in `backend/main.py`.
+- **Frontend Autocomplete & UX:**
+  - Added typed `StockSearchResult` interface and `api.searchStocks(query)` in `frontend/src/api/client.ts`.
+  - Upgraded `frontend/src/components/StockDeepDive.tsx`:
+    - Real-time debounced autocomplete dropdown triggered while typing.
+    - Clean display showing Full Company Name, NSE Symbol pill, and Sector tag.
+    - Full keyboard accessibility: Arrow Up / Arrow Down navigation, Enter to select, and Escape to dismiss.
+    - Automatic selection of top match when submitting via Enter or Search button.
+  - Upgraded `frontend/src/components/HoldingsTable.tsx`:
+    - Added company name autocomplete to the "Add Position" modal with automatic fetching of live market price for seamless position entry.
+- **Verification:**
+  - Verified `GET /search/stocks?q=tata` returns relevant Tata Group stocks (`TMCV`, `TMPV`, `TCS`, `TATASTEEL`, `TATAPOWER`, etc.).
+  - Verified `GET /price/Tata Motors` automatically resolves to `TMCV.NS` and returns live quotes.
+  - `npm run build` compiled cleanly with `0` errors.
+
+---
+
 ## 📊 Current Project Status
 
 | Phase | Description | Status |
@@ -181,7 +205,7 @@
 | **Phase 5** | Background Alert Engine & Telegram Push (`alert_engine.py`) | ✅ Complete |
 | **Phase 6** | Conversational Memory (Short-Term + Gemini Long-Term) | ✅ Complete |
 | **Phase 7** | Portfolio Analytics & Live P&L (`analytics.py`) | ✅ Complete |
-| **Phase 8** | React + Vite Institutional Dashboard (Minimalist Light Theme) | ✅ Complete |
+| **Phase 8** | React + Vite Institutional Dashboard (Light Theme + Company Search) | ✅ Complete |
 | **Phase 9** | Production Hardening & Docker Containerization | 🔜 Next Up |
 
 ---

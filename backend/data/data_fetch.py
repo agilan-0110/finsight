@@ -10,19 +10,72 @@ NSE tickers need a ".NS" suffix for yfinance (e.g. "TCS" -> "TCS.NS").
 All functions accept a plain ticker ("TCS") and add the suffix automatically.
 """
 
+import time
 import yfinance as yf
 import pandas as pd
+from backend.data.stock_directory import search_local_stocks, resolve_symbol_or_name
+
+# In-memory search query cache: {query: (timestamp, results)}
+_search_cache: dict[str, tuple[float, list[dict]]] = {}
+SEARCH_CACHE_TTL = 300.0  # 5 minutes
 
 
 def _to_nse_ticker(ticker: str) -> str:
-    """Add .NS suffix if not already present (skip for known US tickers/indices)."""
-    ticker = ticker.strip().upper()
-    if ticker.endswith(".NS") or ticker.startswith("^") or "=" in ticker:
-        return ticker
-    return f"{ticker}.NS"
+    """Add .NS suffix if not already present, resolving plain company names if needed."""
+    raw = ticker.strip()
+    # Check if raw input is a company name like 'Tata Motors' or 'state bank'
+    resolved = resolve_symbol_or_name(raw)
+    clean_sym = (resolved or raw).upper().replace(".NS", "")
+    if clean_sym.startswith("^") or "=" in clean_sym:
+        return clean_sym
+    return f"{clean_sym}.NS"
 
 
-import time
+def search_stocks(query: str, limit: int = 8) -> list[dict]:
+    """
+    Search Indian stocks by company name, brand name, ticker symbol, or keywords.
+    Combines local curated directory with live Yahoo Finance search fallback.
+    """
+    q = query.strip()
+    if not q:
+        return []
+
+    cache_key = q.lower()
+    now = time.time()
+    if cache_key in _search_cache:
+        ts, cached_res = _search_cache[cache_key]
+        if now - ts < SEARCH_CACHE_TTL:
+            return cached_res
+
+    # 1. Local curated directory (instant, precise)
+    results = search_local_stocks(q, limit=limit)
+    existing_symbols = {r["symbol"] for r in results}
+
+    # 2. Live yfinance search fallback if more results needed
+    if len(results) < limit:
+        try:
+            s = yf.Search(q, max_results=6)
+            for item in s.quotes:
+                sym = item.get("symbol", "")
+                if sym.endswith(".NS") or item.get("exchange") in ["NSI", "BSE"]:
+                    clean_sym = sym.replace(".NS", "").replace(".BO", "")
+                    if clean_sym not in existing_symbols:
+                        name = item.get("longname") or item.get("shortname") or clean_sym
+                        results.append({
+                            "symbol": clean_sym,
+                            "name": name,
+                            "sector": item.get("sector", "NSE Equity"),
+                            "exchange": "NSE"
+                        })
+                        existing_symbols.add(clean_sym)
+                        if len(results) >= limit:
+                            break
+        except Exception:
+            pass
+
+    _search_cache[cache_key] = (now, results[:limit])
+    return results[:limit]
+
 
 # In-memory TTL cache: {ticker: (timestamp, data)}
 _price_cache: dict[str, tuple[float, dict]] = {}

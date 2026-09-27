@@ -14,6 +14,13 @@ export interface LivePrice {
   currency: string;
 }
 
+export interface StockSearchResult {
+  symbol: string;
+  name: string;
+  sector: string;
+  exchange: string;
+}
+
 export interface Fundamentals {
   ticker: string;
   name: string;
@@ -128,10 +135,12 @@ export const api = {
   checkHealth: () => request<{ status: string }>("/"),
 
   // Market Data
-  getPrice: (ticker: string) => request<LivePrice>(`/price/${ticker}`),
-  getFundamentals: (ticker: string) => request<Fundamentals>(`/fundamentals/${ticker}`),
+  getPrice: (ticker: string) => request<LivePrice>(`/price/${encodeURIComponent(ticker)}`),
+  getFundamentals: (ticker: string) => request<Fundamentals>(`/fundamentals/${encodeURIComponent(ticker)}`),
   getHistory: (ticker: string, period: string = "3mo") =>
-    request<PriceHistoryPoint[]>(`/history/${ticker}?period=${period}`),
+    request<PriceHistoryPoint[]>(`/history/${encodeURIComponent(ticker)}?period=${period}`),
+  searchStocks: (query: string) =>
+    request<StockSearchResult[]>(`/search/stocks?q=${encodeURIComponent(query)}`),
 
   // Portfolio
   getPortfolio: () => request<Holding[]>("/portfolio"),

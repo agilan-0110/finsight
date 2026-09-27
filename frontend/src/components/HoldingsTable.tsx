@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { Plus, Trash2, X } from "lucide-react";
-import type { AnalyticsHolding } from "../api/client";
+import React, { useState, useRef, useEffect } from "react";
+import { Plus, Trash2, X, Search, Loader2 } from "lucide-react";
+import { api, type AnalyticsHolding, type StockSearchResult } from "../api/client";
 
 interface Props {
   holdings: AnalyticsHolding[];
@@ -10,11 +10,75 @@ interface Props {
 
 export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDeleteHolding }) => {
   const [showModal, setShowModal] = useState(false);
+  const [stockQuery, setStockQuery] = useState("");
   const [ticker, setTicker] = useState("");
   const [quantity, setQuantity] = useState("");
   const [buyPrice, setBuyPrice] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  // Autocomplete state
+  const [searchResults, setSearchResults] = useState<StockSearchResult[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleStockInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setStockQuery(val);
+    setTicker(val.toUpperCase());
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (val.trim().length < 2) {
+      setSearchResults([]);
+      setShowDropdown(false);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    setShowDropdown(true);
+
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const results = await api.searchStocks(val.trim());
+        setSearchResults(results);
+      } catch {
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 200);
+  };
+
+  const handleSelectStock = async (stock: StockSearchResult) => {
+    setTicker(stock.symbol);
+    setStockQuery(`${stock.name} (${stock.symbol})`);
+    setShowDropdown(false);
+    setSearchResults([]);
+
+    // Auto-fetch current price to assist the user with default buy price
+    try {
+      const quote = await api.getPrice(stock.symbol);
+      if (quote?.last_price && !buyPrice) {
+        setBuyPrice(quote.last_price.toFixed(2));
+      }
+    } catch {
+      // ignore
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +96,7 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
       });
       setShowModal(false);
       setTicker("");
+      setStockQuery("");
       setQuantity("");
       setBuyPrice("");
     } catch (err: any) {
@@ -52,7 +117,12 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
           <p className="text-xs text-ink-muted font-medium">Live positions, market valuation, and individual returns</p>
         </div>
         <button
-          onClick={() => setShowModal(true)}
+          onClick={() => {
+            setShowModal(true);
+            setStockQuery("");
+            setTicker("");
+            setError("");
+          }}
           className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg bg-ink hover:bg-ink-secondary text-white transition shadow-xs"
         >
           <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -132,7 +202,7 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
         </table>
       </div>
 
-      {/* Add Position Modal */}
+      {/* Add Position Modal with Company Search */}
       {showModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-surface border border-border rounded-xl p-6 w-full max-w-sm shadow-xl">
@@ -155,18 +225,57 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-              <div>
+              {/* Company / Ticker Search Input */}
+              <div ref={dropdownRef} className="relative">
                 <label className="block text-ink-secondary mb-1.5 font-semibold">
-                  NSE Symbol (e.g. TCS, RELIANCE, INFY)
+                  Company Name or Symbol
                 </label>
-                <input
-                  type="text"
-                  placeholder="TCS"
-                  value={ticker}
-                  onChange={(e) => setTicker(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-ink placeholder-ink-faint uppercase focus:outline-none focus:border-brand-accent font-mono shadow-2xs"
-                  required
-                />
+                <div className="relative">
+                  <Search className="absolute left-3 top-2.5 text-ink-muted" size={14} />
+                  <input
+                    type="text"
+                    placeholder="Search company (e.g. Tata Motors, TCS, HDFC)..."
+                    value={stockQuery}
+                    onChange={handleStockInputChange}
+                    onFocus={() => {
+                      if (searchResults.length > 0) setShowDropdown(true);
+                    }}
+                    className="w-full pl-9 pr-3 py-2 rounded-lg bg-surface border border-border text-ink placeholder-ink-faint focus:outline-none focus:border-brand-accent shadow-2xs font-medium"
+                    required
+                  />
+                </div>
+
+                {/* Dropdown Results */}
+                {showDropdown && (
+                  <div className="absolute left-0 right-0 top-full mt-1 bg-surface border border-border rounded-xl shadow-xl z-50 overflow-hidden divide-y divide-border max-h-48 overflow-y-auto">
+                    {isSearching ? (
+                      <div className="p-3 text-center text-ink-muted flex items-center justify-center gap-1.5 text-xs">
+                        <Loader2 className="animate-spin text-brand-accent" size={13} />
+                        Searching stocks...
+                      </div>
+                    ) : searchResults.length === 0 ? (
+                      <div className="p-3 text-center text-ink-muted text-xs">
+                        No matches found. Enter symbol directly.
+                      </div>
+                    ) : (
+                      searchResults.map((stock) => (
+                        <div
+                          key={stock.symbol}
+                          onClick={() => handleSelectStock(stock)}
+                          className="p-2.5 hover:bg-brand-light/60 cursor-pointer flex items-center justify-between gap-2 text-xs"
+                        >
+                          <div className="truncate">
+                            <p className="font-bold text-ink truncate">{stock.name}</p>
+                            <p className="text-[10px] text-ink-muted truncate">{stock.sector}</p>
+                          </div>
+                          <span className="font-mono font-bold text-brand-accent bg-brand-light px-1.5 py-0.5 rounded text-[10px] border border-brand-border/60">
+                            {stock.symbol}
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
               </div>
 
               <div>
