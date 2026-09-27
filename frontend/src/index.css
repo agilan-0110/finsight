@@ -9,30 +9,29 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #F8FAFC; /* Slate 50 clean light background */
-  color: #0F172A; /* Slate 900 high contrast */
+  background-color: #fcf8f9;
+  color: #323235;
   font-family: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Crisp Clean Scrollbar */
+/* Stitch custom scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #F1F5F9;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #b3b1b4;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: #7b7a7d;
 }
 
-/* Crisp monospaced tabular numerals */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }

@@ -7,57 +7,76 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Stitch Minimal Luxury Light Mode Theme
-        canvas: '#F8FAFC', // Slate 50 clean light background
-        surface: {
-          DEFAULT: '#FFFFFF', // Pure white card surfaces
-          subtle: '#F1F5F9',  // Slate 100 subtle secondary backgrounds
-          hover: '#E2E8F0',   // Slate 200 hover state
-          muted: '#CBD5E1',   // Slate 300 muted elements
+        // Exact Stitch Material-Dynamic Design System Palette
+        "background": "#fcf8f9",
+        "surface": "#fcf8f9",
+        "surface-bright": "#fcf8f9",
+        "surface-dim": "#dbd9dd",
+        "surface-container-lowest": "#ffffff",
+        "surface-container-low": "#f6f3f4",
+        "surface-container": "#f0edef",
+        "surface-container-high": "#eae7ea",
+        "surface-container-highest": "#e4e2e5",
+        "surface-variant": "#e4e2e5",
+
+        "primary": "#585f6b",
+        "primary-dim": "#4c535f",
+        "primary-container": "#dde2f2",
+        "primary-fixed": "#dde2f2",
+        "primary-fixed-dim": "#ced4e4",
+        "on-primary": "#f6f7ff",
+        "on-primary-container": "#4c525e",
+        "on-primary-fixed": "#393f4c",
+
+        "secondary": "#5d5f65",
+        "secondary-dim": "#515359",
+        "secondary-container": "#e1e2e9",
+        "secondary-fixed": "#e1e2e9",
+        "secondary-fixed-dim": "#d3d4db",
+        "on-secondary": "#f8f8ff",
+        "on-secondary-container": "#505257",
+
+        "tertiary": "#5d5d78",
+        "tertiary-dim": "#51516c",
+        "tertiary-container": "#d9d7f8",
+        "tertiary-fixed": "#d9d7f8",
+        "on-tertiary": "#fbf7ff",
+        "on-tertiary-container": "#4a4a65",
+
+        "on-surface": "#323235",
+        "on-surface-variant": "#5f5f61",
+        "on-background": "#323235",
+        "outline": "#7b7a7d",
+        "outline-variant": "#b3b1b4",
+
+        "error": "#9f403d",
+        "error-container": "#fe8983",
+        "on-error": "#fff7f6",
+        "on-error-container": "#752121",
+
+        // High contrast semantic utilities
+        gain: {
+          DEFAULT: '#059669',
+          bg: '#e1e2e9',
+          text: '#2e5b4b',
         },
-        border: {
-          DEFAULT: '#E2E8F0', // Slate 200 crisp card borders
-          subtle: '#F1F5F9',  // Slate 100 dividers
-          strong: '#CBD5E1',  // Slate 300 high contrast borders
-        },
-        ink: {
-          DEFAULT: '#0F172A', // Slate 900 high-contrast primary text (crisp for readability)
-          secondary: '#334155', // Slate 700 body text
-          muted: '#64748B', // Slate 500 secondary labels
-          faint: '#94A3B8', // Slate 400 subtle placeholders
-        },
-        brand: {
-          DEFAULT: '#1E293B', // Slate 800 executive primary
-          accent: '#4F46E5',  // Indigo 600 AI accent
-          light: '#EEF2FF',   // Indigo 50 light badge
-          border: '#C7D2FE',  // Indigo 200 border
-        },
-        profit: {
-          DEFAULT: '#059669', // Emerald 600 crisp gain
-          bg: '#ECFDF5',      // Emerald 50 soft pill
-          border: '#A7F3D0',  // Emerald 200 border
-        },
-        loss: {
-          DEFAULT: '#E11D48', // Rose 600 crisp loss
-          bg: '#FFF1F2',      // Rose 50 soft pill
-          border: '#FECDD3',  // Rose 200 border
-        },
-        warning: {
-          DEFAULT: '#D97706', // Amber 600 alert
-          bg: '#FFFBEB',      // Amber 50 soft pill
-          border: '#FDE68A',  // Amber 200 border
+        drop: {
+          DEFAULT: '#9f403d',
+          bg: '#f6e4e3',
+          text: '#752121',
         }
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-        body: ['Inter', 'sans-serif'],
         headline: ['"Plus Jakarta Sans"', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'Menlo', 'Courier New', 'monospace'],
+        display: ['"Plus Jakarta Sans"', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+        label: ['"Public Sans"', 'Inter', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'Menlo', 'monospace'],
       },
       boxShadow: {
-        'card': '0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05)',
-        'card-hover': '0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.05)',
-        'elevated': '0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04)',
+        'stitch-sm': '0 1px 2px 0 rgba(50, 50, 53, 0.05)',
+        'stitch': '0 1px 3px 0 rgba(50, 50, 53, 0.08), 0 1px 2px -1px rgba(50, 50, 53, 0.04)',
+        'stitch-lg': '0 10px 15px -3px rgba(50, 50, 53, 0.08), 0 4px 6px -4px rgba(50, 50, 53, 0.04)',
       }
     },
   },

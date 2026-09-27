@@ -17,6 +17,7 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
   const [buyPrice, setBuyPrice] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [filterText, setFilterText] = useState("");
 
   // Autocomplete state
   const [searchResults, setSearchResults] = useState<StockSearchResult[]>([]);
@@ -106,117 +107,145 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
     }
   };
 
+  const filteredHoldings = holdings.filter(
+    (h) =>
+      h.ticker.toLowerCase().includes(filterText.toLowerCase()) ||
+      (h.sector && h.sector.toLowerCase().includes(filterText.toLowerCase()))
+  );
+
   return (
-    <div className="rounded-xl bg-surface border border-border shadow-card overflow-hidden">
-      {/* Header */}
-      <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between">
+    <div id="holdings" className="bg-surface-container-lowest rounded-xl border border-outline-variant/40 shadow-stitch overflow-hidden">
+      {/* Header from Stitch */}
+      <div className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-outline-variant/20">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-sm font-bold text-ink uppercase tracking-wider font-headline">
-              Portfolio Holdings
-            </h2>
-            <span className="text-[10px] font-mono font-bold bg-surface-subtle text-ink-secondary px-2 py-0.5 rounded border border-border">
-              {holdings.length} {holdings.length === 1 ? "Asset" : "Assets"}
-            </span>
-          </div>
-          <p className="text-xs text-ink-muted font-medium mt-0.5">
-            Real-time equity valuation, weight distributions, and AI analysis
+          <h3 className="font-headline text-base font-bold text-on-surface">Holdings &amp; Assets</h3>
+          <p className="text-xs text-on-surface-variant font-medium">
+            {holdings.length} Active Positions across NSE Equities
           </p>
         </div>
-        <button
-          onClick={() => {
-            setShowModal(true);
-            setStockQuery("");
-            setTicker("");
-            setError("");
-          }}
-          className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg bg-brand hover:bg-slate-700 text-white transition shadow-xs"
-        >
-          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span>Add Position</span>
-        </button>
+
+        <div className="flex items-center gap-2">
+          {/* Quick Filter */}
+          <div className="relative">
+            <input
+              type="text"
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              placeholder="Filter assets..."
+              className="pl-3 pr-3 py-1.5 text-xs rounded-lg bg-surface-container-low border border-outline-variant/40 text-on-surface focus:outline-none focus:ring-1 focus:ring-primary w-36 sm:w-44"
+            />
+          </div>
+
+          <button
+            onClick={() => {
+              setShowModal(true);
+              setStockQuery("");
+              setTicker("");
+              setError("");
+            }}
+            className="px-3 py-1.5 rounded-lg bg-primary hover:bg-primary-dim text-on-primary text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all"
+          >
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>Add Position</span>
+          </button>
+        </div>
       </div>
 
-      {/* Table */}
+      {/* Table from Stitch */}
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-surface-subtle text-ink-muted border-b border-border uppercase text-[10px] tracking-wider font-bold">
-            <tr>
+        <table className="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr className="bg-surface-container-low/60 text-on-surface-variant uppercase font-label font-semibold text-[10px] tracking-wider border-b border-outline-variant/20">
               <th className="py-3 px-4">Asset / Ticker</th>
-              <th className="py-3 px-4">Shares</th>
-              <th className="py-3 px-4">Avg Buy</th>
-              <th className="py-3 px-4">Live Price</th>
-              <th className="py-3 px-4">Market Value</th>
-              <th className="py-3 px-4">Return (P&L)</th>
-              <th className="py-3 px-4">Weight</th>
-              <th className="py-3 px-4 text-right">Actions</th>
+              <th className="py-3 px-4">Shares / Alloc</th>
+              <th className="py-3 px-4 text-right">Avg Price</th>
+              <th className="py-3 px-4 text-right">Market Price</th>
+              <th className="py-3 px-4 text-right">Day Chg</th>
+              <th className="py-3 px-4 text-right">Market Value</th>
+              <th className="py-3 px-4 text-center">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border font-mono">
-            {holdings.length === 0 ? (
+          <tbody className="divide-y divide-outline-variant/20 font-medium">
+            {filteredHoldings.length === 0 ? (
               <tr>
-                <td colSpan={8} className="py-12 text-center text-ink-muted font-sans font-medium">
-                  No holdings recorded yet. Click &quot;Add Position&quot; to begin tracking your portfolio.
+                <td colSpan={7} className="py-12 text-center text-on-surface-variant font-medium">
+                  No active holdings recorded yet. Click &quot;Add Position&quot; to begin.
                 </td>
               </tr>
             ) : (
-              holdings.map((h) => {
+              filteredHoldings.map((h) => {
                 const isProfit = h.pnl >= 0;
                 return (
-                  <tr key={h.id} className="hover:bg-surface-subtle/80 transition group">
-                    <td className="py-3.5 px-4 font-sans">
-                      <div className="font-bold text-ink flex items-center gap-2">
-                        <span>{h.ticker}</span>
-                        <span className="text-[10px] font-mono font-medium text-ink-muted px-1.5 py-0.2 rounded bg-surface-subtle border border-border">
-                          {h.sector || "NSE"}
-                        </span>
+                  <tr key={h.id} className="hover:bg-surface-container-low/50 transition-colors">
+                    {/* Asset / Ticker with Stitch Monogram Box */}
+                    <td className="py-3.5 px-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-primary-container text-on-primary-container font-headline font-bold flex items-center justify-center text-xs uppercase">
+                          {h.ticker.slice(0, 2)}
+                        </div>
+                        <div>
+                          <div className="font-bold text-on-surface">{h.ticker}</div>
+                          <div className="text-[11px] text-on-surface-variant">
+                            {h.sector || "Equities"} • NSE
+                          </div>
+                        </div>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 text-ink-secondary">{h.quantity}</td>
-                    <td className="py-3.5 px-4 text-ink-secondary">₹{h.avg_buy_price.toFixed(2)}</td>
-                    <td className="py-3.5 px-4 font-semibold text-ink">₹{h.current_price.toFixed(2)}</td>
-                    <td className="py-3.5 px-4 font-bold text-ink">
+
+                    {/* Shares / Alloc */}
+                    <td className="py-3.5 px-4 text-on-surface font-mono">
+                      <div>{h.quantity} shares</div>
+                      <div className="text-[10px] text-on-surface-variant font-normal">
+                        {h.portfolio_weight ? `${h.portfolio_weight.toFixed(1)}% weight` : "Active"}
+                      </div>
+                    </td>
+
+                    {/* Avg Price */}
+                    <td className="py-3.5 px-4 text-right text-on-surface font-mono">
+                      ₹{h.avg_buy_price.toFixed(2)}
+                    </td>
+
+                    {/* Market Price */}
+                    <td className="py-3.5 px-4 text-right font-semibold text-on-surface font-mono">
+                      ₹{h.current_price.toFixed(2)}
+                    </td>
+
+                    {/* Day / Overall Return Pill from Stitch */}
+                    <td className="py-3.5 px-4 text-right font-mono">
+                      <span
+                        className={`inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-semibold ${
+                          isProfit
+                            ? "bg-secondary-container text-on-secondary-container"
+                            : "bg-surface-container-highest text-error"
+                        }`}
+                      >
+                        {isProfit ? "+" : ""}
+                        {h.pnl_percentage.toFixed(2)}%
+                      </span>
+                    </td>
+
+                    {/* Market Value */}
+                    <td className="py-3.5 px-4 text-right font-bold text-on-surface font-mono">
                       ₹{h.current_value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
-                    <td className="py-3.5 px-4">
-                      <div className="flex flex-col">
-                        <span className={`font-bold ${isProfit ? "text-profit" : "text-loss"}`}>
-                          {isProfit ? "+" : ""}₹{h.pnl.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </span>
-                        <span className={`text-[10px] font-bold ${isProfit ? "text-profit" : "text-loss"}`}>
-                          {isProfit ? "▲ +" : "▼ "}
-                          {h.pnl_percentage.toFixed(2)}%
-                        </span>
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-12 bg-surface-subtle border border-border h-1.5 rounded-full overflow-hidden">
-                          <div
-                            className="bg-brand-accent h-full rounded-full"
-                            style={{ width: `${Math.min(h.portfolio_weight || 0, 100)}%` }}
-                          />
-                        </div>
-                        <span className="text-[11px] text-ink-secondary">
-                          {h.portfolio_weight ? `${h.portfolio_weight.toFixed(1)}%` : "-"}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
+
+                    {/* Action from Stitch */}
+                    <td className="py-3.5 px-4 text-center">
+                      <div className="flex items-center justify-center gap-1.5">
                         {onAskAI && (
                           <button
                             onClick={() => onAskAI(h.ticker)}
-                            className="p-1.5 text-brand-accent hover:bg-brand-light rounded-md border border-transparent hover:border-brand-border transition"
-                            title={`Ask AI to analyze ${h.ticker}`}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded border border-outline-variant/50 text-[11px] font-semibold hover:bg-surface-container transition-colors text-on-surface"
+                            title="Generate AI Insights"
                           >
-                            <Sparkles className="w-3.5 h-3.5" />
+                            <Sparkles className="w-3 h-3 text-primary" />
+                            <span>Insights</span>
                           </button>
                         )}
                         <button
                           onClick={() => onDeleteHolding(h.id)}
-                          className="p-1.5 text-ink-muted hover:text-loss hover:bg-loss-bg rounded-md border border-transparent hover:border-loss-border transition"
-                          title="Remove holding"
+                          className="p-1 rounded text-outline hover:text-error transition"
+                          title="Remove Holding"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -230,32 +259,37 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
         </table>
       </div>
 
-      {/* Add Holding Modal with Autocomplete */}
+      {/* Footer info bar from Stitch */}
+      <div className="p-3 bg-surface-container-low flex justify-between items-center text-xs text-on-surface-variant border-t border-outline-variant/20">
+        <span>Showing {filteredHoldings.length} of {holdings.length} active assets</span>
+        <span className="text-[11px] font-semibold text-primary">NSE Real-Time Valuations</span>
+      </div>
+
+      {/* Add Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-surface border border-border rounded-xl shadow-elevated w-full max-w-md p-6 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/40 backdrop-blur-xs">
+          <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-xl shadow-stitch-lg w-full max-w-md p-6 relative">
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 text-ink-muted hover:text-ink p-1 rounded-md hover:bg-surface-subtle"
+              className="absolute top-4 right-4 text-outline hover:text-on-surface p-1 rounded-md"
             >
               <X className="w-4 h-4" />
             </button>
-            <h3 className="text-base font-bold text-ink mb-1 font-headline">Add Portfolio Position</h3>
-            <p className="text-xs text-ink-muted mb-4 font-medium">
-              Search by company name (e.g. Tata Motors, Infosys) or ticker symbol.
+            <h3 className="text-base font-bold text-on-surface mb-1 font-headline">Add Portfolio Asset</h3>
+            <p className="text-xs text-on-surface-variant mb-4 font-medium">
+              Search by company name (e.g. Tata Motors, Reliance) or ticker.
             </p>
 
             {error && (
-              <div className="p-3 mb-4 rounded-lg bg-loss-bg border border-loss-border text-loss text-xs font-medium">
+              <div className="p-3 mb-4 rounded-lg bg-error/10 border border-error/20 text-error text-xs font-medium">
                 {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Autocomplete Input */}
               <div ref={dropdownRef} className="relative">
-                <label className="block text-xs font-bold text-ink-secondary mb-1">
-                  Stock / Company
+                <label className="block text-xs font-bold text-on-surface mb-1">
+                  Company / Ticker
                 </label>
                 <div className="relative">
                   <input
@@ -264,28 +298,27 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
                     placeholder="Type name (e.g. Tata Motors) or symbol"
                     value={stockQuery}
                     onChange={handleStockInputChange}
-                    className="w-full pl-3 pr-8 py-2 text-xs rounded-lg border border-border bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent"
+                    className="w-full pl-3 pr-8 py-2 text-xs rounded-lg border border-outline-variant/40 bg-surface-container-low text-on-surface focus:outline-none focus:ring-1 focus:ring-primary focus:bg-surface-container-lowest"
                   />
                   {isSearching ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-ink-muted absolute right-2.5 top-1/2 -translate-y-1/2" />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-outline absolute right-2.5 top-1/2 -translate-y-1/2" />
                   ) : null}
                 </div>
 
-                {/* Dropdown items */}
                 {showDropdown && searchResults.length > 0 && (
-                  <div className="absolute left-0 right-0 top-full mt-1 bg-surface border border-border rounded-lg shadow-elevated z-50 max-h-48 overflow-y-auto divide-y divide-border">
+                  <div className="absolute left-0 right-0 top-full mt-1 bg-surface-container-lowest border border-outline-variant/40 rounded-lg shadow-stitch-lg z-50 max-h-48 overflow-y-auto divide-y divide-outline-variant/20">
                     {searchResults.map((stock: StockSearchResult) => (
                       <button
                         type="button"
                         key={stock.symbol}
                         onClick={() => handleSelectStock(stock)}
-                        className="w-full text-left px-3 py-2 text-xs hover:bg-surface-subtle transition flex items-center justify-between"
+                        className="w-full text-left px-3 py-2 text-xs hover:bg-surface-container transition flex items-center justify-between"
                       >
                         <div className="min-w-0 pr-2">
-                          <p className="font-bold text-ink truncate">{stock.name}</p>
-                          <p className="text-[11px] font-mono text-ink-muted">{stock.symbol}</p>
+                          <p className="font-bold text-on-surface truncate">{stock.name}</p>
+                          <p className="text-[11px] font-mono text-on-surface-variant">{stock.symbol}</p>
                         </div>
-                        <span className="text-[10px] font-semibold text-brand-accent bg-brand-light px-1.5 py-0.5 rounded border border-brand-border shrink-0">
+                        <span className="text-[10px] font-semibold text-primary bg-primary-container px-1.5 py-0.5 rounded">
                           Select
                         </span>
                       </button>
@@ -294,10 +327,9 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
                 )}
               </div>
 
-              {/* Quantity */}
               <div>
-                <label className="block text-xs font-bold text-ink-secondary mb-1">
-                  Quantity (Shares)
+                <label className="block text-xs font-bold text-on-surface mb-1">
+                  Shares / Quantity
                 </label>
                 <input
                   type="number"
@@ -307,13 +339,12 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
                   placeholder="e.g. 50"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-outline-variant/40 bg-surface-container-low text-on-surface focus:outline-none focus:ring-1 focus:ring-primary focus:bg-surface-container-lowest"
                 />
               </div>
 
-              {/* Average Buy Price */}
               <div>
-                <label className="block text-xs font-bold text-ink-secondary mb-1">
+                <label className="block text-xs font-bold text-on-surface mb-1">
                   Average Buy Price (₹)
                 </label>
                 <input
@@ -324,7 +355,7 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
                   placeholder="e.g. 982.50"
                   value={buyPrice}
                   onChange={(e) => setBuyPrice(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-outline-variant/40 bg-surface-container-low text-on-surface focus:outline-none focus:ring-1 focus:ring-primary focus:bg-surface-container-lowest"
                 />
               </div>
 
@@ -332,17 +363,16 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-xs font-semibold rounded-lg border border-border text-ink-secondary hover:bg-surface-subtle transition"
+                  className="px-4 py-2 text-xs font-semibold rounded-lg border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg bg-brand hover:bg-slate-700 text-white transition disabled:opacity-50"
+                  className="px-4 py-2 text-xs font-semibold rounded-lg bg-primary hover:bg-primary-dim text-on-primary transition disabled:opacity-50"
                 >
-                  {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  <span>Save Holding</span>
+                  Save Asset
                 </button>
               </div>
             </form>

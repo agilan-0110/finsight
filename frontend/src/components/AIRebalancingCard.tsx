@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Scale, CheckCircle2, ArrowRight, Zap } from "lucide-react";
+import { Scale, CheckCircle2 } from "lucide-react";
 
 interface Props {
   onAskAI?: (ticker: string) => void;
@@ -11,21 +11,21 @@ export const AIRebalancingCard: React.FC<Props> = ({ onAskAI }) => {
   const recommendations = [
     {
       id: 1,
-      title: "Trim Nvidia / Tech exposure by 4%",
-      detail: "Locks in +44.5% gains and maintains technology allocation below the 40% prudent risk ceiling.",
+      title: "Trim Nvidia exposure by 4%",
+      detail: "Locks in +44.5% gains and keeps tech concentration below 40% risk ceiling.",
       ticker: "NVDA",
-      actionText: "Execute",
-      badge: "Profit Lock",
-      badgeColor: "bg-profit-bg text-profit border-profit-border",
+      btnText: "Execute",
+      btnClass: "bg-secondary text-on-secondary hover:bg-secondary-dim",
+      indicatorClass: "bg-secondary",
     },
     {
       id: 2,
       title: "Accumulate Tata Motors on EV breakout",
-      detail: "Resistance test at ₹1,040 with volume surge. Recommended deployment of 3.5% reserve liquidity.",
+      detail: "Target ₹1,040 resistance level. Deploy 3.5% of reserve liquidity.",
       ticker: "TATAMOTORS",
-      actionText: "Deploy",
-      badge: "Alpha Entry",
-      badgeColor: "bg-brand-light text-brand-accent border-brand-border",
+      btnText: "Deploy",
+      btnClass: "bg-primary text-on-primary hover:bg-primary-dim",
+      indicatorClass: "bg-primary",
     },
   ];
 
@@ -37,39 +37,34 @@ export const AIRebalancingCard: React.FC<Props> = ({ onAskAI }) => {
   };
 
   return (
-    <div className="bg-surface rounded-xl border border-border shadow-card p-5 flex flex-col justify-between h-full">
+    <div id="rebalance-section" className="bg-surface-container-lowest rounded-xl border border-outline-variant/40 shadow-stitch p-5 flex flex-col justify-between h-full">
       <div>
-        <div className="flex items-center justify-between mb-3 pb-3 border-b border-border">
+        {/* Header from Stitch */}
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-brand-light text-brand-accent border border-brand-border">
-              <Scale className="w-4 h-4" />
-            </div>
-            <div>
-              <h4 className="font-headline text-sm font-bold text-ink">
-                AI Rebalancing Engine
-              </h4>
-              <p className="text-[11px] text-ink-muted">Tactical algorithmic re-weighting signals</p>
-            </div>
+            <Scale className="w-4 h-4 text-primary" />
+            <h4 className="font-headline text-sm font-bold text-on-surface">
+              AI Rebalancing Engine
+            </h4>
           </div>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand-light text-brand-accent border border-brand-border">
-            2 Signals Active
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-tertiary-container text-on-tertiary-container">
+            2 Actions Ready
           </span>
         </div>
 
-        <div className="space-y-3">
+        {/* Recommendations list from Stitch */}
+        <div className="space-y-2.5">
           {recommendations.map((rec) => (
             <div
               key={rec.id}
-              className="p-3 rounded-lg bg-surface-subtle border border-border hover:border-slate-300 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+              className="p-2.5 rounded-lg bg-surface-container-low border border-outline-variant/30 flex items-start justify-between gap-3"
             >
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-ink">{rec.title}</span>
-                  <span className={`text-[10px] font-semibold px-1.5 py-0.2 rounded border ${rec.badgeColor}`}>
-                    {rec.badge}
-                  </span>
+              <div className="space-y-0.5">
+                <div className="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                  <span className={`w-1.5 h-1.5 rounded-full ${rec.indicatorClass}`}></span>
+                  <span>{rec.title}</span>
                 </div>
-                <p className="text-[11px] text-ink-muted leading-relaxed font-normal">
+                <p className="text-[11px] text-on-surface-variant font-normal leading-relaxed">
                   {rec.detail}
                 </p>
               </div>
@@ -77,22 +72,18 @@ export const AIRebalancingCard: React.FC<Props> = ({ onAskAI }) => {
               <button
                 onClick={() => handleAction(rec.id, rec.ticker)}
                 disabled={executed[rec.id]}
-                className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition shadow-xs ${
+                className={`shrink-0 px-2.5 py-1 rounded text-[11px] font-semibold transition-colors shadow-xs ${
                   executed[rec.id]
-                    ? "bg-profit-bg text-profit border border-profit-border"
-                    : "bg-brand hover:bg-slate-700 text-white"
+                    ? "bg-secondary-container text-on-secondary-container"
+                    : rec.btnClass
                 }`}
               >
                 {executed[rec.id] ? (
-                  <>
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Analyzed</span>
-                  </>
+                  <span className="flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" /> Sent
+                  </span>
                 ) : (
-                  <>
-                    <span>{rec.actionText}</span>
-                    <ArrowRight className="w-3 h-3" />
-                  </>
+                  rec.btnText
                 )}
               </button>
             </div>
@@ -100,12 +91,10 @@ export const AIRebalancingCard: React.FC<Props> = ({ onAskAI }) => {
         </div>
       </div>
 
-      <div className="pt-3 mt-3 border-t border-border flex items-center justify-between text-[11px] text-ink-muted">
-        <span className="flex items-center gap-1.5">
-          <Zap className="w-3.5 h-3.5 text-amber-500" />
-          <span>Scheduled dynamic rebalance check: 4 days</span>
-        </span>
-        <span className="font-semibold text-brand-accent">Automatic Guardrails Active</span>
+      {/* Footer from Stitch */}
+      <div className="pt-3 mt-3 border-t border-outline-variant/20 flex items-center justify-between text-[11px] text-on-surface-variant">
+        <span>Auto-Rebalance scheduled in 4 days</span>
+        <span className="text-primary font-semibold hover:underline cursor-pointer">Config Rules</span>
       </div>
     </div>
   );

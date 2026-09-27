@@ -1,14 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
-  TrendingUp,
   Bell,
   Brain,
   RefreshCw,
   Send,
   Search,
-  Sparkles,
   Loader2,
   X,
+  Sliders,
 } from "lucide-react";
 import { api, type StockSearchResult } from "../api/client";
 
@@ -88,47 +87,20 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="border-b border-border bg-surface sticky top-0 z-40 px-4 sm:px-8 py-3 shadow-card">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 md:gap-6">
-        {/* Brand & Market Identity */}
-        <div className="flex items-center justify-between w-full md:w-auto gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-brand text-white flex items-center justify-center shadow-xs">
-              <TrendingUp className="w-5 h-5 text-emerald-400 stroke-[2.4]" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-xl tracking-tight text-ink font-headline">
-                  FinSight
-                </span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-brand-light text-brand-accent border border-brand-border">
-                  <Sparkles className="w-3 h-3" />
-                  Gemma-27B
-                </span>
-              </div>
-              <p className="text-[11px] text-ink-muted font-medium hidden sm:block">
-                Institutional Financial Intelligence & Portfolio Analytics
-              </p>
-            </div>
+    <header className="w-full px-6 flex justify-between items-center h-16 sticky top-0 z-40 bg-surface-container-lowest/95 backdrop-blur-sm border-b border-outline-variant/40">
+      {/* Left: Mobile Brand & Global Search Bar from Stitch */}
+      <div className="flex items-center gap-6 flex-1 max-w-2xl">
+        <div className="flex items-center gap-2 lg:hidden">
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary font-headline font-bold text-sm">
+            <span>F</span>
           </div>
-
-          {/* Engine Status (Mobile) */}
-          <div className="md:hidden flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border bg-surface-subtle text-[11px] font-semibold">
-            <span
-              className={`w-2 h-2 rounded-full ${
-                isConnected ? "bg-profit animate-pulse" : "bg-loss"
-              }`}
-            />
-            <span className={isConnected ? "text-profit" : "text-loss"}>
-              {isConnected ? "Live" : "Offline"}
-            </span>
-          </div>
+          <span className="font-headline text-lg font-bold tracking-tight text-on-surface">FinSight</span>
         </div>
 
-        {/* Global Stock Search Bar (Stitch specification: searches by Company Name or Ticker) */}
-        <div ref={searchContainerRef} className="relative w-full md:max-w-md">
-          <div className="relative">
-            <Search className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        {/* Global Search Input with Stitch Autocomplete */}
+        <div ref={searchContainerRef} className="relative w-full max-w-lg hidden sm:block">
+          <div className="relative flex items-center">
+            <Search className="absolute left-3 text-outline w-4 h-4 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
@@ -136,11 +108,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               onFocus={() => {
                 if (searchResults.length > 0) setShowDropdown(true);
               }}
-              placeholder="Search stocks by company (Tata, Reliance...) or ticker..."
-              className="w-full pl-9 pr-8 py-2 text-xs rounded-lg border border-border bg-surface-subtle focus:bg-surface focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent text-ink placeholder:text-ink-faint transition shadow-2xs font-medium"
+              placeholder="Search stocks by company (Tata Motors, Reliance...) or ticker"
+              className="w-full pl-9 pr-8 py-2 text-xs font-medium rounded-lg bg-surface-container-low border border-outline-variant/50 text-on-surface placeholder:text-outline focus:outline-none focus:ring-1 focus:ring-primary focus:bg-surface-container-lowest transition-all"
             />
             {isSearching ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-ink-muted absolute right-3 top-1/2 -translate-y-1/2" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-outline absolute right-2.5" />
             ) : searchQuery ? (
               <button
                 onClick={() => {
@@ -148,96 +120,132 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setSearchResults([]);
                   setShowDropdown(false);
                 }}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink p-0.5"
+                className="absolute right-2.5 text-outline hover:text-on-surface p-0.5"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             ) : null}
           </div>
 
-          {/* Autocomplete Dropdown */}
+          {/* Autocomplete Dropdown from Stitch */}
           {showDropdown && searchResults.length > 0 && (
-            <div className="absolute left-0 right-0 top-full mt-1.5 bg-surface border border-border rounded-xl shadow-elevated z-50 max-h-80 overflow-y-auto divide-y divide-border">
-              <div className="px-3 py-1.5 bg-surface-subtle text-[10px] font-bold uppercase tracking-wider text-ink-muted">
-                Matching NSE Equities
+            <div className="absolute left-0 right-0 mt-1.5 bg-surface-container-lowest border border-outline-variant/40 rounded-xl shadow-stitch-lg p-2 z-50 max-h-72 overflow-y-auto">
+              <div className="px-2 py-1 text-[11px] font-semibold text-outline uppercase tracking-wider">
+                Quick Results
               </div>
               {searchResults.map((stock) => (
-                <button
+                <div
                   key={stock.symbol}
                   onClick={() => handleChooseStock(stock)}
-                  className="w-full text-left px-3.5 py-2.5 hover:bg-surface-subtle transition flex items-center justify-between group"
+                  className="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container cursor-pointer transition-colors"
                 >
-                  <div className="min-w-0 pr-3">
-                    <p className="text-xs font-bold text-ink truncate group-hover:text-brand-accent transition">
-                      {stock.name}
-                    </p>
-                    <p className="text-[11px] font-mono text-ink-muted">
-                      {stock.symbol} • {stock.sector || "NSE Equity"}
-                    </p>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded bg-secondary-container flex items-center justify-center font-bold text-[10px] text-on-secondary-container uppercase">
+                      {stock.symbol.slice(0, 2)}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-xs text-on-surface flex items-center gap-1.5">
+                        {stock.symbol} <span className="text-[10px] font-normal text-on-surface-variant">NSE</span>
+                      </div>
+                      <div className="text-[11px] text-on-surface-variant truncate max-w-xs">{stock.name}</div>
+                    </div>
                   </div>
-                  <span className="text-[11px] font-semibold text-brand-accent bg-brand-light px-2 py-0.5 rounded border border-brand-border shrink-0">
+                  <span className="text-[10px] font-semibold text-primary px-2 py-0.5 rounded bg-primary-container/60">
                     Analyze
                   </span>
-                </button>
+                </div>
               ))}
             </div>
           )}
         </div>
+      </div>
 
-        {/* Action Controls & Utilities */}
-        <div className="flex items-center gap-2 w-full md:w-auto justify-end">
-          {/* Status Indicator (Desktop) */}
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-surface-subtle text-xs font-semibold">
-            <span
-              className={`w-2 h-2 rounded-full ${
-                isConnected ? "bg-profit animate-pulse" : "bg-loss"
-              }`}
-            />
-            <span className={isConnected ? "text-profit" : "text-loss"}>
-              {isConnected ? "Engine Active" : "Disconnected"}
-            </span>
-          </div>
+      {/* Middle Navigation Tabs (Desktop) */}
+      <nav className="hidden xl:flex items-center font-headline text-sm font-semibold tracking-tight gap-1">
+        <a className="border-b-2 border-primary text-on-surface font-semibold pb-4 pt-4 px-3" href="#dashboard">
+          Dashboard
+        </a>
+        <a className="text-on-surface-variant hover:text-on-surface pb-4 pt-4 px-3 transition-colors" href="#holdings">
+          Holdings
+        </a>
+        <a className="text-on-surface-variant hover:text-on-surface pb-4 pt-4 px-3 transition-colors" href="#performance">
+          Performance
+        </a>
+        <a className="text-on-surface-variant hover:text-on-surface pb-4 pt-4 px-3 transition-colors" href="#analytics">
+          Analytics
+        </a>
+      </nav>
 
-          {/* Telegram Digest */}
-          <button
-            onClick={onSendDigest}
-            disabled={isSendingDigest}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-surface hover:bg-surface-subtle text-ink-secondary hover:text-ink border border-border shadow-xs transition disabled:opacity-50"
-            title="Dispatch executive portfolio digest to Telegram"
-          >
-            <Send className={`w-3.5 h-3.5 text-brand-accent ${isSendingDigest ? "animate-spin" : ""}`} />
-            <span className="hidden lg:inline">Digest</span>
-          </button>
+      {/* Right Actions Cluster directly from Stitch */}
+      <div className="flex items-center gap-3">
+        {/* AI Agent Status Pill */}
+        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container border border-outline-variant/30 text-xs font-medium text-on-surface">
+          <span className={`w-2 h-2 rounded-full ${isConnected ? "bg-primary animate-pulse" : "bg-error"}`}></span>
+          <span>{isConnected ? "Active • Gemma-27b" : "Disconnected"}</span>
+        </div>
 
-          {/* Price Alerts */}
+        {/* Telegram Digest Button */}
+        <button
+          onClick={onSendDigest}
+          disabled={isSendingDigest}
+          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant/50 text-xs font-semibold text-on-surface hover:bg-surface-container transition-colors disabled:opacity-50"
+          title="Send Executive Digest to Telegram"
+        >
+          <Send className={`w-3.5 h-3.5 text-primary ${isSendingDigest ? "animate-spin" : ""}`} />
+          <span>Digest</span>
+        </button>
+
+        {/* Quick Action Rebalance Trigger */}
+        <a
+          href="#rebalance-section"
+          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary-dim text-on-primary text-xs font-semibold shadow-sm transition-all active:scale-[0.99]"
+        >
+          <Sliders className="w-3.5 h-3.5" />
+          <span>Rebalance</span>
+        </a>
+
+        {/* Notification Bell, Memories & Refresh from Stitch */}
+        <div className="flex items-center gap-1">
           <button
             onClick={onOpenAlerts}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-surface hover:bg-surface-subtle text-ink-secondary hover:text-ink border border-border shadow-xs transition"
-            title="Manage Price Target Alerts"
+            className="relative p-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+            title="Price Alerts"
           >
-            <Bell className="w-3.5 h-3.5 text-amber-600" />
-            <span className="hidden lg:inline">Alerts</span>
+            <Bell className="w-4 h-4" />
+            <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-error text-on-error font-bold text-[8px] flex items-center justify-center">
+              3
+            </span>
           </button>
 
-          {/* Memories */}
           <button
             onClick={onOpenMemories}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-surface hover:bg-surface-subtle text-ink-secondary hover:text-ink border border-border shadow-xs transition"
-            title="View what FinSight remembers"
+            className="p-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors hidden sm:block"
+            title="Active Memories"
           >
-            <Brain className="w-3.5 h-3.5 text-indigo-600" />
-            <span className="hidden lg:inline">Memories</span>
+            <Brain className="w-4 h-4" />
           </button>
 
-          {/* Refresh */}
           <button
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="p-2 rounded-lg bg-surface hover:bg-surface-subtle text-ink-muted hover:text-ink border border-border shadow-xs transition disabled:opacity-50"
-            title="Refresh Market Analytics"
+            className="p-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+            title="Refresh Data"
           >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-ink" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-primary" : ""}`} />
           </button>
+        </div>
+
+        <div className="h-6 w-px bg-outline-variant/40 mx-1 hidden sm:block"></div>
+
+        {/* User Profile Avatar with Senior Analyst Badge from Stitch */}
+        <div className="flex items-center gap-2 pl-1 cursor-pointer">
+          <div className="w-8 h-8 rounded-full ring-2 ring-outline-variant/40 overflow-hidden bg-primary-container flex items-center justify-center text-xs font-bold text-on-primary-container">
+            AV
+          </div>
+          <div className="hidden xl:flex flex-col">
+            <span className="text-xs font-semibold text-on-surface leading-tight">Alex Vance</span>
+            <span className="text-[10px] text-on-surface-variant leading-none">Senior Analyst</span>
+          </div>
         </div>
       </div>
     </header>

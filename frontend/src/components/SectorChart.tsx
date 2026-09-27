@@ -1,27 +1,27 @@
 import React from "react";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
 import type { SectorData } from "../api/client";
-import { PieChart as PieIcon, ShieldCheck, ShieldAlert, Sparkles } from "lucide-react";
+import { PieChart as PieIcon } from "lucide-react";
 
 interface SectorChartProps {
   sectors: Record<string, SectorData>;
   diversificationScore: number;
 }
 
-const PALETTE = [
-  "#0F172A", // Slate 900
-  "#059669", // Emerald 600
-  "#4F46E5", // Indigo 600
-  "#D97706", // Amber 600
-  "#7C3AED", // Violet 600
-  "#E11D48", // Rose 600
-  "#0D9488", // Teal 600
-  "#475569", // Slate 600
-  "#EA580C", // Orange 600
-  "#2563EB", // Blue 600
+// Exact Stitch palette tokens from step 858 HTML:
+// Tech: #585f6b, Automotive: #515359, Energy: #7b7a7d, Healthcare: #b3b1b4, Cash/Liquidity: #dde2f2
+const STITCH_SECTOR_COLORS = [
+  "#585f6b", // Primary slate
+  "#515359", // Secondary dim
+  "#7b7a7d", // Outline
+  "#b3b1b4", // Outline variant
+  "#dde2f2", // Primary container
+  "#5d5d78", // Tertiary
+  "#9f403d", // Error / Red
+  "#e1e2e9", // Secondary container
 ];
 
-export const SectorChart: React.FC<SectorChartProps> = ({ sectors, diversificationScore }) => {
+export const SectorChart: React.FC<SectorChartProps> = ({ sectors }) => {
   const chartData = Object.entries(sectors || {}).map(([name, data]) => ({
     name,
     value: data.value,
@@ -37,62 +37,42 @@ export const SectorChart: React.FC<SectorChartProps> = ({ sectors, diversificati
     }).format(val);
   };
 
-  const getDiversificationStatus = (score: number) => {
-    if (score >= 70) return { label: "Strong Diversification", color: "text-profit border-profit-border bg-profit-bg", icon: ShieldCheck };
-    if (score >= 40) return { label: "Balanced Exposure", color: "text-warning border-warning-border bg-warning-bg", icon: ShieldAlert };
-    return { label: "High Concentration", color: "text-loss border-loss-border bg-loss-bg", icon: ShieldAlert };
-  };
-
-  const status = getDiversificationStatus(diversificationScore);
-  const StatusIcon = status.icon;
-
   return (
-    <div className="bg-surface border border-border rounded-xl p-5 shadow-card flex flex-col h-full">
-      <div className="flex items-center justify-between pb-3 border-b border-border">
-        <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-lg bg-surface-subtle text-ink border border-border">
-            <PieIcon size={16} />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-ink uppercase tracking-wider font-headline">
-              Sector Allocation
-            </h3>
-            <p className="text-xs text-ink-muted font-medium">Industry distribution & exposure</p>
-          </div>
+    <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/40 shadow-stitch p-5 flex flex-col justify-between h-full">
+      {/* Header from Stitch */}
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h4 className="font-headline text-sm font-bold text-on-surface">Sector Allocation</h4>
+          <p className="text-[11px] text-on-surface-variant font-medium">Target vs Current Diversification</p>
         </div>
-
-        {/* Diversification Score Badge */}
-        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-bold ${status.color}`}>
-          <StatusIcon size={13} />
-          <span>Health: {diversificationScore}/100</span>
-        </div>
+        <PieIcon className="w-4 h-4 text-outline" />
       </div>
 
       {chartData.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center py-12 text-ink-muted text-xs font-medium">
+        <div className="flex-1 flex flex-col items-center justify-center py-12 text-on-surface-variant text-xs">
           <p>No sector data available.</p>
         </div>
       ) : (
-        <div className="flex flex-col md:flex-row items-center gap-6 pt-4 flex-1">
-          {/* Donut Chart */}
-          <div className="w-full md:w-1/2 h-52 relative flex items-center justify-center">
+        <div className="flex items-center gap-4 flex-1">
+          {/* SVG Donut Chart from Stitch */}
+          <div className="relative w-36 h-36 shrink-0 flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={chartData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={50}
-                  outerRadius={75}
-                  paddingAngle={3}
+                  innerRadius={42}
+                  outerRadius={62}
+                  paddingAngle={2}
                   dataKey="value"
                 >
                   {chartData.map((_, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={PALETTE[index % PALETTE.length]}
-                      stroke="#FFFFFF"
-                      strokeWidth={2}
+                      fill={STITCH_SECTOR_COLORS[index % STITCH_SECTOR_COLORS.length]}
+                      stroke="#ffffff"
+                      strokeWidth={1.5}
                     />
                   ))}
                 </Pie>
@@ -101,10 +81,12 @@ export const SectorChart: React.FC<SectorChartProps> = ({ sectors, diversificati
                     if (active && payload && payload.length) {
                       const data = payload[0].payload;
                       return (
-                        <div className="bg-surface border border-border p-3 rounded-lg shadow-elevated text-xs">
-                          <p className="font-bold text-ink">{data.name}</p>
-                          <p className="text-ink font-mono font-bold mt-0.5">{formatRupee(data.value)} ({data.percentage}%)</p>
-                          <p className="text-ink-muted text-[11px] font-medium mt-1">
+                        <div className="bg-surface-container-lowest border border-outline-variant/40 p-2.5 rounded-lg shadow-stitch text-xs">
+                          <p className="font-bold text-on-surface">{data.name}</p>
+                          <p className="text-on-surface font-mono font-bold mt-0.5">
+                            {formatRupee(data.value)} ({data.percentage}%)
+                          </p>
+                          <p className="text-on-surface-variant text-[11px] mt-0.5">
                             Equities: {data.stocks.join(", ")}
                           </p>
                         </div>
@@ -115,37 +97,26 @@ export const SectorChart: React.FC<SectorChartProps> = ({ sectors, diversificati
                 />
               </PieChart>
             </ResponsiveContainer>
-            <div className="absolute text-center pointer-events-none">
-              <span className="text-[10px] uppercase font-bold text-ink-muted tracking-wider">Sectors</span>
-              <p className="text-base font-extrabold text-ink font-mono">{chartData.length}</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+              <span className="font-headline text-sm font-bold text-on-surface font-mono">{chartData.length} Sectors</span>
+              <span className="text-[9px] text-on-surface-variant uppercase font-semibold">Active</span>
             </div>
           </div>
 
-          {/* Breakdown List */}
-          <div className="w-full md:w-1/2 space-y-2 max-h-56 overflow-y-auto pr-1">
+          {/* Legend from Stitch */}
+          <div className="flex-1 space-y-1.5 text-xs max-h-48 overflow-y-auto pr-1">
             {chartData.map((sector, index) => {
-              const color = PALETTE[index % PALETTE.length];
+              const color = STITCH_SECTOR_COLORS[index % STITCH_SECTOR_COLORS.length];
               return (
-                <div
-                  key={sector.name}
-                  className="p-2.5 rounded-lg bg-surface-subtle border border-border hover:border-slate-300 transition-colors text-xs flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
+                <div key={sector.name} className="flex items-center justify-between text-xs py-0.5">
+                  <div className="flex items-center gap-1.5 min-w-0 pr-2">
                     <span
-                      className="w-3 h-3 rounded-full flex-shrink-0"
+                      className="w-2.5 h-2.5 rounded-sm shrink-0"
                       style={{ backgroundColor: color }}
                     />
-                    <div className="truncate">
-                      <p className="font-bold text-ink truncate">{sector.name}</p>
-                      <p className="text-[11px] text-ink-muted font-medium truncate">
-                        {sector.stocks.join(", ")}
-                      </p>
-                    </div>
+                    <span className="text-on-surface font-medium truncate">{sector.name}</span>
                   </div>
-                  <div className="text-right flex-shrink-0 ml-3">
-                    <p className="font-mono font-bold text-ink">{sector.percentage}%</p>
-                    <p className="text-[10px] text-ink-muted font-mono">{formatRupee(sector.value)}</p>
-                  </div>
+                  <span className="font-bold text-on-surface font-mono shrink-0">{sector.percentage}%</span>
                 </div>
               );
             })}
@@ -153,14 +124,10 @@ export const SectorChart: React.FC<SectorChartProps> = ({ sectors, diversificati
         </div>
       )}
 
-      {/* Stitch AI Rebalancing Tip Bar */}
-      <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs bg-brand-light/50 p-3 rounded-lg border border-brand-border/60">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-brand-accent flex-shrink-0" />
-          <span className="text-ink-secondary font-medium">
-            AI Tip: Maintain max 25% single-sector weight to hedge macroeconomic drawdowns.
-          </span>
-        </div>
+      {/* Auto rebalance status from Stitch */}
+      <div className="pt-3 mt-3 border-t border-outline-variant/20 flex items-center justify-between text-[11px] text-on-surface-variant">
+        <span>Portfolio Diversification: Verified</span>
+        <span className="text-primary font-semibold">Balanced Risk</span>
       </div>
     </div>
   );

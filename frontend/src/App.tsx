@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { api, type PortfolioAnalytics } from "./api/client";
+import { Sidebar } from "./components/Sidebar";
 import { Navbar } from "./components/Navbar";
 import { PortfolioSummary } from "./components/PortfolioSummary";
 import { PortfolioPerformanceCurve } from "./components/PortfolioPerformanceCurve";
@@ -20,7 +21,8 @@ export function App() {
   const [isSendingDigest, setIsSendingDigest] = useState<boolean>(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
-  // Modals & Navigation state
+  // Navigation & Modals state
+  const [activeTab, setActiveTab] = useState<string>("dashboard");
   const [alertsOpen, setAlertsOpen] = useState<boolean>(false);
   const [memoriesOpen, setMemoriesOpen] = useState<boolean>(false);
   const [prefillAlertTicker, setPrefillAlertTicker] = useState<string | undefined>(undefined);
@@ -123,98 +125,114 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-canvas text-ink flex flex-col font-body selection:bg-brand-light selection:text-brand-accent">
-      {/* Top Clean Navigation Bar with Stock Autocomplete */}
-      <Navbar
-        isConnected={isConnected}
-        onRefresh={() => loadData(false)}
-        isRefreshing={isRefreshing}
+    <div className="bg-surface font-body text-on-surface antialiased min-h-screen flex selection:bg-primary-container selection:text-on-primary-container">
+      {/* Stitch Anchored Left Side Navigation Bar */}
+      <Sidebar
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        onOpenMemories={() => setMemoriesOpen(true)}
         onOpenAlerts={() => {
           setPrefillAlertTicker(undefined);
           setAlertsOpen(true);
         }}
-        onOpenMemories={() => setMemoriesOpen(true)}
-        onSendDigest={handleSendDigest}
-        isSendingDigest={isSendingDigest}
-        onSelectStock={handleSelectStockFromNav}
       />
 
-      {/* Floating Toast Alert */}
-      {toast && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl bg-surface border border-border shadow-elevated text-xs max-w-md animate-in fade-in slide-in-from-bottom-3 duration-200">
-          {toast.type === "success" ? (
-            <CheckCircle className="w-4 h-4 text-profit flex-shrink-0" />
-          ) : (
-            <AlertTriangle className="w-4 h-4 text-loss flex-shrink-0" />
-          )}
-          <span className="text-ink font-semibold flex-1">{toast.message}</span>
-          <button
-            onClick={() => setToast(null)}
-            className="text-ink-muted hover:text-ink p-0.5 rounded-md hover:bg-surface-subtle"
-          >
-            <X size={14} />
-          </button>
-        </div>
-      )}
+      {/* Main Application Wrapper (Padded left for sidebar) */}
+      <div className="flex-1 flex flex-col lg:pl-64 min-w-0">
+        {/* Stitch Anchored Top Navigation Bar */}
+        <Navbar
+          isConnected={isConnected}
+          onRefresh={() => loadData(false)}
+          isRefreshing={isRefreshing}
+          onOpenAlerts={() => {
+            setPrefillAlertTicker(undefined);
+            setAlertsOpen(true);
+          }}
+          onOpenMemories={() => setMemoriesOpen(true)}
+          onSendDigest={handleSendDigest}
+          isSendingDigest={isSendingDigest}
+          onSelectStock={handleSelectStockFromNav}
+        />
 
-      {/* Main Dashboard Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
-        {/* Row 1: Executive KPI Metrics Banner */}
-        <PortfolioSummary analytics={analytics} loading={loading} />
+        {/* Floating Toast Notification */}
+        {toast && (
+          <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl bg-surface-container-lowest border border-outline-variant/40 shadow-stitch-lg text-xs max-w-md animate-in fade-in slide-in-from-bottom-3 duration-200">
+            {toast.type === "success" ? (
+              <CheckCircle className="w-4 h-4 text-gain flex-shrink-0" />
+            ) : (
+              <AlertTriangle className="w-4 h-4 text-error flex-shrink-0" />
+            )}
+            <span className="text-on-surface font-semibold flex-1">{toast.message}</span>
+            <button
+              onClick={() => setToast(null)}
+              className="text-outline hover:text-on-surface p-0.5 rounded-md"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        )}
 
-        {/* Row 2: Portfolio Growth & Alpha Curve (Stitch Blueprint) */}
-        <PortfolioPerformanceCurve analytics={analytics} />
+        {/* Stitch Main Content Canvas */}
+        <main className="flex-1 p-6 md:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
+          {/* Executive Summary Metric Banner (4 clean metric cards across) */}
+          <PortfolioSummary analytics={analytics} loading={loading} />
 
-        {/* Row 3: Portfolio Holdings & Sector / Rebalancing (Left) + FinSight AI Co-Pilot (Right) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column (Holdings, Sector & Rebalancing Engine) */}
-          <div className="lg:col-span-7 space-y-6">
-            <HoldingsTable
-              holdings={analytics?.holdings || []}
-              onAddHolding={handleAddHolding}
-              onDeleteHolding={handleDeleteHolding}
-              onAskAI={handleAskAI}
-            />
+          {/* Main Layout Grid (Split 65% / 35%) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Left Column (65% width: 8 cols in 12-col grid) */}
+            <div className="lg:col-span-8 space-y-6">
+              {/* 1. Interactive Portfolio Performance Chart Card */}
+              <PortfolioPerformanceCurve analytics={analytics} />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <SectorChart
-                sectors={analytics?.sectors || {}}
-                diversificationScore={analytics?.diversification_score || 0}
+              {/* 2. Holdings & Assets Table Card */}
+              <HoldingsTable
+                holdings={analytics?.holdings || []}
+                onAddHolding={handleAddHolding}
+                onDeleteHolding={handleDeleteHolding}
+                onAskAI={handleAskAI}
               />
-              <AIRebalancingCard onAskAI={handleAskAI} />
+
+              {/* 3. Lower Analytics Row: Sector Allocation & AI Rebalancing Engine */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <SectorChart
+                  sectors={analytics?.sectors || {}}
+                  diversificationScore={analytics?.diversification_score || 0}
+                />
+                <AIRebalancingCard onAskAI={handleAskAI} />
+              </div>
+            </div>
+
+            {/* Right Column (35% width: 4 cols in 12-col grid) - FinSight AI Co-Pilot Panel */}
+            <div className="lg:col-span-4 lg:sticky lg:top-20">
+              <AIChatPanel
+                initialPrompt={aiPrompt}
+                onClearInitialPrompt={() => setAiPrompt(undefined)}
+              />
             </div>
           </div>
 
-          {/* Right Column (FinSight AI Co-Pilot Panel) */}
-          <div id="ai-chat-section" className="lg:col-span-5 lg:sticky lg:top-20">
-            <AIChatPanel
-              initialPrompt={aiPrompt}
-              onClearInitialPrompt={() => setAiPrompt(undefined)}
+          {/* NSE Stock Deep Dive & Valuation Explorer */}
+          <div className="pt-2">
+            <StockDeepDive
+              onAskAI={handleAskAI}
+              onOpenAlert={handleOpenAlert}
+              externalTicker={selectedDeepDiveTicker}
             />
           </div>
-        </div>
+        </main>
 
-        {/* Row 3: NSE Stock Deep Dive & Valuation Explorer */}
-        <div id="stock-deep-dive-section">
-          <StockDeepDive
-            onAskAI={handleAskAI}
-            onOpenAlert={handleOpenAlert}
-            externalTicker={selectedDeepDiveTicker}
-          />
-        </div>
-      </main>
-
-      {/* Clean Footer */}
-      <footer className="border-t border-border bg-surface py-6 px-6 mt-12 text-center text-xs text-ink-muted shadow-2xs">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="font-semibold text-ink-secondary">
-            FinSight — AI Financial Intelligence & Portfolio Analytics
-          </p>
-          <p className="text-[11px] text-ink-muted font-medium">
-            Designed with Stitch MCP • Institutional Light Theme
-          </p>
-        </div>
-      </footer>
+        {/* Footer */}
+        <footer className="border-t border-outline-variant/30 bg-surface-container-low/40 py-6 px-8 text-center text-xs text-on-surface-variant">
+          <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="font-semibold text-on-surface">
+              FinSight Intelligence Enterprise v4.2 • Powered by Stitch Design System
+            </p>
+            <p className="text-[11px] text-outline font-medium">
+              Institutional quantitative analytics &amp; portfolio risk modeling
+            </p>
+          </div>
+        </footer>
+      </div>
 
       {/* Modals */}
       <AlertsModal
