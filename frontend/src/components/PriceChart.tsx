@@ -59,7 +59,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({ ticker }) => {
 
   const isPositive =
     data.length >= 2 ? data[data.length - 1].Close >= data[0].Close : true;
-  const strokeColor = isPositive ? "#059669" : "#DC2626";
+  const strokeColor = isPositive ? "#065F46" : "#991B1B";
   const gradientId = `priceGrad-${ticker}-${period}`;
 
   const minPrice =
@@ -88,7 +88,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({ ticker }) => {
               onClick={() => setPeriod(p.value)}
               className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
                 period === p.value
-                  ? "bg-surface text-ink shadow-xs"
+                  ? "bg-surface text-ink font-bold shadow-xs border border-border/60"
                   : "text-ink-muted hover:text-ink"
               }`}
             >
@@ -102,7 +102,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({ ticker }) => {
       <div className="flex-1 w-full min-h-[220px] relative flex items-center justify-center">
         {loading ? (
           <div className="flex items-center gap-2 text-ink-muted text-xs font-medium">
-            <Loader2 className="animate-spin text-brand-accent" size={16} />
+            <Loader2 className="animate-spin text-ink" size={16} />
             <span>Loading historical quotes...</span>
           </div>
         ) : error ? (
@@ -118,24 +118,24 @@ export const PriceChart: React.FC<PriceChartProps> = ({ ticker }) => {
             <AreaChart data={data} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
               <defs>
                 <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={strokeColor} stopOpacity={0.2} />
+                  <stop offset="5%" stopColor={strokeColor} stopOpacity={0.25} />
                   <stop offset="95%" stopColor={strokeColor} stopOpacity={0.0} />
                 </linearGradient>
               </defs>
               <XAxis
                 dataKey="Date"
                 tickFormatter={formatDate}
-                stroke="#64748B"
+                stroke="#78716C"
                 fontSize={10}
                 tickLine={false}
-                axisLine={{ stroke: "#E2E8F0" }}
+                axisLine={{ stroke: "#E5E0D8" }}
               />
               <YAxis
                 domain={[minPrice, maxPrice]}
-                stroke="#64748B"
+                stroke="#78716C"
                 fontSize={10}
                 tickLine={false}
-                axisLine={{ stroke: "#E2E8F0" }}
+                axisLine={{ stroke: "#E5E0D8" }}
                 tickFormatter={(val) => `₹${val.toFixed(0)}`}
               />
               <Tooltip

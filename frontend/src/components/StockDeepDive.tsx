@@ -203,12 +203,12 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
   };
 
   return (
-    <div className="bg-surface border border-border rounded-xl p-5 sm:p-6 shadow-xs space-y-6">
+    <div className="bg-surface border border-border rounded-xl p-5 sm:p-6 shadow-card space-y-6">
       {/* Top Search & Filter Bar */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold text-ink flex items-center gap-2">
-            <Activity className="text-brand-accent" size={18} />
+          <h2 className="text-base font-bold text-ink flex items-center gap-2 font-sans">
+            <Activity className="text-amber-700" size={18} />
             Institutional Stock Deep Dive
           </h2>
           <p className="text-xs text-ink-muted font-medium">
@@ -230,7 +230,7 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
                   if (searchResults.length > 0) setShowDropdown(true);
                 }}
                 placeholder="Search company (e.g. Tata, HDFC, Infosys)..."
-                className="w-full bg-surface border border-border text-ink placeholder-ink-faint rounded-lg pl-9 pr-8 py-2 text-xs font-semibold focus:outline-none focus:border-brand-accent transition-colors shadow-2xs"
+                className="w-full bg-surface border border-border text-ink placeholder-ink-faint rounded-lg pl-9 pr-8 py-2 text-xs font-semibold focus:outline-none focus:border-ink transition-colors shadow-2xs"
               />
               {searchInput && (
                 <button
@@ -249,7 +249,7 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-ink hover:bg-ink-secondary disabled:opacity-50 text-white rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-xs flex-shrink-0"
+              className="px-4 py-2 bg-ink hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-xs flex-shrink-0"
             >
               {loading ? <Loader2 className="animate-spin" size={13} /> : "Search"}
             </button>
@@ -261,7 +261,7 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
               <div className="p-2 bg-surface-subtle border-b border-border flex items-center justify-between text-[11px] font-bold text-ink-muted">
                 <span>RELEVANT MATCHES</span>
                 {isSearching && (
-                  <span className="flex items-center gap-1 text-brand-accent font-medium">
+                  <span className="flex items-center gap-1 text-ink font-medium">
                     <Loader2 className="animate-spin" size={11} />
                     Searching...
                   </span>
@@ -283,8 +283,8 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
                         onMouseEnter={() => setHighlightedIndex(index)}
                         className={`p-3 cursor-pointer transition-colors flex items-center justify-between gap-3 text-xs ${
                           isHighlighted
-                            ? "bg-brand-light/80 text-brand-accent"
-                            : "hover:bg-surface-hover text-ink"
+                            ? "bg-surface-subtle text-ink font-bold"
+                            : "hover:bg-surface-subtle text-ink"
                         }`}
                       >
                         <div className="min-w-0 flex-1">
@@ -292,7 +292,7 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
                             {stock.name}
                           </div>
                           <div className="text-[11px] text-ink-muted flex items-center gap-2 mt-0.5">
-                            <span className="font-mono font-bold text-brand-accent bg-brand-light px-1.5 py-0.5 rounded border border-brand-border/60">
+                            <span className="font-mono font-bold text-ink bg-surface-subtle px-1.5 py-0.5 rounded border border-border">
                               {stock.symbol}
                             </span>
                             <span className="truncate">{stock.sector}</span>
@@ -323,12 +323,12 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
             }}
             className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors flex items-center gap-1.5 ${
               selectedTicker === t.symbol
-                ? "bg-brand-light text-brand-accent border border-brand-border font-bold shadow-2xs"
+                ? "bg-ink text-white font-bold shadow-xs"
                 : "bg-surface-subtle text-ink-secondary border border-border hover:bg-surface hover:text-ink"
             }`}
           >
             <span>{t.label}</span>
-            <span className="font-mono text-[10px] text-ink-muted font-normal">({t.symbol})</span>
+            <span className="font-mono text-[10px] opacity-75 font-normal">({t.symbol})</span>
           </button>
         ))}
       </div>
@@ -341,7 +341,7 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
         </div>
       ) : loading && !priceData ? (
         <div className="py-20 flex flex-col items-center justify-center text-ink-muted gap-2 font-medium">
-          <Loader2 className="animate-spin text-brand-accent" size={24} />
+          <Loader2 className="animate-spin text-ink" size={24} />
           <span className="text-xs">Fetching market depth for {selectedTicker}...</span>
         </div>
       ) : (
@@ -350,14 +350,14 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
           <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-border gap-4">
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h3 className="text-xl font-bold text-ink tracking-tight">
+                <h3 className="text-xl font-bold text-ink tracking-tight font-sans">
                   {fundamentals?.name || selectedTicker}
                 </h3>
                 <span className="px-2.5 py-0.5 rounded-md bg-surface-subtle border border-border text-ink-secondary font-mono text-xs font-bold">
                   NSE: {selectedTicker}
                 </span>
                 {fundamentals?.sector && (
-                  <span className="px-2.5 py-0.5 rounded-md bg-brand-light text-brand-accent border border-brand-border text-xs font-semibold">
+                  <span className="px-2.5 py-0.5 rounded-md bg-surface-subtle text-ink border border-border text-xs font-semibold">
                     {fundamentals.sector}
                   </span>
                 )}
@@ -390,7 +390,7 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
                 {onAskAI && (
                   <button
                     onClick={() => onAskAI(selectedTicker)}
-                    className="p-2.5 rounded-lg bg-surface border border-border hover:border-brand-accent text-ink-secondary hover:text-brand-accent shadow-xs transition-colors"
+                    className="p-2.5 rounded-lg bg-surface border border-border hover:border-ink text-ink-secondary hover:text-ink shadow-xs transition-colors"
                     title={`Ask FinSight AI about ${fundamentals?.name || selectedTicker}`}
                   >
                     <MessageSquare size={16} />
@@ -399,7 +399,7 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
                 {onOpenAlert && (
                   <button
                     onClick={() => onOpenAlert(selectedTicker)}
-                    className="p-2.5 rounded-lg bg-surface border border-border hover:border-brand-accent text-ink-secondary hover:text-brand-accent shadow-xs transition-colors"
+                    className="p-2.5 rounded-lg bg-surface border border-border hover:border-ink text-ink-secondary hover:text-ink shadow-xs transition-colors"
                     title={`Set Alert for ${fundamentals?.name || selectedTicker}`}
                   >
                     <Bell size={16} />
@@ -418,8 +418,8 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
 
             {/* Fundamentals Column (1 col) */}
             <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-ink-muted flex items-center gap-1.5">
-                <Layers size={13} className="text-brand-accent" />
+              <h4 className="text-xs font-bold uppercase tracking-wider text-ink-muted flex items-center gap-1.5 font-sans">
+                <Layers size={13} className="text-amber-700" />
                 Fundamental Ratios
               </h4>
 
@@ -479,7 +479,7 @@ export const StockDeepDive: React.FC<StockDeepDiveProps> = ({
                   <div className="w-full bg-surface border border-border rounded-full h-2 mt-2.5 overflow-hidden">
                     {priceData && (
                       <div
-                        className="bg-brand-accent h-full rounded-full"
+                        className="bg-ink h-full rounded-full"
                         style={{
                           width: `${Math.min(
                             100,

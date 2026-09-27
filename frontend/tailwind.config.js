@@ -7,52 +7,54 @@ export default {
   theme: {
     extend: {
       colors: {
-        canvas: '#F8FAFC', // Crisp light background (Slate 50)
+        // Financial Times / Bloomberg Warm Luxury Canvas
+        canvas: '#F6F5F2', // Warm parchment / alabaster backdrop
         surface: {
-          DEFAULT: '#FFFFFF', // Pure white card surfaces
-          subtle: '#F1F5F9',  // Subtle secondary panel (Slate 100)
-          hover: '#F8FAFC',
-          muted: '#E2E8F0',
+          DEFAULT: '#FFFFFF', // Pure crisp white cards
+          subtle: '#FAF8F5',  // Subtle warm secondary panel (Stone 50 tint)
+          hover: '#F5F2EB',   // Warm hover state
+          muted: '#EFECE6',
         },
         border: {
-          DEFAULT: '#E2E8F0', // Primary clean border (Slate 200)
-          subtle: '#F1F5F9',
-          strong: '#CBD5E1', // Structural border (Slate 300)
+          DEFAULT: '#E5E0D8', // Warm structural card border
+          subtle: '#EDE8E0',
+          strong: '#D4CDC0', // High-contrast border
         },
         ink: {
-          DEFAULT: '#0F172A', // High contrast primary text (Slate 900)
-          secondary: '#334155', // Secondary body text (Slate 700)
-          muted: '#64748B', // Tertiary / labels (Slate 500)
-          faint: '#94A3B8', // Very light hints (Slate 400)
+          DEFAULT: '#1C1917', // Deep warm onyx / stone 900 (ultra legible)
+          secondary: '#44403C', // Warm body text (Stone 700)
+          muted: '#78716C', // Warm tertiary / labels (Stone 500)
+          faint: '#A8A29E', // Subtle hints (Stone 400)
         },
         brand: {
           DEFAULT: '#1E3A8A', // Deep institutional navy (Blue 900)
           accent: '#2563EB',  // Royal executive blue (Blue 600)
           light: '#EFF6FF',   // Subtle blue pill background (Blue 50)
-          border: '#BFDBFE',  // Light blue border (Blue 200)
+          border: '#BFDBFE',  // Light blue border
         },
         profit: {
-          DEFAULT: '#047857', // Deep, accessible emerald (Emerald 700)
-          bg: '#ECFDF5',      // Soft emerald pill (Emerald 50)
-          border: '#A7F3D0',  // Emerald border (Emerald 200)
+          DEFAULT: '#065F46', // Deep Wall Street emerald (Emerald 800)
+          bg: '#ECFDF5',      // Soft emerald pill
+          border: '#A7F3D0',  // Emerald border
         },
         loss: {
-          DEFAULT: '#B91C1C', // Deep, accessible crimson (Red 700)
-          bg: '#FEF2F2',      // Soft crimson pill (Red 50)
-          border: '#FECACA',  // Crimson border (Red 200)
+          DEFAULT: '#991B1B', // Deep British crimson / oxblood (Red 800)
+          bg: '#FEF2F2',      // Soft crimson pill
+          border: '#FECACA',  // Crimson border
         },
         warning: {
-          DEFAULT: '#B45309', // Deep amber (Amber 700)
-          bg: '#FFFBEB',      // Soft amber pill (Amber 50)
-          border: '#FDE68A',  // Amber border (Amber 200)
+          DEFAULT: '#92400E', // Deep warm amber (Amber 800)
+          bg: '#FFFBEB',      // Soft amber pill
+          border: '#FDE68A',  // Amber border
         }
       },
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'Menlo', 'Courier New', 'monospace'],
       },
-      fontSize: {
-        'xxs': '0.6875rem', // 11px
+      boxShadow: {
+        'card': '0 2px 10px -2px rgba(28, 25, 23, 0.05), 0 1px 3px rgba(28, 25, 23, 0.03)',
+        'card-hover': '0 6px 18px -4px rgba(28, 25, 23, 0.08), 0 2px 6px rgba(28, 25, 23, 0.04)',
       }
     },
   },

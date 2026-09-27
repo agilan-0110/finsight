@@ -9,16 +9,16 @@ interface SectorChartProps {
 }
 
 const PALETTE = [
-  "#2563EB", // Royal Blue
-  "#059669", // Emerald
-  "#7C3AED", // Violet
-  "#D97706", // Amber
-  "#0891B2", // Cyan
-  "#DB2777", // Pink
-  "#4F46E5", // Indigo
-  "#0D9488", // Teal
-  "#EA580C", // Orange
-  "#64748B", // Slate
+  "#1C1917", // Onyx
+  "#065F46", // Emerald
+  "#1E3A8A", // Navy
+  "#92400E", // Warm Amber
+  "#6B21A8", // Purple
+  "#991B1B", // Crimson
+  "#0F766E", // Teal
+  "#374151", // Slate
+  "#C2410C", // Rust
+  "#4338CA", // Indigo
 ];
 
 export const SectorChart: React.FC<SectorChartProps> = ({ sectors, diversificationScore }) => {
@@ -47,14 +47,14 @@ export const SectorChart: React.FC<SectorChartProps> = ({ sectors, diversificati
   const StatusIcon = status.icon;
 
   return (
-    <div className="bg-surface border border-border rounded-xl p-5 shadow-xs flex flex-col h-full">
+    <div className="bg-surface border border-border rounded-xl p-5 shadow-card flex flex-col h-full">
       <div className="flex items-center justify-between pb-3 border-b border-border">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-lg bg-brand-light text-brand-accent">
+          <div className="p-2 rounded-lg bg-surface-subtle text-ink border border-border">
             <PieIcon size={16} />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-ink uppercase tracking-wider">
+            <h3 className="text-sm font-bold text-ink uppercase tracking-wider font-sans">
               Sector Allocation
             </h3>
             <p className="text-xs text-ink-muted font-medium">Portfolio exposure distribution</p>
@@ -103,7 +103,7 @@ export const SectorChart: React.FC<SectorChartProps> = ({ sectors, diversificati
                       return (
                         <div className="bg-surface border border-border p-3 rounded-lg shadow-md text-xs">
                           <p className="font-bold text-ink">{data.name}</p>
-                          <p className="text-brand-accent font-mono font-bold mt-0.5">{formatRupee(data.value)} ({data.percentage}%)</p>
+                          <p className="text-ink font-mono font-bold mt-0.5">{formatRupee(data.value)} ({data.percentage}%)</p>
                           <p className="text-ink-muted text-[11px] font-medium mt-1">
                             Stocks: {data.stocks.join(", ")}
                           </p>
@@ -128,7 +128,7 @@ export const SectorChart: React.FC<SectorChartProps> = ({ sectors, diversificati
               return (
                 <div
                   key={sector.name}
-                  className="p-2.5 rounded-lg bg-surface-subtle border border-border/80 hover:border-border transition-colors text-xs flex items-center justify-between"
+                  className="p-2.5 rounded-lg bg-surface-subtle border border-border hover:border-ink/30 transition-colors text-xs flex items-center justify-between"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span

@@ -12,7 +12,7 @@ export const PortfolioSummary: React.FC<Props> = ({ analytics, loading }) => {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-28 rounded-xl bg-surface border border-border animate-pulse shadow-xs" />
+          <div key={i} className="h-28 rounded-xl bg-surface border border-border animate-pulse shadow-card" />
         ))}
       </div>
     );
@@ -25,11 +25,11 @@ export const PortfolioSummary: React.FC<Props> = ({ analytics, loading }) => {
       {/* 4 Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Value */}
-        <div className="p-5 rounded-xl bg-surface border border-border shadow-xs relative">
+        <div className="p-5 rounded-xl bg-surface border border-border shadow-card hover:shadow-card-hover transition-shadow relative">
           <div className="flex items-center justify-between text-ink-muted mb-2">
             <span className="text-xs font-bold uppercase tracking-wider">Portfolio Value</span>
-            <div className="p-1.5 rounded-md bg-brand-light text-brand-accent">
-              <DollarSign className="w-4 h-4" />
+            <div className="p-1.5 rounded-md bg-surface-subtle text-ink border border-border">
+              <DollarSign className="w-4 h-4 text-amber-700" />
             </div>
           </div>
           <div className="text-2xl font-bold font-mono text-ink tracking-tight">
@@ -41,10 +41,10 @@ export const PortfolioSummary: React.FC<Props> = ({ analytics, loading }) => {
         </div>
 
         {/* Net Unrealized P&L */}
-        <div className="p-5 rounded-xl bg-surface border border-border shadow-xs relative">
+        <div className="p-5 rounded-xl bg-surface border border-border shadow-card hover:shadow-card-hover transition-shadow relative">
           <div className="flex items-center justify-between text-ink-muted mb-2">
             <span className="text-xs font-bold uppercase tracking-wider">Unrealized P&L</span>
-            <div className={`p-1.5 rounded-md ${isProfit ? "bg-profit-bg text-profit" : "bg-loss-bg text-loss"}`}>
+            <div className={`p-1.5 rounded-md border ${isProfit ? "bg-profit-bg text-profit border-profit-border" : "bg-loss-bg text-loss border-loss-border"}`}>
               {isProfit ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
             </div>
           </div>
@@ -67,11 +67,11 @@ export const PortfolioSummary: React.FC<Props> = ({ analytics, loading }) => {
         </div>
 
         {/* Invested Capital */}
-        <div className="p-5 rounded-xl bg-surface border border-border shadow-xs relative">
+        <div className="p-5 rounded-xl bg-surface border border-border shadow-card hover:shadow-card-hover transition-shadow relative">
           <div className="flex items-center justify-between text-ink-muted mb-2">
             <span className="text-xs font-bold uppercase tracking-wider">Invested Capital</span>
-            <div className="p-1.5 rounded-md bg-surface-subtle text-ink-muted">
-              <PieChart className="w-4 h-4" />
+            <div className="p-1.5 rounded-md bg-surface-subtle text-ink-muted border border-border">
+              <PieChart className="w-4 h-4 text-stone-600" />
             </div>
           </div>
           <div className="text-2xl font-bold font-mono text-ink tracking-tight">
@@ -81,10 +81,10 @@ export const PortfolioSummary: React.FC<Props> = ({ analytics, loading }) => {
         </div>
 
         {/* Diversification Score */}
-        <div className="p-5 rounded-xl bg-surface border border-border shadow-xs relative">
+        <div className="p-5 rounded-xl bg-surface border border-border shadow-card hover:shadow-card-hover transition-shadow relative">
           <div className="flex items-center justify-between text-ink-muted mb-2">
             <span className="text-xs font-bold uppercase tracking-wider">Diversification</span>
-            <span className="text-xs font-mono font-bold text-brand-accent">
+            <span className="text-xs font-mono font-bold text-ink bg-surface-subtle px-1.5 py-0.5 rounded border border-border">
               {analytics.diversification_score}/100
             </span>
           </div>
@@ -113,7 +113,7 @@ export const PortfolioSummary: React.FC<Props> = ({ analytics, loading }) => {
 
       {/* Health / Risk Observations Banner */}
       {analytics.risk_flags && analytics.risk_flags.length > 0 && (
-        <div className="p-4 rounded-xl bg-warning-bg border border-warning-border flex items-start gap-3 shadow-xs">
+        <div className="p-4 rounded-xl bg-warning-bg border border-warning-border flex items-start gap-3 shadow-card">
           <ShieldAlert className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
           <div className="text-xs space-y-1">
             <span className="font-bold text-warning tracking-wide uppercase text-[11px]">

@@ -88,16 +88,16 @@ export const MemoriesModal: React.FC<MemoriesModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4">
       <div className="bg-surface border border-border rounded-xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between bg-surface-subtle">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-brand-light text-brand-accent">
+            <div className="p-2 rounded-lg bg-surface border border-border text-indigo-700 shadow-2xs">
               <Brain size={18} />
             </div>
             <div>
-              <h2 className="text-base font-bold text-ink">
+              <h2 className="text-base font-bold text-ink font-sans">
                 Agent Memory Store
               </h2>
               <p className="text-xs text-ink-muted font-medium">
@@ -116,8 +116,8 @@ export const MemoriesModal: React.FC<MemoriesModalProps> = ({
         {/* Body */}
         <div className="p-5 sm:p-6 overflow-y-auto space-y-6">
           {/* Explanation Banner */}
-          <div className="p-4 rounded-xl bg-brand-light border border-brand-border flex items-start gap-3 text-xs text-ink-secondary">
-            <Info size={16} className="text-brand-accent flex-shrink-0 mt-0.5" />
+          <div className="p-4 rounded-xl bg-surface-subtle border border-border flex items-start gap-3 text-xs text-ink-secondary">
+            <Info size={16} className="text-amber-800 flex-shrink-0 mt-0.5" />
             <div>
               <p className="font-bold text-ink">Zero-Cost Semantic Memory</p>
               <p className="text-ink-muted font-medium mt-0.5 leading-relaxed">
@@ -128,8 +128,8 @@ export const MemoriesModal: React.FC<MemoriesModalProps> = ({
 
           {/* Add Manual Memory Form */}
           <form onSubmit={handleAddMemory} className="p-4 rounded-xl bg-surface-subtle border border-border space-y-3">
-            <h3 className="text-xs font-bold text-ink uppercase tracking-wider flex items-center gap-1.5">
-              <Plus size={14} className="text-brand-accent" />
+            <h3 className="text-xs font-bold text-ink uppercase tracking-wider flex items-center gap-1.5 font-sans">
+              <Plus size={14} className="text-amber-700" />
               Add Remembered Context
             </h3>
 
@@ -143,7 +143,7 @@ export const MemoriesModal: React.FC<MemoriesModalProps> = ({
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="bg-surface border border-border text-ink text-xs font-medium rounded-lg px-3 py-2 focus:outline-none focus:border-brand-accent shadow-2xs"
+                className="bg-surface border border-border text-ink text-xs font-medium rounded-lg px-3 py-2 focus:outline-none focus:border-ink shadow-2xs"
               >
                 <option value="preference">Preference</option>
                 <option value="risk_tolerance">Risk Profile</option>
@@ -157,13 +157,13 @@ export const MemoriesModal: React.FC<MemoriesModalProps> = ({
                 placeholder="e.g. Target 5-year horizon with low exposure to PSU banks"
                 value={newMemory}
                 onChange={(e) => setNewMemory(e.target.value)}
-                className="flex-1 bg-surface border border-border text-ink text-xs font-medium rounded-lg px-3 py-2 focus:outline-none focus:border-brand-accent shadow-2xs"
+                className="flex-1 bg-surface border border-border text-ink text-xs font-medium rounded-lg px-3 py-2 focus:outline-none focus:border-ink shadow-2xs"
               />
 
               <button
                 type="submit"
                 disabled={submitting || !newMemory.trim()}
-                className="px-4 py-2 bg-ink hover:bg-ink-secondary text-white font-semibold rounded-lg text-xs transition-colors disabled:opacity-50 flex items-center justify-center gap-1 shadow-xs"
+                className="px-4 py-2 bg-ink hover:bg-stone-800 text-white font-semibold rounded-lg text-xs transition-colors disabled:opacity-50 flex items-center justify-center gap-1 shadow-xs"
               >
                 {submitting ? <Loader2 className="animate-spin" size={14} /> : "Save"}
               </button>
@@ -188,7 +188,7 @@ export const MemoriesModal: React.FC<MemoriesModalProps> = ({
 
             {loading ? (
               <div className="py-8 flex justify-center text-ink-muted text-xs">
-                <Loader2 className="animate-spin text-brand-accent" size={18} />
+                <Loader2 className="animate-spin text-ink" size={18} />
               </div>
             ) : memories.length === 0 ? (
               <div className="py-10 text-center text-ink-muted text-xs">
@@ -207,7 +207,7 @@ export const MemoriesModal: React.FC<MemoriesModalProps> = ({
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-brand-light text-brand-accent border border-brand-border flex items-center gap-1">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-surface-subtle text-ink border border-border flex items-center gap-1">
                           <Tag size={10} />
                           {mem.category}
                         </span>

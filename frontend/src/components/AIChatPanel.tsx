@@ -138,7 +138,7 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
           if (line.startsWith("- ") || line.startsWith("* ")) {
             return (
               <div key={idx} className="flex items-start gap-2 pl-2">
-                <span className="text-brand-accent font-bold text-[11px] mt-0.5">•</span>
+                <span className="text-amber-800 font-bold text-[11px] mt-0.5">•</span>
                 <span className="font-medium">{line.substring(2)}</span>
               </div>
             );
@@ -153,16 +153,16 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
   };
 
   return (
-    <div className="bg-surface border border-border rounded-xl flex flex-col h-full shadow-xs overflow-hidden">
+    <div className="bg-surface border border-border rounded-xl flex flex-col h-full shadow-card overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b border-border flex items-center justify-between bg-surface-subtle/50">
+      <div className="p-4 border-b border-border flex items-center justify-between bg-surface-subtle">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-brand-light border border-brand-border flex items-center justify-center text-brand-accent shadow-2xs">
-            <Bot size={18} />
+          <div className="w-8 h-8 rounded-lg bg-ink text-white flex items-center justify-center shadow-2xs">
+            <Bot size={18} className="text-amber-400" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-ink">FinSight AI Analyst</h3>
+              <h3 className="text-sm font-bold text-ink font-sans">FinSight AI Analyst</h3>
               <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-profit-bg text-profit border border-profit-border">
                 ACTIVE
               </span>
@@ -176,7 +176,7 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
         <div className="flex items-center gap-1.5">
           <button
             onClick={fetchHistory}
-            className="p-1.5 rounded-lg text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors"
+            className="p-1.5 rounded-lg text-ink-muted hover:text-ink hover:bg-surface border border-border shadow-2xs transition-colors"
             title="Refresh History"
           >
             <RefreshCw size={14} />
@@ -192,18 +192,18 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
       </div>
 
       {/* Messages Thread */}
-      <div className="flex-1 p-4 overflow-y-auto space-y-4 max-h-[550px] min-h-[380px] bg-canvas/30">
+      <div className="flex-1 p-4 overflow-y-auto space-y-4 max-h-[550px] min-h-[380px] bg-canvas/40">
         {fetchingHistory ? (
           <div className="flex items-center justify-center h-full text-ink-muted text-xs gap-2 font-medium">
-            <Loader2 className="animate-spin text-brand-accent" size={16} />
+            <Loader2 className="animate-spin text-ink" size={16} />
             <span>Loading conversation memory...</span>
           </div>
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full py-10 text-center px-4">
-            <div className="w-12 h-12 rounded-xl bg-brand-light border border-brand-border flex items-center justify-center text-brand-accent mb-3 shadow-xs">
+            <div className="w-12 h-12 rounded-xl bg-surface border border-border flex items-center justify-center text-amber-700 mb-3 shadow-card">
               <Sparkles size={22} />
             </div>
-            <h4 className="text-sm font-bold text-ink mb-1">
+            <h4 className="text-sm font-bold text-ink mb-1 font-sans">
               Institutional Research Terminal
             </h4>
             <p className="text-xs text-ink-muted font-medium max-w-sm mb-5">
@@ -216,7 +216,7 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
                 <button
                   key={idx}
                   onClick={() => handleSend(prompt)}
-                  className="p-3 rounded-lg bg-surface border border-border hover:border-brand-accent/50 text-ink text-xs font-semibold transition-all hover:bg-surface-hover text-left shadow-2xs"
+                  className="p-3 rounded-lg bg-surface border border-border hover:border-ink/40 text-ink text-xs font-semibold transition-all hover:shadow-xs text-left shadow-2xs"
                 >
                   <p className="line-clamp-2">{prompt}</p>
                 </button>
@@ -232,26 +232,26 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
                 className={`flex gap-2.5 ${isUser ? "justify-end" : "justify-start"}`}
               >
                 {!isUser && (
-                  <div className="w-7 h-7 rounded-lg bg-surface border border-border flex items-center justify-center text-brand-accent flex-shrink-0 mt-0.5 shadow-2xs">
-                    <Terminal size={14} />
+                  <div className="w-7 h-7 rounded-lg bg-surface border border-border flex items-center justify-center text-ink flex-shrink-0 mt-0.5 shadow-2xs">
+                    <Terminal size={14} className="text-amber-700" />
                   </div>
                 )}
 
                 <div
                   className={`max-w-[85%] rounded-xl p-3.5 ${
                     isUser
-                      ? "bg-brand-light border border-brand-border text-ink font-medium"
-                      : "bg-surface border border-border text-ink-secondary shadow-xs"
+                      ? "bg-ink text-white font-medium shadow-xs"
+                      : "bg-surface border border-border text-ink-secondary shadow-card"
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-3 mb-1 text-[10px] text-ink-muted font-mono font-semibold">
+                  <div className="flex items-center justify-between gap-3 mb-1 text-[10px] font-mono font-semibold opacity-75">
                     <span>{isUser ? "YOU" : "FINSIGHT AI"}</span>
                     {msg.timestamp && (
                       <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                     )}
                   </div>
                   {isUser ? (
-                    <p className="text-xs text-ink whitespace-pre-wrap">{msg.message}</p>
+                    <p className="text-xs text-white whitespace-pre-wrap">{msg.message}</p>
                   ) : (
                     renderFormattedMessage(msg.message)
                   )}
@@ -269,11 +269,11 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
 
         {loading && (
           <div className="flex gap-2.5 justify-start items-center">
-            <div className="w-7 h-7 rounded-lg bg-surface border border-border flex items-center justify-center text-brand-accent flex-shrink-0 shadow-2xs">
-              <Terminal size={14} />
+            <div className="w-7 h-7 rounded-lg bg-surface border border-border flex items-center justify-center text-ink flex-shrink-0 shadow-2xs">
+              <Terminal size={14} className="text-amber-700" />
             </div>
             <div className="bg-surface border border-border rounded-xl px-4 py-3 flex items-center gap-2 text-xs text-ink-muted font-medium shadow-xs">
-              <Loader2 className="animate-spin text-brand-accent" size={14} />
+              <Loader2 className="animate-spin text-ink" size={14} />
               <span>Analyzing portfolio data and financial fundamentals...</span>
             </div>
           </div>
@@ -296,12 +296,12 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
           onChange={(e) => setInputMessage(e.target.value)}
           placeholder="Ask FinSight AI about your portfolio, stocks, risk..."
           disabled={loading}
-          className="flex-1 bg-surface-subtle border border-border text-ink placeholder-ink-faint rounded-lg px-3.5 py-2 text-xs font-medium focus:outline-none focus:border-brand-accent transition-colors disabled:opacity-50"
+          className="flex-1 bg-surface-subtle border border-border text-ink placeholder-ink-faint rounded-lg px-3.5 py-2 text-xs font-medium focus:outline-none focus:border-ink transition-colors disabled:opacity-50"
         />
         <button
           type="submit"
           disabled={loading || !inputMessage.trim()}
-          className="px-4 py-2 bg-ink hover:bg-ink-secondary text-white font-semibold rounded-lg text-xs transition-colors disabled:opacity-40 flex items-center gap-1.5 shadow-xs"
+          className="px-4 py-2 bg-ink hover:bg-stone-800 text-white font-semibold rounded-lg text-xs transition-colors disabled:opacity-40 flex items-center gap-1.5 shadow-xs"
         >
           {loading ? (
             <Loader2 className="animate-spin" size={14} />

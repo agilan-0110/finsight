@@ -21,17 +21,17 @@ export const Navbar: React.FC<NavbarProps> = ({
   isSendingDigest,
 }) => {
   return (
-    <header className="border-b border-border bg-surface/95 backdrop-blur sticky top-0 z-40 px-6 py-3.5 shadow-sm">
+    <header className="border-b border-border bg-surface sticky top-0 z-40 px-6 py-3.5 shadow-card">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-brand-light border border-brand-border flex items-center justify-center text-brand-accent shadow-xs">
-            <Activity className="w-5 h-5 text-brand-accent stroke-[2.2]" />
+          <div className="w-10 h-10 rounded-lg bg-ink text-white flex items-center justify-center shadow-xs">
+            <Activity className="w-5 h-5 text-amber-400 stroke-[2.4]" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-xl tracking-tight text-ink">FinSight</span>
-              <span className="text-[11px] font-mono font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-brand-light text-brand-accent border border-brand-border">
+              <span className="font-extrabold text-xl tracking-tight text-ink font-sans">FinSight</span>
+              <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-surface-subtle text-ink-secondary border border-border">
                 NSE ANALYST
               </span>
             </div>
@@ -42,7 +42,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Action Controls */}
         <div className="flex items-center gap-2.5">
           {/* Status Indicator */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-semibold">
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-surface-subtle text-xs font-semibold">
             <span
               className={`w-2 h-2 rounded-full ${
                 isConnected ? "bg-profit animate-pulse" : "bg-loss"
@@ -70,7 +70,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg bg-surface hover:bg-surface-subtle text-ink-secondary hover:text-ink border border-border shadow-xs transition"
             title="Manage Price Target Alerts"
           >
-            <Bell className="w-3.5 h-3.5 text-amber-600" />
+            <Bell className="w-3.5 h-3.5 text-amber-700" />
             <span className="hidden md:inline">Alerts</span>
           </button>
 
@@ -80,7 +80,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg bg-surface hover:bg-surface-subtle text-ink-secondary hover:text-ink border border-border shadow-xs transition"
             title="View what FinSight remembers about you"
           >
-            <Brain className="w-3.5 h-3.5 text-indigo-600" />
+            <Brain className="w-3.5 h-3.5 text-indigo-700" />
             <span className="hidden md:inline">Memories</span>
           </button>
 
@@ -91,7 +91,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="p-2 rounded-lg bg-surface hover:bg-surface-subtle text-ink-muted hover:text-ink border border-border shadow-xs transition disabled:opacity-50"
             title="Refresh Market & Analytics Data"
           >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-brand-accent" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-ink" : ""}`} />
           </button>
         </div>
       </div>

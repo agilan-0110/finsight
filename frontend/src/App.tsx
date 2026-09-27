@@ -113,7 +113,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-canvas text-ink flex flex-col font-sans selection:bg-brand-light selection:text-brand-accent">
+    <div className="min-h-screen bg-canvas text-ink flex flex-col font-sans selection:bg-amber-100 selection:text-ink">
       {/* Top Navigation */}
       <Navbar
         isConnected={isConnected}
@@ -130,7 +130,7 @@ export function App() {
 
       {/* Toast Alert */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl bg-surface border border-border shadow-xl text-xs max-w-md animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl bg-surface border border-border shadow-card text-xs max-w-md animate-in fade-in slide-in-from-bottom-3 duration-200">
           {toast.type === "success" ? (
             <CheckCircle className="w-4 h-4 text-profit flex-shrink-0" />
           ) : (
@@ -188,7 +188,7 @@ export function App() {
       {/* Institutional Footer */}
       <footer className="border-t border-border bg-surface py-6 px-6 mt-12 text-center text-xs text-ink-muted shadow-2xs">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="font-semibold text-ink-secondary">
+          <p className="font-semibold text-ink-secondary font-sans">
             FinSight — AI Financial Intelligence & Portfolio Analytics for Indian Equities
           </p>
           <p className="text-[11px] text-ink-muted font-medium">

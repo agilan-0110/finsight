@@ -122,16 +122,16 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4">
       <div className="bg-surface border border-border rounded-xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
         {/* Modal Header */}
         <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between bg-surface-subtle">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-brand-light text-brand-accent">
+            <div className="p-2 rounded-lg bg-surface border border-border text-amber-700 shadow-2xs">
               <Bell size={18} />
             </div>
             <div>
-              <h2 className="text-base font-bold text-ink">
+              <h2 className="text-base font-bold text-ink font-sans">
                 Automated Price Target Alerts
               </h2>
               <p className="text-xs text-ink-muted font-medium">
@@ -151,8 +151,8 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
         <div className="p-5 sm:p-6 overflow-y-auto space-y-6">
           {/* Create Alert Form */}
           <div className="p-4 rounded-xl bg-surface-subtle border border-border space-y-3">
-            <h3 className="text-xs font-bold text-ink uppercase tracking-wider flex items-center gap-1.5">
-              <Plus size={14} className="text-brand-accent" />
+            <h3 className="text-xs font-bold text-ink uppercase tracking-wider flex items-center gap-1.5 font-sans">
+              <Plus size={14} className="text-amber-700" />
               Set New Alert
             </h3>
 
@@ -169,7 +169,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
                   placeholder="Ticker (e.g. INFY)"
                   value={ticker}
                   onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                  className="w-full bg-surface border border-border text-ink text-xs font-mono font-medium rounded-lg px-3 py-2 focus:outline-none focus:border-brand-accent shadow-2xs"
+                  className="w-full bg-surface border border-border text-ink text-xs font-mono font-medium rounded-lg px-3 py-2 focus:outline-none focus:border-ink shadow-2xs"
                 />
               </div>
 
@@ -177,7 +177,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
                 <select
                   value={condition}
                   onChange={(e) => setCondition(e.target.value as "above" | "below")}
-                  className="w-full bg-surface border border-border text-ink text-xs font-medium rounded-lg px-2.5 py-2 focus:outline-none focus:border-brand-accent shadow-2xs"
+                  className="w-full bg-surface border border-border text-ink text-xs font-medium rounded-lg px-2.5 py-2 focus:outline-none focus:border-ink shadow-2xs"
                 >
                   <option value="above">rises above (≥)</option>
                   <option value="below">drops below (≤)</option>
@@ -191,7 +191,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
                   placeholder="Target Price (₹)"
                   value={threshold}
                   onChange={(e) => setThreshold(e.target.value)}
-                  className="w-full bg-surface border border-border text-ink text-xs font-mono font-medium rounded-lg px-3 py-2 focus:outline-none focus:border-brand-accent shadow-2xs"
+                  className="w-full bg-surface border border-border text-ink text-xs font-mono font-medium rounded-lg px-3 py-2 focus:outline-none focus:border-ink shadow-2xs"
                 />
               </div>
 
@@ -199,7 +199,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full h-full min-h-[36px] bg-ink hover:bg-ink-secondary text-white font-semibold rounded-lg text-xs transition-colors flex items-center justify-center gap-1 disabled:opacity-50 shadow-xs"
+                  className="w-full h-full min-h-[36px] bg-ink hover:bg-stone-800 text-white font-semibold rounded-lg text-xs transition-colors flex items-center justify-center gap-1 disabled:opacity-50 shadow-xs"
                 >
                   {submitting ? <Loader2 className="animate-spin" size={14} /> : "Create Alert"}
                 </button>
@@ -210,7 +210,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
           {/* Manual Run Engine Banner */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 rounded-xl bg-surface-subtle border border-border text-xs">
             <div className="flex items-center gap-2 text-ink-secondary font-medium">
-              <Clock size={15} className="text-brand-accent flex-shrink-0" />
+              <Clock size={15} className="text-amber-700 flex-shrink-0" />
               <span>Background engine polls automatically every 60 seconds.</span>
             </div>
             <button
@@ -228,7 +228,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
           </div>
 
           {checkResult && (
-            <div className="p-3 rounded-lg bg-brand-light border border-brand-border text-brand-accent text-xs font-semibold">
+            <div className="p-3 rounded-lg bg-surface-subtle border border-border text-ink font-semibold text-xs">
               {checkResult}
             </div>
           )}
@@ -260,7 +260,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({
 
             {loading ? (
               <div className="py-8 flex justify-center text-ink-muted text-xs">
-                <Loader2 className="animate-spin text-brand-accent" size={18} />
+                <Loader2 className="animate-spin text-ink" size={18} />
               </div>
             ) : activeTab === "active" ? (
               activeAlerts.length === 0 ? (

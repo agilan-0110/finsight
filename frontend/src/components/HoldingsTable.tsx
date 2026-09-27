@@ -69,7 +69,6 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
     setShowDropdown(false);
     setSearchResults([]);
 
-    // Auto-fetch current price to assist the user with default buy price
     try {
       const quote = await api.getPrice(stock.symbol);
       if (quote?.last_price && !buyPrice) {
@@ -107,11 +106,11 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
   };
 
   return (
-    <div className="rounded-xl bg-surface border border-border shadow-xs overflow-hidden">
+    <div className="rounded-xl bg-surface border border-border shadow-card overflow-hidden">
       {/* Header */}
       <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between">
         <div>
-          <h2 className="text-sm font-bold text-ink uppercase tracking-wider">
+          <h2 className="text-sm font-bold text-ink uppercase tracking-wider font-sans">
             Portfolio Holdings
           </h2>
           <p className="text-xs text-ink-muted font-medium">Live positions, market valuation, and individual returns</p>
@@ -123,7 +122,7 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
             setTicker("");
             setError("");
           }}
-          className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg bg-ink hover:bg-ink-secondary text-white transition shadow-xs"
+          className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg bg-ink hover:bg-stone-800 text-white transition shadow-xs"
         >
           <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
           <span>Add Position</span>
@@ -179,7 +178,7 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
                         <span className="text-ink-secondary font-medium min-w-[35px]">{h.portfolio_weight}%</span>
                         <div className="w-16 bg-surface-subtle border border-border h-1.5 rounded-full overflow-hidden">
                           <div
-                            className="bg-brand-accent h-full rounded-full"
+                            className="bg-ink h-full rounded-full"
                             style={{ width: `${Math.min(h.portfolio_weight, 100)}%` }}
                           />
                         </div>
@@ -204,7 +203,7 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
 
       {/* Add Position Modal with Company Search */}
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-surface border border-border rounded-xl p-6 w-full max-w-sm shadow-xl">
             <div className="flex items-center justify-between pb-3 border-b border-border mb-4">
               <h3 className="font-bold text-sm text-ink uppercase tracking-wide">
@@ -240,7 +239,7 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
                     onFocus={() => {
                       if (searchResults.length > 0) setShowDropdown(true);
                     }}
-                    className="w-full pl-9 pr-3 py-2 rounded-lg bg-surface border border-border text-ink placeholder-ink-faint focus:outline-none focus:border-brand-accent shadow-2xs font-medium"
+                    className="w-full pl-9 pr-3 py-2 rounded-lg bg-surface border border-border text-ink placeholder-ink-faint focus:outline-none focus:border-ink shadow-2xs font-medium"
                     required
                   />
                 </div>
@@ -250,7 +249,7 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
                   <div className="absolute left-0 right-0 top-full mt-1 bg-surface border border-border rounded-xl shadow-xl z-50 overflow-hidden divide-y divide-border max-h-48 overflow-y-auto">
                     {isSearching ? (
                       <div className="p-3 text-center text-ink-muted flex items-center justify-center gap-1.5 text-xs">
-                        <Loader2 className="animate-spin text-brand-accent" size={13} />
+                        <Loader2 className="animate-spin text-ink" size={13} />
                         Searching stocks...
                       </div>
                     ) : searchResults.length === 0 ? (
@@ -262,13 +261,13 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
                         <div
                           key={stock.symbol}
                           onClick={() => handleSelectStock(stock)}
-                          className="p-2.5 hover:bg-brand-light/60 cursor-pointer flex items-center justify-between gap-2 text-xs"
+                          className="p-2.5 hover:bg-surface-subtle cursor-pointer flex items-center justify-between gap-2 text-xs"
                         >
                           <div className="truncate">
                             <p className="font-bold text-ink truncate">{stock.name}</p>
                             <p className="text-[10px] text-ink-muted truncate">{stock.sector}</p>
                           </div>
-                          <span className="font-mono font-bold text-brand-accent bg-brand-light px-1.5 py-0.5 rounded text-[10px] border border-brand-border/60">
+                          <span className="font-mono font-bold text-ink bg-surface-subtle px-1.5 py-0.5 rounded text-[10px] border border-border">
                             {stock.symbol}
                           </span>
                         </div>
@@ -286,7 +285,7 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
                   placeholder="10"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-ink placeholder-ink-faint focus:outline-none focus:border-brand-accent font-mono shadow-2xs"
+                  className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-ink placeholder-ink-faint focus:outline-none focus:border-ink font-mono shadow-2xs"
                   required
                 />
               </div>
@@ -301,7 +300,7 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
                   placeholder="3500.00"
                   value={buyPrice}
                   onChange={(e) => setBuyPrice(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-ink placeholder-ink-faint focus:outline-none focus:border-brand-accent font-mono shadow-2xs"
+                  className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-ink placeholder-ink-faint focus:outline-none focus:border-ink font-mono shadow-2xs"
                   required
                 />
               </div>
@@ -317,7 +316,7 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 rounded-lg bg-ink text-white font-semibold hover:bg-ink-secondary transition disabled:opacity-50 shadow-xs"
+                  className="px-4 py-2 rounded-lg bg-ink text-white font-semibold hover:bg-stone-800 transition disabled:opacity-50 shadow-xs"
                 >
                   {submitting ? "Adding..." : "Add Position"}
                 </button>

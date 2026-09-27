@@ -194,6 +194,30 @@
 
 ---
 
+### 13. Warm Financial Luxury Theme (Financial Times / Bloomberg Style)
+- **Goal:** Upgrade the light theme into an executive "Warm Financial Luxury" aesthetic modeled after premier financial publications like the Financial Times and Bloomberg Wealth, eliminating plain sterility while preserving maximum contrast and readability for mature investors.
+- **Design Tokens & System:**
+  - **Canvas Backdrop:** `#F6F5F2` (Warm alabaster / parchment — glare-free, organic, and elegant).
+  - **Card Surfaces:** Pure crisp white (`#FFFFFF`) elevated with warm multi-layer drop shadows (`shadow-card`) and stone borders (`#E5E0D8`).
+  - **Primary Ink:** `#1C1917` (Deep warm stone onyx — superior reading comfort over harsh black).
+  - **Financial Accents:** Wall Street deep emerald `#065F46` on `#ECFDF5`, British oxblood crimson `#991B1B` on `#FEF2F2`, and warm amber `#92400E` on `#FFFBEB`.
+  - **Buttons & Headers:** Institutional Onyx `#1C1917` with subtle amber micro-accents.
+- **Components Refined:**
+  - `tailwind.config.js` & `index.css`: Added warm luxury canvas, surface, border, and ink tokens with custom warm scrollbars.
+  - `Navbar.tsx`: White header with onyx brand emblem, amber heartbeat, and warm stone action buttons.
+  - `PortfolioSummary.tsx`: White KPI cards popping with `shadow-card` against the `#F6F5F2` backdrop.
+  - `HoldingsTable.tsx`: White positions table with warm stone head `#FAF8F5` and warm row hover.
+  - `SectorChart.tsx`: Recharts donut chart with warm stone breakdown pills and warm tooltip cards.
+  - `PriceChart.tsx`: Area chart with warm stone grid lines `#E5E0D8` and high-contrast tooltip.
+  - `StockDeepDive.tsx`: High-contrast valuation cards with warm stone borders and debounced company autocomplete dropdown.
+  - `AIChatPanel.tsx`: White research terminal card with onyx user bubbles and warm stone assistant cards.
+  - `AlertsModal.tsx` & `MemoriesModal.tsx`: Pure white dialogs with warm stone borders and inputs.
+  - `App.tsx`: Warm parchment backdrop and stone footer.
+- **Verification:**
+  - `npm run build` compiled cleanly with `0` errors.
+
+---
+
 ## 📊 Current Project Status
 
 | Phase | Description | Status |
@@ -205,7 +229,7 @@
 | **Phase 5** | Background Alert Engine & Telegram Push (`alert_engine.py`) | ✅ Complete |
 | **Phase 6** | Conversational Memory (Short-Term + Gemini Long-Term) | ✅ Complete |
 | **Phase 7** | Portfolio Analytics & Live P&L (`analytics.py`) | ✅ Complete |
-| **Phase 8** | React + Vite Institutional Dashboard (Light Theme + Company Search) | ✅ Complete |
+| **Phase 8** | React + Vite Institutional Dashboard (Warm Financial Luxury Theme) | ✅ Complete |
 | **Phase 9** | Production Hardening & Docker Containerization | 🔜 Next Up |
 
 ---
