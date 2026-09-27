@@ -2,8 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 import { api, type PortfolioAnalytics } from "./api/client";
 import { Navbar } from "./components/Navbar";
 import { PortfolioSummary } from "./components/PortfolioSummary";
+import { PortfolioPerformanceCurve } from "./components/PortfolioPerformanceCurve";
 import { HoldingsTable } from "./components/HoldingsTable";
 import { SectorChart } from "./components/SectorChart";
+import { AIRebalancingCard } from "./components/AIRebalancingCard";
 import { StockDeepDive } from "./components/StockDeepDive";
 import { AIChatPanel } from "./components/AIChatPanel";
 import { AlertsModal } from "./components/AlertsModal";
@@ -160,9 +162,12 @@ export function App() {
         {/* Row 1: Executive KPI Metrics Banner */}
         <PortfolioSummary analytics={analytics} loading={loading} />
 
-        {/* Row 2: Portfolio Holdings & Sector Breakdown (Left) + FinSight AI Co-Pilot (Right) */}
+        {/* Row 2: Portfolio Growth & Alpha Curve (Stitch Blueprint) */}
+        <PortfolioPerformanceCurve analytics={analytics} />
+
+        {/* Row 3: Portfolio Holdings & Sector / Rebalancing (Left) + FinSight AI Co-Pilot (Right) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column (Holdings & Sector) */}
+          {/* Left Column (Holdings, Sector & Rebalancing Engine) */}
           <div className="lg:col-span-7 space-y-6">
             <HoldingsTable
               holdings={analytics?.holdings || []}
@@ -171,10 +176,13 @@ export function App() {
               onAskAI={handleAskAI}
             />
 
-            <SectorChart
-              sectors={analytics?.sectors || {}}
-              diversificationScore={analytics?.diversification_score || 0}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <SectorChart
+                sectors={analytics?.sectors || {}}
+                diversificationScore={analytics?.diversification_score || 0}
+              />
+              <AIRebalancingCard onAskAI={handleAskAI} />
+            </div>
           </div>
 
           {/* Right Column (FinSight AI Co-Pilot Panel) */}

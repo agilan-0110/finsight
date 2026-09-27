@@ -205,20 +205,45 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
               Ask about portfolio risk exposure, stock fundamental valuations, or test automated rebalancing strategies.
             </p>
 
-            <div className="w-full space-y-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-ink-muted block text-left">
-                Suggested Financial Prompts:
-              </span>
-              {QUICK_PROMPTS.map((prompt, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleSend(prompt)}
-                  className="w-full text-left p-2.5 rounded-lg bg-surface hover:bg-surface-subtle border border-border hover:border-slate-300 text-xs font-medium text-ink-secondary hover:text-ink transition flex items-center justify-between group shadow-2xs"
-                >
-                  <span className="truncate">{prompt}</span>
-                  <Zap className="w-3.5 h-3.5 text-brand-accent opacity-0 group-hover:opacity-100 transition-opacity" />
-                </button>
-              ))}
+            <div className="w-full space-y-3 mb-4">
+              {/* Daily Market Intelligence Card (Stitch) */}
+              <div className="p-3.5 rounded-xl bg-surface border border-border text-left shadow-xs space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-ink text-xs flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-brand-accent" />
+                    <span>Daily Market Intelligence</span>
+                  </span>
+                  <span className="text-[10px] text-ink-muted font-mono">08:45 AM</span>
+                </div>
+                <p className="text-[11px] text-ink-secondary leading-relaxed font-normal">
+                  Portfolio beta stands at <strong className="text-ink">0.84</strong>, reflecting a defensive yet high-alpha stance. Overnight earnings in Indian tech triggered a +1.4% sentiment tailwind. Your inflation hedge via energy is balancing crude volatility.
+                </p>
+              </div>
+
+              {/* Monte Carlo Stress Simulation Card (Stitch) */}
+              <div className="p-3.5 rounded-xl bg-surface border border-border text-left shadow-xs space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-ink text-xs flex items-center gap-1.5">
+                    <Zap className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Monte Carlo Drawdown Stress Test</span>
+                  </span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-profit-bg text-profit border border-profit-border">
+                    Low Risk
+                  </span>
+                </div>
+                <p className="text-[11px] text-ink-secondary leading-relaxed font-normal">
+                  In a simulated 15% market selloff scenario, FinSight projects portfolio drawdown at <strong className="text-profit">-3.2%</strong> vs benchmark <strong className="text-loss">-7.8%</strong>.
+                </p>
+                <div className="space-y-1 text-[10px]">
+                  <div className="flex justify-between text-ink-muted">
+                    <span>FinSight Model Protection</span>
+                    <span className="font-bold text-ink">-3.2% max drawdown</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-surface-subtle border border-border rounded-full overflow-hidden">
+                    <div className="w-[32%] h-full bg-brand-accent rounded-full"></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         ) : (
