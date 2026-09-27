@@ -1,5 +1,5 @@
 import React from "react";
-import { TrendingUp, TrendingDown, DollarSign, PieChart, ShieldAlert } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, PieChart, ShieldAlert, Award } from "lucide-react";
 import type { PortfolioAnalytics } from "../api/client";
 
 interface Props {
@@ -21,39 +21,46 @@ export const PortfolioSummary: React.FC<Props> = ({ analytics, loading }) => {
   const isProfit = analytics.total_pnl >= 0;
 
   return (
-    <div className="mb-6 space-y-4">
-      {/* 4 Summary Cards */}
+    <div className="space-y-4">
+      {/* 4 Executive KPI Metric Cards (Stitch FinSight Light Theme) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Value */}
-        <div className="p-5 rounded-xl bg-surface border border-border shadow-card hover:shadow-card-hover transition-shadow relative">
+        {/* Total Portfolio Value */}
+        <div className="p-5 rounded-xl bg-surface border border-border shadow-card hover:shadow-card-hover transition-all">
           <div className="flex items-center justify-between text-ink-muted mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">Portfolio Value</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
+              Portfolio Valuation
+            </span>
             <div className="p-1.5 rounded-md bg-surface-subtle text-ink border border-border">
-              <DollarSign className="w-4 h-4 text-amber-700" />
+              <DollarSign className="w-4 h-4 text-emerald-600" />
             </div>
           </div>
-          <div className="text-2xl font-bold font-mono text-ink tracking-tight">
+          <div className="text-2xl font-extrabold font-mono text-ink tracking-tight">
             ₹{analytics.total_current_value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
-          <div className="text-xs text-ink-muted font-medium mt-1">
-            {analytics.holdings_count} active position{analytics.holdings_count === 1 ? "" : "s"}
+          <div className="text-xs text-ink-muted font-medium mt-1.5 flex items-center justify-between">
+            <span>{analytics.holdings_count} active position{analytics.holdings_count === 1 ? "" : "s"}</span>
+            <span className="text-[11px] font-semibold text-profit bg-profit-bg px-2 py-0.5 rounded border border-profit-border">
+              NSE Live
+            </span>
           </div>
         </div>
 
-        {/* Net Unrealized P&L */}
-        <div className="p-5 rounded-xl bg-surface border border-border shadow-card hover:shadow-card-hover transition-shadow relative">
+        {/* Overall Profit / Loss */}
+        <div className="p-5 rounded-xl bg-surface border border-border shadow-card hover:shadow-card-hover transition-all">
           <div className="flex items-center justify-between text-ink-muted mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">Unrealized P&L</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
+              Unrealized Return
+            </span>
             <div className={`p-1.5 rounded-md border ${isProfit ? "bg-profit-bg text-profit border-profit-border" : "bg-loss-bg text-loss border-loss-border"}`}>
               {isProfit ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
             </div>
           </div>
-          <div className={`text-2xl font-bold font-mono tracking-tight ${isProfit ? "text-profit" : "text-loss"}`}>
+          <div className={`text-2xl font-extrabold font-mono tracking-tight ${isProfit ? "text-profit" : "text-loss"}`}>
             {isProfit ? "+" : ""}₹{analytics.total_pnl.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
-          <div className="mt-1 flex items-center gap-1.5">
+          <div className="mt-1.5 flex items-center gap-2">
             <span
-              className={`text-xs font-mono font-bold px-2 py-0.5 rounded-md border ${
+              className={`text-xs font-mono font-bold px-2 py-0.5 rounded border ${
                 isProfit
                   ? "bg-profit-bg text-profit border-profit-border"
                   : "bg-loss-bg text-loss border-loss-border"
@@ -62,41 +69,60 @@ export const PortfolioSummary: React.FC<Props> = ({ analytics, loading }) => {
               {isProfit ? "▲ +" : "▼ "}
               {analytics.total_pnl_percentage.toFixed(2)}%
             </span>
-            <span className="text-xs text-ink-muted font-medium">total return</span>
+            <span className="text-xs text-ink-muted font-medium">all-time yield</span>
           </div>
         </div>
 
         {/* Invested Capital */}
-        <div className="p-5 rounded-xl bg-surface border border-border shadow-card hover:shadow-card-hover transition-shadow relative">
+        <div className="p-5 rounded-xl bg-surface border border-border shadow-card hover:shadow-card-hover transition-all">
           <div className="flex items-center justify-between text-ink-muted mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">Invested Capital</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
+              Cost Basis
+            </span>
             <div className="p-1.5 rounded-md bg-surface-subtle text-ink-muted border border-border">
-              <PieChart className="w-4 h-4 text-stone-600" />
+              <PieChart className="w-4 h-4 text-slate-600" />
             </div>
           </div>
-          <div className="text-2xl font-bold font-mono text-ink tracking-tight">
+          <div className="text-2xl font-extrabold font-mono text-ink tracking-tight">
             ₹{analytics.total_invested.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
-          <div className="text-xs text-ink-muted font-medium mt-1">Cost basis across all holdings</div>
+          <div className="text-xs text-ink-muted font-medium mt-1.5">
+            Committed capital basis
+          </div>
         </div>
 
-        {/* Diversification Score */}
-        <div className="p-5 rounded-xl bg-surface border border-border shadow-card hover:shadow-card-hover transition-shadow relative">
+        {/* AI Health & Diversification Score */}
+        <div className="p-5 rounded-xl bg-surface border border-border shadow-card hover:shadow-card-hover transition-all">
           <div className="flex items-center justify-between text-ink-muted mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">Diversification</span>
-            <span className="text-xs font-mono font-bold text-ink bg-surface-subtle px-1.5 py-0.5 rounded border border-border">
-              {analytics.diversification_score}/100
+            <span className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
+              AI Health Score
+            </span>
+            <div className="p-1.5 rounded-md bg-brand-light text-brand-accent border border-brand-border">
+              <Award className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-extrabold font-mono text-ink tracking-tight">
+              {analytics.diversification_score}
+            </span>
+            <span className="text-xs font-semibold text-ink-muted">/100</span>
+            <span className={`text-[11px] font-bold px-2 py-0.5 rounded border ml-auto ${
+              analytics.diversification_score >= 70
+                ? "bg-profit-bg text-profit border-profit-border"
+                : analytics.diversification_score >= 40
+                ? "bg-warning-bg text-warning border-warning-border"
+                : "bg-loss-bg text-loss border-loss-border"
+            }`}>
+              {analytics.diversification_score >= 70
+                ? "Strong"
+                : analytics.diversification_score >= 40
+                ? "Balanced"
+                : "Concentrated"}
             </span>
           </div>
-          <div className="text-2xl font-bold font-mono text-ink tracking-tight">
-            {analytics.diversification_score >= 70
-              ? "Strong"
-              : analytics.diversification_score >= 40
-              ? "Moderate"
-              : "Concentrated"}
-          </div>
+
           {/* Progress bar */}
-          <div className="w-full bg-surface-subtle border border-border h-2 rounded-full mt-2.5 overflow-hidden">
+          <div className="w-full bg-surface-subtle border border-border h-2 rounded-full mt-3 overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-500 ${
                 analytics.diversification_score >= 70
@@ -117,7 +143,7 @@ export const PortfolioSummary: React.FC<Props> = ({ analytics, loading }) => {
           <ShieldAlert className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
           <div className="text-xs space-y-1">
             <span className="font-bold text-warning tracking-wide uppercase text-[11px]">
-              Portfolio Health Observations
+              AI Portfolio Health Observations
             </span>
             <ul className="text-ink-secondary font-medium list-disc list-inside space-y-0.5">
               {analytics.risk_flags.map((flag, idx) => (

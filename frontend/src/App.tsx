@@ -18,11 +18,12 @@ export function App() {
   const [isSendingDigest, setIsSendingDigest] = useState<boolean>(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
-  // Modals
+  // Modals & Navigation state
   const [alertsOpen, setAlertsOpen] = useState<boolean>(false);
   const [memoriesOpen, setMemoriesOpen] = useState<boolean>(false);
   const [prefillAlertTicker, setPrefillAlertTicker] = useState<string | undefined>(undefined);
   const [aiPrompt, setAiPrompt] = useState<string | undefined>(undefined);
+  const [selectedDeepDiveTicker, setSelectedDeepDiveTicker] = useState<string | undefined>(undefined);
 
   const showToast = (message: string, type: "success" | "error" = "success") => {
     setToast({ message, type });
@@ -58,7 +59,6 @@ export function App() {
 
   useEffect(() => {
     loadData();
-    // Auto-check connection every 30 seconds
     const interval = setInterval(() => {
       loadData(true);
     }, 30000);
@@ -88,7 +88,7 @@ export function App() {
     try {
       const res = await api.sendWeeklyDigest();
       if (res.sent_to_telegram) {
-        showToast("Executive Portfolio Digest sent directly to your Telegram!");
+        showToast("Executive Portfolio Digest dispatched directly to your Telegram!");
       } else {
         showToast("Digest generated (Telegram credentials not verified).", "error");
       }
@@ -112,9 +112,17 @@ export function App() {
     setAlertsOpen(true);
   };
 
+  const handleSelectStockFromNav = (ticker: string) => {
+    setSelectedDeepDiveTicker(ticker);
+    const deepDiveEl = document.getElementById("stock-deep-dive-section");
+    if (deepDiveEl) {
+      deepDiveEl.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-canvas text-ink flex flex-col font-sans selection:bg-amber-100 selection:text-ink">
-      {/* Top Navigation */}
+    <div className="min-h-screen bg-canvas text-ink flex flex-col font-body selection:bg-brand-light selection:text-brand-accent">
+      {/* Top Clean Navigation Bar with Stock Autocomplete */}
       <Navbar
         isConnected={isConnected}
         onRefresh={() => loadData(false)}
@@ -126,11 +134,12 @@ export function App() {
         onOpenMemories={() => setMemoriesOpen(true)}
         onSendDigest={handleSendDigest}
         isSendingDigest={isSendingDigest}
+        onSelectStock={handleSelectStockFromNav}
       />
 
-      {/* Toast Alert */}
+      {/* Floating Toast Alert */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl bg-surface border border-border shadow-card text-xs max-w-md animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl bg-surface border border-border shadow-elevated text-xs max-w-md animate-in fade-in slide-in-from-bottom-3 duration-200">
           {toast.type === "success" ? (
             <CheckCircle className="w-4 h-4 text-profit flex-shrink-0" />
           ) : (
@@ -146,12 +155,12 @@ export function App() {
         </div>
       )}
 
-      {/* Main Container */}
+      {/* Main Dashboard Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
-        {/* Row 1: Executive KPI Summary & Health Banner */}
+        {/* Row 1: Executive KPI Metrics Banner */}
         <PortfolioSummary analytics={analytics} loading={loading} />
 
-        {/* Row 2: Portfolio Holdings & Sector Breakdown (Left) + AI Financial Analyst (Right) */}
+        {/* Row 2: Portfolio Holdings & Sector Breakdown (Left) + FinSight AI Co-Pilot (Right) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column (Holdings & Sector) */}
           <div className="lg:col-span-7 space-y-6">
@@ -159,6 +168,7 @@ export function App() {
               holdings={analytics?.holdings || []}
               onAddHolding={handleAddHolding}
               onDeleteHolding={handleDeleteHolding}
+              onAskAI={handleAskAI}
             />
 
             <SectorChart
@@ -167,7 +177,7 @@ export function App() {
             />
           </div>
 
-          {/* Right Column (AI Financial Analyst Terminal) */}
+          {/* Right Column (FinSight AI Co-Pilot Panel) */}
           <div id="ai-chat-section" className="lg:col-span-5 lg:sticky lg:top-20">
             <AIChatPanel
               initialPrompt={aiPrompt}
@@ -177,22 +187,23 @@ export function App() {
         </div>
 
         {/* Row 3: NSE Stock Deep Dive & Valuation Explorer */}
-        <div>
+        <div id="stock-deep-dive-section">
           <StockDeepDive
             onAskAI={handleAskAI}
             onOpenAlert={handleOpenAlert}
+            externalTicker={selectedDeepDiveTicker}
           />
         </div>
       </main>
 
-      {/* Institutional Footer */}
+      {/* Clean Footer */}
       <footer className="border-t border-border bg-surface py-6 px-6 mt-12 text-center text-xs text-ink-muted shadow-2xs">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="font-semibold text-ink-secondary font-sans">
-            FinSight — AI Financial Intelligence & Portfolio Analytics for Indian Equities
+          <p className="font-semibold text-ink-secondary">
+            FinSight — AI Financial Intelligence & Portfolio Analytics
           </p>
           <p className="text-[11px] text-ink-muted font-medium">
-            For educational & research analysis only. Not SEBI-registered investment advice.
+            Designed with Stitch MCP • Institutional Light Theme
           </p>
         </div>
       </footer>

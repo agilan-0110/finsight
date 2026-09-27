@@ -1,7 +1,7 @@
 import React from "react";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
 import type { SectorData } from "../api/client";
-import { PieChart as PieIcon, ShieldCheck, ShieldAlert } from "lucide-react";
+import { PieChart as PieIcon, ShieldCheck, ShieldAlert, Sparkles } from "lucide-react";
 
 interface SectorChartProps {
   sectors: Record<string, SectorData>;
@@ -9,16 +9,16 @@ interface SectorChartProps {
 }
 
 const PALETTE = [
-  "#1C1917", // Onyx
-  "#065F46", // Emerald
-  "#1E3A8A", // Navy
-  "#92400E", // Warm Amber
-  "#6B21A8", // Purple
-  "#991B1B", // Crimson
-  "#0F766E", // Teal
-  "#374151", // Slate
-  "#C2410C", // Rust
-  "#4338CA", // Indigo
+  "#0F172A", // Slate 900
+  "#059669", // Emerald 600
+  "#4F46E5", // Indigo 600
+  "#D97706", // Amber 600
+  "#7C3AED", // Violet 600
+  "#E11D48", // Rose 600
+  "#0D9488", // Teal 600
+  "#475569", // Slate 600
+  "#EA580C", // Orange 600
+  "#2563EB", // Blue 600
 ];
 
 export const SectorChart: React.FC<SectorChartProps> = ({ sectors, diversificationScore }) => {
@@ -38,9 +38,9 @@ export const SectorChart: React.FC<SectorChartProps> = ({ sectors, diversificati
   };
 
   const getDiversificationStatus = (score: number) => {
-    if (score >= 70) return { label: "High Diversification", color: "text-profit border-profit-border bg-profit-bg", icon: ShieldCheck };
-    if (score >= 40) return { label: "Moderate Diversification", color: "text-warning border-warning-border bg-warning-bg", icon: ShieldAlert };
-    return { label: "Concentrated Exposure", color: "text-loss border-loss-border bg-loss-bg", icon: ShieldAlert };
+    if (score >= 70) return { label: "Strong Diversification", color: "text-profit border-profit-border bg-profit-bg", icon: ShieldCheck };
+    if (score >= 40) return { label: "Balanced Exposure", color: "text-warning border-warning-border bg-warning-bg", icon: ShieldAlert };
+    return { label: "High Concentration", color: "text-loss border-loss-border bg-loss-bg", icon: ShieldAlert };
   };
 
   const status = getDiversificationStatus(diversificationScore);
@@ -54,17 +54,17 @@ export const SectorChart: React.FC<SectorChartProps> = ({ sectors, diversificati
             <PieIcon size={16} />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-ink uppercase tracking-wider font-sans">
+            <h3 className="text-sm font-bold text-ink uppercase tracking-wider font-headline">
               Sector Allocation
             </h3>
-            <p className="text-xs text-ink-muted font-medium">Portfolio exposure distribution</p>
+            <p className="text-xs text-ink-muted font-medium">Industry distribution & exposure</p>
           </div>
         </div>
 
         {/* Diversification Score Badge */}
         <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-bold ${status.color}`}>
           <StatusIcon size={13} />
-          <span>Score: {diversificationScore}/100</span>
+          <span>Health: {diversificationScore}/100</span>
         </div>
       </div>
 
@@ -101,11 +101,11 @@ export const SectorChart: React.FC<SectorChartProps> = ({ sectors, diversificati
                     if (active && payload && payload.length) {
                       const data = payload[0].payload;
                       return (
-                        <div className="bg-surface border border-border p-3 rounded-lg shadow-md text-xs">
+                        <div className="bg-surface border border-border p-3 rounded-lg shadow-elevated text-xs">
                           <p className="font-bold text-ink">{data.name}</p>
                           <p className="text-ink font-mono font-bold mt-0.5">{formatRupee(data.value)} ({data.percentage}%)</p>
                           <p className="text-ink-muted text-[11px] font-medium mt-1">
-                            Stocks: {data.stocks.join(", ")}
+                            Equities: {data.stocks.join(", ")}
                           </p>
                         </div>
                       );
@@ -117,7 +117,7 @@ export const SectorChart: React.FC<SectorChartProps> = ({ sectors, diversificati
             </ResponsiveContainer>
             <div className="absolute text-center pointer-events-none">
               <span className="text-[10px] uppercase font-bold text-ink-muted tracking-wider">Sectors</span>
-              <p className="text-sm font-bold text-ink font-mono">{chartData.length}</p>
+              <p className="text-base font-extrabold text-ink font-mono">{chartData.length}</p>
             </div>
           </div>
 
@@ -128,7 +128,7 @@ export const SectorChart: React.FC<SectorChartProps> = ({ sectors, diversificati
               return (
                 <div
                   key={sector.name}
-                  className="p-2.5 rounded-lg bg-surface-subtle border border-border hover:border-ink/30 transition-colors text-xs flex items-center justify-between"
+                  className="p-2.5 rounded-lg bg-surface-subtle border border-border hover:border-slate-300 transition-colors text-xs flex items-center justify-between"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span
@@ -136,15 +136,15 @@ export const SectorChart: React.FC<SectorChartProps> = ({ sectors, diversificati
                       style={{ backgroundColor: color }}
                     />
                     <div className="truncate">
-                      <p className="font-semibold text-ink truncate">{sector.name}</p>
+                      <p className="font-bold text-ink truncate">{sector.name}</p>
                       <p className="text-[11px] text-ink-muted font-medium truncate">
                         {sector.stocks.join(", ")}
                       </p>
                     </div>
                   </div>
-                  <div className="text-right flex-shrink-0 ml-2">
+                  <div className="text-right flex-shrink-0 ml-3">
                     <p className="font-mono font-bold text-ink">{sector.percentage}%</p>
-                    <p className="font-mono text-[11px] text-ink-muted">{formatRupee(sector.value)}</p>
+                    <p className="text-[10px] text-ink-muted font-mono">{formatRupee(sector.value)}</p>
                   </div>
                 </div>
               );
@@ -152,6 +152,16 @@ export const SectorChart: React.FC<SectorChartProps> = ({ sectors, diversificati
           </div>
         </div>
       )}
+
+      {/* Stitch AI Rebalancing Tip Bar */}
+      <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs bg-brand-light/50 p-3 rounded-lg border border-brand-border/60">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-brand-accent flex-shrink-0" />
+          <span className="text-ink-secondary font-medium">
+            AI Tip: Maintain max 25% single-sector weight to hedge macroeconomic drawdowns.
+          </span>
+        </div>
+      </div>
     </div>
   );
 };

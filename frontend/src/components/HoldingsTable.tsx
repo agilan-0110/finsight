@@ -1,14 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Plus, Trash2, X, Search, Loader2 } from "lucide-react";
+import { Plus, Trash2, X, Loader2, Sparkles } from "lucide-react";
 import { api, type AnalyticsHolding, type StockSearchResult } from "../api/client";
 
 interface Props {
   holdings: AnalyticsHolding[];
   onAddHolding: (holding: { ticker: string; quantity: number; avg_buy_price: number }) => Promise<void>;
   onDeleteHolding: (id: number) => Promise<void>;
+  onAskAI?: (ticker: string) => void;
 }
 
-export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDeleteHolding }) => {
+export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDeleteHolding, onAskAI }) => {
   const [showModal, setShowModal] = useState(false);
   const [stockQuery, setStockQuery] = useState("");
   const [ticker, setTicker] = useState("");
@@ -110,10 +111,17 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
       {/* Header */}
       <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between">
         <div>
-          <h2 className="text-sm font-bold text-ink uppercase tracking-wider font-sans">
-            Portfolio Holdings
-          </h2>
-          <p className="text-xs text-ink-muted font-medium">Live positions, market valuation, and individual returns</p>
+          <div className="flex items-center gap-2">
+            <h2 className="text-sm font-bold text-ink uppercase tracking-wider font-headline">
+              Portfolio Holdings
+            </h2>
+            <span className="text-[10px] font-mono font-bold bg-surface-subtle text-ink-secondary px-2 py-0.5 rounded border border-border">
+              {holdings.length} {holdings.length === 1 ? "Asset" : "Assets"}
+            </span>
+          </div>
+          <p className="text-xs text-ink-muted font-medium mt-0.5">
+            Real-time equity valuation, weight distributions, and AI analysis
+          </p>
         </div>
         <button
           onClick={() => {
@@ -122,7 +130,7 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
             setTicker("");
             setError("");
           }}
-          className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg bg-ink hover:bg-stone-800 text-white transition shadow-xs"
+          className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg bg-brand hover:bg-slate-700 text-white transition shadow-xs"
         >
           <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
           <span>Add Position</span>
@@ -134,64 +142,85 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
         <table className="w-full text-left text-xs">
           <thead className="bg-surface-subtle text-ink-muted border-b border-border uppercase text-[10px] tracking-wider font-bold">
             <tr>
-              <th className="py-3 px-4">Asset</th>
+              <th className="py-3 px-4">Asset / Ticker</th>
               <th className="py-3 px-4">Shares</th>
               <th className="py-3 px-4">Avg Buy</th>
               <th className="py-3 px-4">Live Price</th>
               <th className="py-3 px-4">Market Value</th>
-              <th className="py-3 px-4">Unrealized P&L</th>
+              <th className="py-3 px-4">Return (P&L)</th>
               <th className="py-3 px-4">Weight</th>
-              <th className="py-3 px-4 text-right">Action</th>
+              <th className="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border font-mono">
             {holdings.length === 0 ? (
               <tr>
-                <td colSpan={8} className="py-10 text-center text-ink-muted font-sans font-medium">
-                  No holdings added yet. Click &quot;Add Position&quot; to begin tracking your portfolio.
+                <td colSpan={8} className="py-12 text-center text-ink-muted font-sans font-medium">
+                  No holdings recorded yet. Click &quot;Add Position&quot; to begin tracking your portfolio.
                 </td>
               </tr>
             ) : (
               holdings.map((h) => {
                 const isProfit = h.pnl >= 0;
                 return (
-                  <tr key={h.id} className="hover:bg-surface-hover transition">
+                  <tr key={h.id} className="hover:bg-surface-subtle/80 transition group">
                     <td className="py-3.5 px-4 font-sans">
-                      <div className="font-bold text-ink">{h.ticker}</div>
-                      <div className="text-[11px] text-ink-muted font-medium">{h.sector}</div>
-                    </td>
-                    <td className="py-3.5 px-4 text-ink-secondary font-medium">{h.quantity}</td>
-                    <td className="py-3.5 px-4 text-ink-secondary font-medium">₹{h.avg_buy_price.toFixed(2)}</td>
-                    <td className="py-3.5 px-4 text-ink font-bold">₹{h.current_price.toFixed(2)}</td>
-                    <td className="py-3.5 px-4 text-ink font-semibold">₹{h.current_value.toFixed(2)}</td>
-                    <td className="py-3.5 px-4">
-                      <div className={`font-bold ${isProfit ? "text-profit" : "text-loss"}`}>
-                        {isProfit ? "+" : ""}₹{h.pnl.toFixed(2)}
+                      <div className="font-bold text-ink flex items-center gap-2">
+                        <span>{h.ticker}</span>
+                        <span className="text-[10px] font-mono font-medium text-ink-muted px-1.5 py-0.2 rounded bg-surface-subtle border border-border">
+                          {h.sector || "NSE"}
+                        </span>
                       </div>
-                      <div className={`text-[11px] font-bold ${isProfit ? "text-profit" : "text-loss"}`}>
-                        {isProfit ? "▲ +" : "▼ "}
-                        {h.pnl_percentage.toFixed(2)}%
+                    </td>
+                    <td className="py-3.5 px-4 text-ink-secondary">{h.quantity}</td>
+                    <td className="py-3.5 px-4 text-ink-secondary">₹{h.avg_buy_price.toFixed(2)}</td>
+                    <td className="py-3.5 px-4 font-semibold text-ink">₹{h.current_price.toFixed(2)}</td>
+                    <td className="py-3.5 px-4 font-bold text-ink">
+                      ₹{h.current_value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <div className="flex flex-col">
+                        <span className={`font-bold ${isProfit ? "text-profit" : "text-loss"}`}>
+                          {isProfit ? "+" : ""}₹{h.pnl.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                        <span className={`text-[10px] font-bold ${isProfit ? "text-profit" : "text-loss"}`}>
+                          {isProfit ? "▲ +" : "▼ "}
+                          {h.pnl_percentage.toFixed(2)}%
+                        </span>
                       </div>
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-2">
-                        <span className="text-ink-secondary font-medium min-w-[35px]">{h.portfolio_weight}%</span>
-                        <div className="w-16 bg-surface-subtle border border-border h-1.5 rounded-full overflow-hidden">
+                        <div className="w-12 bg-surface-subtle border border-border h-1.5 rounded-full overflow-hidden">
                           <div
-                            className="bg-ink h-full rounded-full"
-                            style={{ width: `${Math.min(h.portfolio_weight, 100)}%` }}
+                            className="bg-brand-accent h-full rounded-full"
+                            style={{ width: `${Math.min(h.portfolio_weight || 0, 100)}%` }}
                           />
                         </div>
+                        <span className="text-[11px] text-ink-secondary">
+                          {h.portfolio_weight ? `${h.portfolio_weight.toFixed(1)}%` : "-"}
+                        </span>
                       </div>
                     </td>
                     <td className="py-3.5 px-4 text-right">
-                      <button
-                        onClick={() => onDeleteHolding(h.id)}
-                        className="p-1.5 rounded text-ink-muted hover:text-loss hover:bg-loss-bg transition"
-                        title="Delete position"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center justify-end gap-1.5">
+                        {onAskAI && (
+                          <button
+                            onClick={() => onAskAI(h.ticker)}
+                            className="p-1.5 text-brand-accent hover:bg-brand-light rounded-md border border-transparent hover:border-brand-border transition"
+                            title={`Ask AI to analyze ${h.ticker}`}
+                          >
+                            <Sparkles className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => onDeleteHolding(h.id)}
+                          className="p-1.5 text-ink-muted hover:text-loss hover:bg-loss-bg rounded-md border border-transparent hover:border-loss-border transition"
+                          title="Remove holding"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -201,124 +230,119 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
         </table>
       </div>
 
-      {/* Add Position Modal with Company Search */}
+      {/* Add Holding Modal with Autocomplete */}
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-surface border border-border rounded-xl p-6 w-full max-w-sm shadow-xl">
-            <div className="flex items-center justify-between pb-3 border-b border-border mb-4">
-              <h3 className="font-bold text-sm text-ink uppercase tracking-wide">
-                Add Stock Position
-              </h3>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-ink-muted hover:text-ink p-1 rounded-md hover:bg-surface-subtle"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-surface border border-border rounded-xl shadow-elevated w-full max-w-md p-6 relative">
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute top-4 right-4 text-ink-muted hover:text-ink p-1 rounded-md hover:bg-surface-subtle"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <h3 className="text-base font-bold text-ink mb-1 font-headline">Add Portfolio Position</h3>
+            <p className="text-xs text-ink-muted mb-4 font-medium">
+              Search by company name (e.g. Tata Motors, Infosys) or ticker symbol.
+            </p>
 
             {error && (
-              <div className="mb-3 p-2.5 rounded-lg bg-loss-bg border border-loss-border text-loss text-xs font-medium">
+              <div className="p-3 mb-4 rounded-lg bg-loss-bg border border-loss-border text-loss text-xs font-medium">
                 {error}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-              {/* Company / Ticker Search Input */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Autocomplete Input */}
               <div ref={dropdownRef} className="relative">
-                <label className="block text-ink-secondary mb-1.5 font-semibold">
-                  Company Name or Symbol
+                <label className="block text-xs font-bold text-ink-secondary mb-1">
+                  Stock / Company
                 </label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-2.5 text-ink-muted" size={14} />
                   <input
                     type="text"
-                    placeholder="Search company (e.g. Tata Motors, TCS, HDFC)..."
+                    required
+                    placeholder="Type name (e.g. Tata Motors) or symbol"
                     value={stockQuery}
                     onChange={handleStockInputChange}
-                    onFocus={() => {
-                      if (searchResults.length > 0) setShowDropdown(true);
-                    }}
-                    className="w-full pl-9 pr-3 py-2 rounded-lg bg-surface border border-border text-ink placeholder-ink-faint focus:outline-none focus:border-ink shadow-2xs font-medium"
-                    required
+                    className="w-full pl-3 pr-8 py-2 text-xs rounded-lg border border-border bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent"
                   />
+                  {isSearching ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-ink-muted absolute right-2.5 top-1/2 -translate-y-1/2" />
+                  ) : null}
                 </div>
 
-                {/* Dropdown Results */}
-                {showDropdown && (
-                  <div className="absolute left-0 right-0 top-full mt-1 bg-surface border border-border rounded-xl shadow-xl z-50 overflow-hidden divide-y divide-border max-h-48 overflow-y-auto">
-                    {isSearching ? (
-                      <div className="p-3 text-center text-ink-muted flex items-center justify-center gap-1.5 text-xs">
-                        <Loader2 className="animate-spin text-ink" size={13} />
-                        Searching stocks...
-                      </div>
-                    ) : searchResults.length === 0 ? (
-                      <div className="p-3 text-center text-ink-muted text-xs">
-                        No matches found. Enter symbol directly.
-                      </div>
-                    ) : (
-                      searchResults.map((stock) => (
-                        <div
-                          key={stock.symbol}
-                          onClick={() => handleSelectStock(stock)}
-                          className="p-2.5 hover:bg-surface-subtle cursor-pointer flex items-center justify-between gap-2 text-xs"
-                        >
-                          <div className="truncate">
-                            <p className="font-bold text-ink truncate">{stock.name}</p>
-                            <p className="text-[10px] text-ink-muted truncate">{stock.sector}</p>
-                          </div>
-                          <span className="font-mono font-bold text-ink bg-surface-subtle px-1.5 py-0.5 rounded text-[10px] border border-border">
-                            {stock.symbol}
-                          </span>
+                {/* Dropdown items */}
+                {showDropdown && searchResults.length > 0 && (
+                  <div className="absolute left-0 right-0 top-full mt-1 bg-surface border border-border rounded-lg shadow-elevated z-50 max-h-48 overflow-y-auto divide-y divide-border">
+                    {searchResults.map((stock: StockSearchResult) => (
+                      <button
+                        type="button"
+                        key={stock.symbol}
+                        onClick={() => handleSelectStock(stock)}
+                        className="w-full text-left px-3 py-2 text-xs hover:bg-surface-subtle transition flex items-center justify-between"
+                      >
+                        <div className="min-w-0 pr-2">
+                          <p className="font-bold text-ink truncate">{stock.name}</p>
+                          <p className="text-[11px] font-mono text-ink-muted">{stock.symbol}</p>
                         </div>
-                      ))
-                    )}
+                        <span className="text-[10px] font-semibold text-brand-accent bg-brand-light px-1.5 py-0.5 rounded border border-brand-border shrink-0">
+                          Select
+                        </span>
+                      </button>
+                    ))}
                   </div>
                 )}
               </div>
 
+              {/* Quantity */}
               <div>
-                <label className="block text-ink-secondary mb-1.5 font-semibold">Quantity (Shares)</label>
+                <label className="block text-xs font-bold text-ink-secondary mb-1">
+                  Quantity (Shares)
+                </label>
                 <input
                   type="number"
                   step="any"
-                  placeholder="10"
+                  min="0.0001"
+                  required
+                  placeholder="e.g. 50"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-ink placeholder-ink-faint focus:outline-none focus:border-ink font-mono shadow-2xs"
-                  required
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent"
                 />
               </div>
 
+              {/* Average Buy Price */}
               <div>
-                <label className="block text-ink-secondary mb-1.5 font-semibold">
+                <label className="block text-xs font-bold text-ink-secondary mb-1">
                   Average Buy Price (₹)
                 </label>
                 <input
                   type="number"
                   step="any"
-                  placeholder="3500.00"
+                  min="0.01"
+                  required
+                  placeholder="e.g. 982.50"
                   value={buyPrice}
                   onChange={(e) => setBuyPrice(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-ink placeholder-ink-faint focus:outline-none focus:border-ink font-mono shadow-2xs"
-                  required
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent"
                 />
               </div>
 
-              <div className="pt-2 flex gap-2 justify-end">
+              <div className="flex items-center justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-3 py-2 rounded-lg bg-surface border border-border text-ink-secondary hover:bg-surface-subtle font-semibold transition"
+                  className="px-4 py-2 text-xs font-semibold rounded-lg border border-border text-ink-secondary hover:bg-surface-subtle transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 rounded-lg bg-ink text-white font-semibold hover:bg-stone-800 transition disabled:opacity-50 shadow-xs"
+                  className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg bg-brand hover:bg-slate-700 text-white transition disabled:opacity-50"
                 >
-                  {submitting ? "Adding..." : "Add Position"}
+                  {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>Save Holding</span>
                 </button>
               </div>
             </form>

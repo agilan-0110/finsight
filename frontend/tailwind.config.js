@@ -7,54 +7,57 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Financial Times / Bloomberg Warm Luxury Canvas
-        canvas: '#F6F5F2', // Warm parchment / alabaster backdrop
+        // Stitch Minimal Luxury Light Mode Theme
+        canvas: '#F8FAFC', // Slate 50 clean light background
         surface: {
-          DEFAULT: '#FFFFFF', // Pure crisp white cards
-          subtle: '#FAF8F5',  // Subtle warm secondary panel (Stone 50 tint)
-          hover: '#F5F2EB',   // Warm hover state
-          muted: '#EFECE6',
+          DEFAULT: '#FFFFFF', // Pure white card surfaces
+          subtle: '#F1F5F9',  // Slate 100 subtle secondary backgrounds
+          hover: '#E2E8F0',   // Slate 200 hover state
+          muted: '#CBD5E1',   // Slate 300 muted elements
         },
         border: {
-          DEFAULT: '#E5E0D8', // Warm structural card border
-          subtle: '#EDE8E0',
-          strong: '#D4CDC0', // High-contrast border
+          DEFAULT: '#E2E8F0', // Slate 200 crisp card borders
+          subtle: '#F1F5F9',  // Slate 100 dividers
+          strong: '#CBD5E1',  // Slate 300 high contrast borders
         },
         ink: {
-          DEFAULT: '#1C1917', // Deep warm onyx / stone 900 (ultra legible)
-          secondary: '#44403C', // Warm body text (Stone 700)
-          muted: '#78716C', // Warm tertiary / labels (Stone 500)
-          faint: '#A8A29E', // Subtle hints (Stone 400)
+          DEFAULT: '#0F172A', // Slate 900 high-contrast primary text (crisp for readability)
+          secondary: '#334155', // Slate 700 body text
+          muted: '#64748B', // Slate 500 secondary labels
+          faint: '#94A3B8', // Slate 400 subtle placeholders
         },
         brand: {
-          DEFAULT: '#1E3A8A', // Deep institutional navy (Blue 900)
-          accent: '#2563EB',  // Royal executive blue (Blue 600)
-          light: '#EFF6FF',   // Subtle blue pill background (Blue 50)
-          border: '#BFDBFE',  // Light blue border
+          DEFAULT: '#1E293B', // Slate 800 executive primary
+          accent: '#4F46E5',  // Indigo 600 AI accent
+          light: '#EEF2FF',   // Indigo 50 light badge
+          border: '#C7D2FE',  // Indigo 200 border
         },
         profit: {
-          DEFAULT: '#065F46', // Deep Wall Street emerald (Emerald 800)
-          bg: '#ECFDF5',      // Soft emerald pill
-          border: '#A7F3D0',  // Emerald border
+          DEFAULT: '#059669', // Emerald 600 crisp gain
+          bg: '#ECFDF5',      // Emerald 50 soft pill
+          border: '#A7F3D0',  // Emerald 200 border
         },
         loss: {
-          DEFAULT: '#991B1B', // Deep British crimson / oxblood (Red 800)
-          bg: '#FEF2F2',      // Soft crimson pill
-          border: '#FECACA',  // Crimson border
+          DEFAULT: '#E11D48', // Rose 600 crisp loss
+          bg: '#FFF1F2',      // Rose 50 soft pill
+          border: '#FECDD3',  // Rose 200 border
         },
         warning: {
-          DEFAULT: '#92400E', // Deep warm amber (Amber 800)
-          bg: '#FFFBEB',      // Soft amber pill
-          border: '#FDE68A',  // Amber border
+          DEFAULT: '#D97706', // Amber 600 alert
+          bg: '#FFFBEB',      // Amber 50 soft pill
+          border: '#FDE68A',  // Amber 200 border
         }
       },
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+        headline: ['"Plus Jakarta Sans"', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'Menlo', 'Courier New', 'monospace'],
       },
       boxShadow: {
-        'card': '0 2px 10px -2px rgba(28, 25, 23, 0.05), 0 1px 3px rgba(28, 25, 23, 0.03)',
-        'card-hover': '0 6px 18px -4px rgba(28, 25, 23, 0.08), 0 2px 6px rgba(28, 25, 23, 0.04)',
+        'card': '0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05)',
+        'card-hover': '0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.05)',
+        'elevated': '0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04)',
       }
     },
   },
