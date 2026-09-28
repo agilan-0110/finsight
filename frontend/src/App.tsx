@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { api, authStorage, type PortfolioAnalytics, type User } from "./api/client";
+import { LandingPage } from "./components/LandingPage";
 import { Sidebar } from "./components/Sidebar";
 import { Navbar } from "./components/Navbar";
 import { PortfolioSummary } from "./components/PortfolioSummary";
@@ -27,6 +28,7 @@ export function App() {
 
   // User state
   const [currentUser, setCurrentUser] = useState<User | null>(authStorage.getUser());
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
 
   // Navigation & Modals state
   const [activeTab, setActiveTab] = useState<string>("dashboard");
@@ -54,7 +56,7 @@ export function App() {
     try {
       const [health, data] = await Promise.all([
         api.checkHealth().catch(() => ({ status: "error" })),
-        api.getAnalytics(),
+        api.getAnalytics().catch(() => null),
       ]);
       setIsConnected(
         Boolean(
@@ -75,25 +77,31 @@ export function App() {
 
   // Fetch logged in profile if token exists
   useEffect(() => {
-    if (authStorage.getToken()) {
+    const token = authStorage.getToken();
+    if (token) {
       api.getMe()
         .then((user) => {
           setCurrentUser(user);
+          loadData(false);
         })
         .catch(() => {
           authStorage.clear();
           setCurrentUser(null);
         });
+    } else {
+      setCurrentUser(null);
     }
-  }, []);
+  }, [loadData]);
 
+  // Periodic refresh when user is logged in
   useEffect(() => {
-    loadData();
+    if (!currentUser) return;
+    loadData(true);
     const interval = setInterval(() => {
       loadData(true);
     }, 30000);
     return () => clearInterval(interval);
-  }, [loadData]);
+  }, [currentUser, loadData]);
 
   const handleAuthSuccess = (user: User, isNewUser: boolean) => {
     setCurrentUser(user);
@@ -107,8 +115,8 @@ export function App() {
   const handleLogout = () => {
     api.logout();
     setCurrentUser(null);
+    setAnalytics(null);
     showToast("Signed out successfully.");
-    loadData(false);
   };
 
   const handleImportSuccess = (count: number) => {
@@ -178,6 +186,59 @@ export function App() {
     }
   };
 
+  // If user is NOT logged in, show the institutional Landing Page!
+  if (!currentUser) {
+    return (
+      <div className="bg-surface font-body text-on-surface antialiased min-h-screen">
+        <LandingPage
+          onOpenLogin={() => {
+            setAuthMode("login");
+            setAuthModalOpen(true);
+          }}
+          onOpenRegister={() => {
+            setAuthMode("register");
+            setAuthModalOpen(true);
+          }}
+          onOpenAcademy={() => setAcademyOpen(true)}
+        />
+
+        {/* Auth Modal */}
+        <AuthModal
+          isOpen={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+          onAuthSuccess={handleAuthSuccess}
+          initialMode={authMode}
+        />
+
+        {/* Stock Market Academy Modal */}
+        <StockMarketAcademyModal
+          isOpen={academyOpen}
+          onClose={() => setAcademyOpen(false)}
+          onCompleted={() => showToast("Market Academy preview completed! Sign in to start tracking.")}
+        />
+
+        {/* Floating Toast Notification */}
+        {toast && (
+          <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl bg-surface-container-lowest border border-outline-variant/40 shadow-stitch-lg text-xs max-w-md animate-in fade-in slide-in-from-bottom-3 duration-200">
+            {toast.type === "success" ? (
+              <CheckCircle className="w-4 h-4 text-gain flex-shrink-0" />
+            ) : (
+              <AlertTriangle className="w-4 h-4 text-error flex-shrink-0" />
+            )}
+            <span className="text-on-surface font-semibold flex-1">{toast.message}</span>
+            <button
+              onClick={() => setToast(null)}
+              className="text-outline hover:text-on-surface p-0.5 rounded-md"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Once user IS logged in, render the Private User Dashboard!
   return (
     <div className="bg-surface font-body text-on-surface antialiased min-h-screen flex selection:bg-primary-container selection:text-on-primary-container">
       {/* Stitch Anchored Left Side Navigation Bar */}
@@ -287,10 +348,10 @@ export function App() {
         <footer className="border-t border-outline-variant/30 bg-surface-container-low/40 py-6 px-8 text-center text-xs text-on-surface-variant">
           <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="font-semibold text-on-surface">
-              FinSight Intelligence Enterprise v4.2 • Powered by Stitch Design System
+              FinSight Intelligence Enterprise v4.2 • User: {currentUser.full_name} ({currentUser.email})
             </p>
             <p className="text-[11px] text-outline font-medium">
-              Institutional quantitative analytics &amp; portfolio risk modeling
+              Multi-tenant isolated portfolio • {currentUser.primary_broker.toUpperCase()} Sync
             </p>
           </div>
         </footer>
@@ -312,6 +373,7 @@ export function App() {
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         onAuthSuccess={handleAuthSuccess}
+        initialMode={authMode}
       />
 
       <BrokerUploadModal
