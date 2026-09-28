@@ -156,12 +156,12 @@ def extract_ticker_from_message(user_message: str) -> str | None:
 from backend.agent.analytics import calculate_portfolio_analytics, format_analytics_for_llm
 
 
-def build_portfolio_context() -> str:
+def build_portfolio_context(user_id: int | None = None) -> str:
     """
     Computes real-time portfolio analytics (invested vs current, P&L in ₹ and %,
     sector weights, and concentration risk flags) and formats it for the LLM.
     """
-    analytics = calculate_portfolio_analytics()
+    analytics = calculate_portfolio_analytics(user_id=user_id)
     return format_analytics_for_llm(analytics)
 
 
@@ -230,7 +230,7 @@ def build_stock_context(ticker: str) -> str:
     return "\n".join(lines)
 
 
-def get_chat_response(user_message: str, max_history_turns: int = 3) -> str:
+def get_chat_response(user_message: str, max_history_turns: int = 3, user_id: int | None = None) -> str:
     """
     Main entry point — this is what the /chat endpoint calls.
     Maintains a 0-cost sliding window of recent conversation history from PostgreSQL.
@@ -239,7 +239,7 @@ def get_chat_response(user_message: str, max_history_turns: int = 3) -> str:
     recent_records = []
     try:
         # Each turn is (user + assistant) pair, so max_history_turns * 2 messages
-        recent_records = get_recent_messages(db, limit=max_history_turns * 2)
+        recent_records = get_recent_messages(db, limit=max_history_turns * 2, user_id=user_id)
     except Exception:
         recent_records = []
     finally:
@@ -267,7 +267,7 @@ def get_chat_response(user_message: str, max_history_turns: int = 3) -> str:
     portfolio_needed = needs_portfolio_context(user_message)
 
     if portfolio_needed:
-        context_blocks.append(build_portfolio_context())
+        context_blocks.append(build_portfolio_context(user_id=user_id))
     elif ticker:
         context_blocks.append(build_stock_context(ticker))
 
@@ -317,8 +317,8 @@ def get_chat_response(user_message: str, max_history_turns: int = 3) -> str:
     # Persist the current turn to PostgreSQL (0 extra LLM calls)
     save_db = SessionLocal()
     try:
-        add_message(save_db, role="user", message=user_message)
-        add_message(save_db, role="assistant", message=clean_response)
+        add_message(save_db, role="user", message=user_message, user_id=user_id)
+        add_message(save_db, role="assistant", message=clean_response, user_id=user_id)
     except Exception as e:
         print(f"Warning: Could not save message to chat_history: {e}")
     finally:

@@ -1,11 +1,13 @@
 import React from "react";
-import { Sparkles } from "lucide-react";
+import { Sparkles, UploadCloud, GraduationCap, BarChart3, LineChart, Sliders, Bell, Brain } from "lucide-react";
 
 interface SidebarProps {
   activeTab: string;
   onSelectTab: (tab: string) => void;
   onOpenMemories: () => void;
   onOpenAlerts: () => void;
+  onOpenBrokerUpload: () => void;
+  onOpenAcademy: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -13,6 +15,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectTab,
   onOpenMemories,
   onOpenAlerts,
+  onOpenBrokerUpload,
+  onOpenAcademy,
 }) => {
   return (
     <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-64 flex-col justify-between border-r border-outline-variant/40 bg-surface-container-low p-4 z-50 shrink-0">
@@ -42,7 +46,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
             }`}
           >
-            <span className="text-base">📊</span>
+            <BarChart3 className="w-4 h-4 text-primary" />
             <span>Portfolio Intelligence</span>
           </button>
 
@@ -50,7 +54,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             href="#stock-deep-dive-section"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors duration-150"
           >
-            <span className="text-base">📈</span>
+            <LineChart className="w-4 h-4 text-on-surface-variant" />
             <span>Live NSE Markets</span>
           </a>
 
@@ -58,15 +62,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
             href="#rebalance-section"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors duration-150"
           >
-            <span className="text-base">⚖️</span>
+            <Sliders className="w-4 h-4 text-on-surface-variant" />
             <span>Rebalancing Engine</span>
           </a>
+
+          <button
+            onClick={onOpenBrokerUpload}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors duration-150 text-left"
+          >
+            <UploadCloud className="w-4 h-4 text-primary" />
+            <span>Import Statement</span>
+          </button>
+
+          <button
+            onClick={onOpenAcademy}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors duration-150 text-left"
+          >
+            <GraduationCap className="w-4 h-4 text-secondary" />
+            <span>Market Academy</span>
+          </button>
 
           <button
             onClick={onOpenAlerts}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors duration-150 text-left"
           >
-            <span className="text-base">🔔</span>
+            <Bell className="w-4 h-4 text-on-surface-variant" />
             <span>Price Triggers &amp; Alerts</span>
           </button>
 
@@ -74,7 +94,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={onOpenMemories}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors duration-150 text-left"
           >
-            <span className="text-base">🧠</span>
+            <Brain className="w-4 h-4 text-on-surface-variant" />
             <span>Strategic Memories</span>
           </button>
         </nav>

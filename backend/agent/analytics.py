@@ -10,7 +10,7 @@ from backend.db.database import SessionLocal
 from backend.data.data_fetch import get_live_price, get_fundamentals
 
 
-def calculate_portfolio_analytics(db=None) -> dict:
+def calculate_portfolio_analytics(db=None, user_id: int | None = None) -> dict:
     """
     Computes comprehensive real-time portfolio analytics:
     - Total invested capital vs current market value
@@ -26,7 +26,7 @@ def calculate_portfolio_analytics(db=None) -> dict:
         close_db_after = True
 
     try:
-        holdings = get_portfolio(db)
+        holdings = get_portfolio(db, user_id=user_id)
     finally:
         if close_db_after:
             db.close()

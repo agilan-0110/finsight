@@ -247,6 +247,31 @@
 
 ---
 
+### 15. User Authentication, Broker Statement Ingestion & Stock Market Academy
+- **Goal:** Wipe all legacy demo data, build an isolated multi-tenant user authentication system, implement multi-broker statement ingestion (Zerodha, Groww, AngelOne, Upstox CSV/Excel), and provide an interactive beginner "Stock Market Academy" with a prominent skip option.
+- **Key Deliverables:**
+  - **Data Cleanup:** Completely purged legacy test records across PostgreSQL and ChromaDB.
+  - **Multi-Tenant User System:**
+    - Added `User` table to [`backend/db/models.py`](file:///D:/Workspace/Projects/Personal/Ai%20Agent/Finsight/backend/db/models.py) (`email`, `full_name`, `password_hash`, `primary_broker`, `tutorial_completed`).
+    - Added `user_id` foreign keys to `Portfolio`, `ChatHistory`, and `Alert` models for strict multi-tenant isolation.
+    - Implemented secure `bcrypt` hashing and JWT tokens in [`backend/db/auth.py`](file:///D:/Workspace/Projects/Personal/Ai%20Agent/Finsight/backend/db/auth.py).
+    - Added REST endpoints: `POST /auth/register`, `POST /auth/login`, `GET /auth/me`, and `POST /auth/tutorial-complete`.
+  - **Multi-Broker Statement Parsing Engine:**
+    - Built [`backend/data/broker_parser.py`](file:///D:/Workspace/Projects/Personal/Ai%20Agent/Finsight/backend/data/broker_parser.py) supporting Zerodha Kite/Console (`.csv`, `.xlsx`), Groww (`.xlsx`, `.csv`), AngelOne (`.csv`), Upstox (`.csv`), and generic formats.
+    - Uses fuzzy column pattern matching, cleans numeric noise (commas, ₹ symbols), and resolves raw scrip names to official `.NS` tickers via local stock directory.
+    - Added endpoints: `POST /portfolio/upload` (returns parsed preview) and `POST /portfolio/import-confirm` (commits selected holdings).
+  - **Frontend UI & Interactive Onboarding:**
+    - **`AuthModal.tsx`:** Sleek Stitch-styled login and registration dialog with demo credentials autofill.
+    - **`BrokerUploadModal.tsx`:** Drag-and-drop file upload with live broker detection and an interactive preview table showing original names, resolved NSE tickers, quantities, average prices, and toggleable checkboxes.
+    - **`StockMarketAcademyModal.tsx`:** 4-part beginner tutorial covering equity ownership, P/E ratios & valuation, portfolio diversification, and AI-powered research. Equipped with an easily dismissible **"Skip Tutorial"** button on every screen.
+    - **`OnboardingChoiceModal.tsx`:** Modal shown to newly registered investors to route them either to broker statement upload or to the beginner academy.
+    - **Navbar & Sidebar Integration:** Navbar displays current user profile, broker tier badge, and account dropdown with one-click access to Statement Import, Academy, and Sign Out.
+- **Verification:**
+  - Ran backend test suite for registration, login, `/auth/me`, `/auth/tutorial-complete`, broker CSV parsing, and batch portfolio creation.
+  - Ran `npm run build` — compiled cleanly with `0` errors.
+
+---
+
 ## 📊 Current Project Status
 
 | Phase | Description | Status |
@@ -259,6 +284,7 @@
 | **Phase 6** | Conversational Memory (Short-Term + Gemini Long-Term) | ✅ Complete |
 | **Phase 7** | Portfolio Analytics & Live P&L (`analytics.py`) | ✅ Complete |
 | **Phase 8** | React + Vite Institutional Dashboard (Stitch Redesign Complete) | ✅ Complete |
+| **Phase 8.5**| Auth, Broker Statement Upload & Stock Market Academy | ✅ Complete |
 | **Phase 9** | Production Hardening & Docker Containerization | 🔜 Next Up |
 
 ---
@@ -267,5 +293,6 @@
 - Create `Dockerfile` and `docker-compose.yml` for unified backend, frontend, PostgreSQL, and ChromaDB deployment.
 - Configure environment variables and production reverse proxy / serve settings.
 - Write end-to-end integration and smoke test suite.
+
 
 

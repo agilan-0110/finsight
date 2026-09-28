@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { api, type PortfolioAnalytics } from "./api/client";
+import { api, authStorage, type PortfolioAnalytics, type User } from "./api/client";
 import { Sidebar } from "./components/Sidebar";
 import { Navbar } from "./components/Navbar";
 import { PortfolioSummary } from "./components/PortfolioSummary";
@@ -11,6 +11,10 @@ import { StockDeepDive } from "./components/StockDeepDive";
 import { AIChatPanel } from "./components/AIChatPanel";
 import { AlertsModal } from "./components/AlertsModal";
 import { MemoriesModal } from "./components/MemoriesModal";
+import { AuthModal } from "./components/AuthModal";
+import { BrokerUploadModal } from "./components/BrokerUploadModal";
+import { StockMarketAcademyModal } from "./components/StockMarketAcademyModal";
+import { OnboardingChoiceModal } from "./components/OnboardingChoiceModal";
 import { CheckCircle, AlertTriangle, X } from "lucide-react";
 
 export function App() {
@@ -21,10 +25,18 @@ export function App() {
   const [isSendingDigest, setIsSendingDigest] = useState<boolean>(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
+  // User state
+  const [currentUser, setCurrentUser] = useState<User | null>(authStorage.getUser());
+
   // Navigation & Modals state
   const [activeTab, setActiveTab] = useState<string>("dashboard");
   const [alertsOpen, setAlertsOpen] = useState<boolean>(false);
   const [memoriesOpen, setMemoriesOpen] = useState<boolean>(false);
+  const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
+  const [brokerUploadOpen, setBrokerUploadOpen] = useState<boolean>(false);
+  const [academyOpen, setAcademyOpen] = useState<boolean>(false);
+  const [onboardingChoiceOpen, setOnboardingChoiceOpen] = useState<boolean>(false);
+
   const [prefillAlertTicker, setPrefillAlertTicker] = useState<string | undefined>(undefined);
   const [aiPrompt, setAiPrompt] = useState<string | undefined>(undefined);
   const [selectedDeepDiveTicker, setSelectedDeepDiveTicker] = useState<string | undefined>(undefined);
@@ -61,6 +73,20 @@ export function App() {
     }
   }, []);
 
+  // Fetch logged in profile if token exists
+  useEffect(() => {
+    if (authStorage.getToken()) {
+      api.getMe()
+        .then((user) => {
+          setCurrentUser(user);
+        })
+        .catch(() => {
+          authStorage.clear();
+          setCurrentUser(null);
+        });
+    }
+  }, []);
+
   useEffect(() => {
     loadData();
     const interval = setInterval(() => {
@@ -68,6 +94,34 @@ export function App() {
     }, 30000);
     return () => clearInterval(interval);
   }, [loadData]);
+
+  const handleAuthSuccess = (user: User, isNewUser: boolean) => {
+    setCurrentUser(user);
+    showToast(`Welcome ${user.full_name}! Account active.`);
+    loadData(false);
+    if (isNewUser) {
+      setOnboardingChoiceOpen(true);
+    }
+  };
+
+  const handleLogout = () => {
+    api.logout();
+    setCurrentUser(null);
+    showToast("Signed out successfully.");
+    loadData(false);
+  };
+
+  const handleImportSuccess = (count: number) => {
+    showToast(`Successfully imported ${count} positions into your portfolio!`);
+    loadData(false);
+  };
+
+  const handleAcademyCompleted = () => {
+    if (currentUser) {
+      setCurrentUser({ ...currentUser, tutorial_completed: true });
+    }
+    showToast("Market Academy completed! You're ready to research & invest.");
+  };
 
   const handleAddHolding = async (holding: {
     ticker: string;
@@ -135,6 +189,8 @@ export function App() {
           setPrefillAlertTicker(undefined);
           setAlertsOpen(true);
         }}
+        onOpenBrokerUpload={() => setBrokerUploadOpen(true)}
+        onOpenAcademy={() => setAcademyOpen(true)}
       />
 
       {/* Main Application Wrapper (Padded left for sidebar) */}
@@ -152,6 +208,11 @@ export function App() {
           onSendDigest={handleSendDigest}
           isSendingDigest={isSendingDigest}
           onSelectStock={handleSelectStockFromNav}
+          currentUser={currentUser}
+          onOpenAuth={() => setAuthModalOpen(true)}
+          onOpenBrokerUpload={() => setBrokerUploadOpen(true)}
+          onOpenAcademy={() => setAcademyOpen(true)}
+          onLogout={handleLogout}
         />
 
         {/* Floating Toast Notification */}
@@ -174,7 +235,7 @@ export function App() {
 
         {/* Stitch Main Content Canvas */}
         <main className="flex-1 p-6 md:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
-          {/* Executive Summary Metric Banner (4 clean metric cards across) */}
+          {/* Executive Summary Metric Banner */}
           <PortfolioSummary analytics={analytics} loading={loading} />
 
           {/* Main Layout Grid (Split 65% / 35%) */}
@@ -190,6 +251,7 @@ export function App() {
                 onAddHolding={handleAddHolding}
                 onDeleteHolding={handleDeleteHolding}
                 onAskAI={handleAskAI}
+                onOpenBrokerUpload={() => setBrokerUploadOpen(true)}
               />
 
               {/* 3. Lower Analytics Row: Sector Allocation & AI Rebalancing Engine */}
@@ -244,6 +306,32 @@ export function App() {
       <MemoriesModal
         isOpen={memoriesOpen}
         onClose={() => setMemoriesOpen(false)}
+      />
+
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        onAuthSuccess={handleAuthSuccess}
+      />
+
+      <BrokerUploadModal
+        isOpen={brokerUploadOpen}
+        onClose={() => setBrokerUploadOpen(false)}
+        onImportSuccess={handleImportSuccess}
+      />
+
+      <StockMarketAcademyModal
+        isOpen={academyOpen}
+        onClose={() => setAcademyOpen(false)}
+        onCompleted={handleAcademyCompleted}
+      />
+
+      <OnboardingChoiceModal
+        isOpen={onboardingChoiceOpen}
+        onClose={() => setOnboardingChoiceOpen(false)}
+        user={currentUser}
+        onChooseUpload={() => setBrokerUploadOpen(true)}
+        onChooseTutorial={() => setAcademyOpen(true)}
       />
     </div>
   );

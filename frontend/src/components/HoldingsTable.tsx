@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Plus, Trash2, X, Loader2, Sparkles } from "lucide-react";
+import { Plus, Trash2, X, Loader2, Sparkles, UploadCloud } from "lucide-react";
 import { api, type AnalyticsHolding, type StockSearchResult } from "../api/client";
 
 interface Props {
@@ -7,9 +7,16 @@ interface Props {
   onAddHolding: (holding: { ticker: string; quantity: number; avg_buy_price: number }) => Promise<void>;
   onDeleteHolding: (id: number) => Promise<void>;
   onAskAI?: (ticker: string) => void;
+  onOpenBrokerUpload?: () => void;
 }
 
-export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDeleteHolding, onAskAI }) => {
+export const HoldingsTable: React.FC<Props> = ({
+  holdings,
+  onAddHolding,
+  onDeleteHolding,
+  onAskAI,
+  onOpenBrokerUpload,
+}) => {
   const [showModal, setShowModal] = useState(false);
   const [stockQuery, setStockQuery] = useState("");
   const [ticker, setTicker] = useState("");
@@ -136,6 +143,17 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
             />
           </div>
 
+          {onOpenBrokerUpload && (
+            <button
+              onClick={onOpenBrokerUpload}
+              className="px-3 py-1.5 rounded-lg border border-outline-variant/50 hover:bg-surface-container text-on-surface text-xs font-semibold flex items-center gap-1.5 transition-all"
+              title="Upload Zerodha, Groww, AngelOne, Upstox statement"
+            >
+              <UploadCloud className="w-3.5 h-3.5 text-primary" />
+              <span>Import Statement</span>
+            </button>
+          )}
+
           <button
             onClick={() => {
               setShowModal(true);
@@ -168,8 +186,36 @@ export const HoldingsTable: React.FC<Props> = ({ holdings, onAddHolding, onDelet
           <tbody className="divide-y divide-outline-variant/20 font-medium">
             {filteredHoldings.length === 0 ? (
               <tr>
-                <td colSpan={7} className="py-12 text-center text-on-surface-variant font-medium">
-                  No active holdings recorded yet. Click &quot;Add Position&quot; to begin.
+                <td colSpan={7} className="py-12 text-center text-on-surface-variant">
+                  <div className="max-w-md mx-auto flex flex-col items-center justify-center space-y-3">
+                    <p className="font-semibold text-on-surface text-sm">No Active Holdings Recorded</p>
+                    <p className="text-xs text-on-surface-variant">
+                      Track your investments by uploading your broker statement or adding positions manually.
+                    </p>
+                    <div className="flex items-center gap-3 pt-2">
+                      {onOpenBrokerUpload && (
+                        <button
+                          onClick={onOpenBrokerUpload}
+                          className="px-3.5 py-2 rounded-xl bg-primary hover:bg-primary-dim text-on-primary text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all"
+                        >
+                          <UploadCloud className="w-4 h-4" />
+                          <span>Import Broker Statement</span>
+                        </button>
+                      )}
+                      <button
+                        onClick={() => {
+                          setShowModal(true);
+                          setStockQuery("");
+                          setTicker("");
+                          setError("");
+                        }}
+                        className="px-3.5 py-2 rounded-xl border border-outline-variant/50 hover:bg-surface-container text-on-surface text-xs font-semibold flex items-center gap-1.5 transition-all"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Add Manually</span>
+                      </button>
+                    </div>
+                  </div>
                 </td>
               </tr>
             ) : (

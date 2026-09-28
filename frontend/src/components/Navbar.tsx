@@ -8,8 +8,13 @@ import {
   Loader2,
   X,
   Sliders,
+  UploadCloud,
+  GraduationCap,
+  LogOut,
+  User as UserIcon,
+  ChevronDown,
 } from "lucide-react";
-import { api, type StockSearchResult } from "../api/client";
+import { api, type StockSearchResult, type User } from "../api/client";
 
 interface NavbarProps {
   isConnected: boolean;
@@ -20,6 +25,11 @@ interface NavbarProps {
   onSendDigest: () => void;
   isSendingDigest: boolean;
   onSelectStock?: (ticker: string) => void;
+  currentUser: User | null;
+  onOpenAuth: () => void;
+  onOpenBrokerUpload: () => void;
+  onOpenAcademy: () => void;
+  onLogout: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -31,18 +41,29 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSendDigest,
   isSendingDigest,
   onSelectStock,
+  currentUser,
+  onOpenAuth,
+  onOpenBrokerUpload,
+  onOpenAcademy,
+  onLogout,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<StockSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
         setShowDropdown(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -84,6 +105,13 @@ export const Navbar: React.FC<NavbarProps> = ({
     if (onSelectStock) {
       onSelectStock(stock.symbol);
     }
+  };
+
+  const getUserInitials = (name: string) => {
+    if (!name) return "U";
+    const parts = name.trim().split(" ");
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    return name.slice(0, 2).toUpperCase();
   };
 
   return (
@@ -176,7 +204,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </a>
       </nav>
 
-      {/* Right Actions Cluster directly from Stitch */}
+      {/* Right Actions Cluster */}
       <div className="flex items-center gap-3">
         {/* AI Agent Status Pill */}
         <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container border border-outline-variant/30 text-xs font-medium text-on-surface">
@@ -184,11 +212,31 @@ export const Navbar: React.FC<NavbarProps> = ({
           <span>{isConnected ? "Active • Gemma-27b" : "Disconnected"}</span>
         </div>
 
+        {/* Statement Import Button */}
+        <button
+          onClick={onOpenBrokerUpload}
+          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant/50 text-xs font-semibold text-on-surface hover:bg-surface-container transition-colors"
+          title="Upload statement from Zerodha, Groww, AngelOne, Upstox"
+        >
+          <UploadCloud className="w-3.5 h-3.5 text-primary" />
+          <span>Import Statement</span>
+        </button>
+
+        {/* Stock Market Academy Button */}
+        <button
+          onClick={onOpenAcademy}
+          className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant/50 text-xs font-semibold text-on-surface hover:bg-surface-container transition-colors"
+          title="Stock Market Basics & Educational Tutorial"
+        >
+          <GraduationCap className="w-3.5 h-3.5 text-secondary" />
+          <span>Academy</span>
+        </button>
+
         {/* Telegram Digest Button */}
         <button
           onClick={onSendDigest}
           disabled={isSendingDigest}
-          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant/50 text-xs font-semibold text-on-surface hover:bg-surface-container transition-colors disabled:opacity-50"
+          className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant/50 text-xs font-semibold text-on-surface hover:bg-surface-container transition-colors disabled:opacity-50"
           title="Send Executive Digest to Telegram"
         >
           <Send className={`w-3.5 h-3.5 text-primary ${isSendingDigest ? "animate-spin" : ""}`} />
@@ -204,7 +252,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <span>Rebalance</span>
         </a>
 
-        {/* Notification Bell, Memories & Refresh from Stitch */}
+        {/* Notification Bell, Memories & Refresh */}
         <div className="flex items-center gap-1">
           <button
             onClick={onOpenAlerts}
@@ -212,9 +260,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="Price Alerts"
           >
             <Bell className="w-4 h-4" />
-            <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-error text-on-error font-bold text-[8px] flex items-center justify-center">
-              3
-            </span>
           </button>
 
           <button
@@ -237,16 +282,86 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         <div className="h-6 w-px bg-outline-variant/40 mx-1 hidden sm:block"></div>
 
-        {/* User Profile Avatar with Senior Analyst Badge from Stitch */}
-        <div className="flex items-center gap-2 pl-1 cursor-pointer">
-          <div className="w-8 h-8 rounded-full ring-2 ring-outline-variant/40 overflow-hidden bg-primary-container flex items-center justify-center text-xs font-bold text-on-primary-container">
-            AV
+        {/* User Account or Sign In */}
+        {currentUser ? (
+          <div ref={userMenuRef} className="relative">
+            <button
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="flex items-center gap-2 pl-1 p-1 rounded-xl hover:bg-surface-container transition-colors"
+            >
+              <div className="w-8 h-8 rounded-full ring-2 ring-primary/30 overflow-hidden bg-primary-container flex items-center justify-center text-xs font-bold text-on-primary-container shadow-stitch-sm">
+                {getUserInitials(currentUser.full_name)}
+              </div>
+              <div className="hidden xl:flex flex-col text-left">
+                <span className="text-xs font-semibold text-on-surface leading-tight max-w-[120px] truncate">
+                  {currentUser.full_name}
+                </span>
+                <span className="text-[10px] text-on-surface-variant leading-none capitalize">
+                  {currentUser.primary_broker} Investor
+                </span>
+              </div>
+              <ChevronDown className="w-3.5 h-3.5 text-outline hidden xl:block" />
+            </button>
+
+            {/* Dropdown Menu */}
+            {showUserMenu && (
+              <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-surface-container-lowest border border-outline-variant/40 shadow-stitch-lg py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                <div className="px-4 py-2 border-b border-outline-variant/30">
+                  <p className="text-xs font-bold text-on-surface truncate">{currentUser.full_name}</p>
+                  <p className="text-[11px] text-on-surface-variant truncate">{currentUser.email}</p>
+                  <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-primary-container text-on-primary-container capitalize">
+                    {currentUser.primary_broker} Account
+                  </span>
+                </div>
+
+                <div className="py-1">
+                  <button
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      onOpenBrokerUpload();
+                    }}
+                    className="w-full px-4 py-2 text-left text-xs font-semibold text-on-surface hover:bg-surface-container flex items-center gap-2.5 transition-colors"
+                  >
+                    <UploadCloud className="w-4 h-4 text-primary" />
+                    <span>Upload Broker Statement</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      onOpenAcademy();
+                    }}
+                    className="w-full px-4 py-2 text-left text-xs font-semibold text-on-surface hover:bg-surface-container flex items-center gap-2.5 transition-colors"
+                  >
+                    <GraduationCap className="w-4 h-4 text-secondary" />
+                    <span>Stock Market Academy</span>
+                  </button>
+                </div>
+
+                <div className="border-t border-outline-variant/30 pt-1">
+                  <button
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      onLogout();
+                    }}
+                    className="w-full px-4 py-2 text-left text-xs font-semibold text-error hover:bg-error-container/40 flex items-center gap-2.5 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-          <div className="hidden xl:flex flex-col">
-            <span className="text-xs font-semibold text-on-surface leading-tight">Alex Vance</span>
-            <span className="text-[10px] text-on-surface-variant leading-none">Senior Analyst</span>
-          </div>
-        </div>
+        ) : (
+          <button
+            onClick={onOpenAuth}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary hover:bg-primary-dim text-on-primary font-semibold text-xs shadow-sm transition-all active:scale-[0.99]"
+          >
+            <UserIcon className="w-3.5 h-3.5" />
+            <span>Sign In</span>
+          </button>
+        )}
       </div>
     </header>
   );
