@@ -1,0 +1,40 @@
+# FinSight AI Backend Dockerfile
+# Python 3.12 with PyTorch & SentenceTransformers for local zero-cost NLP
+FROM python:3.12-slim
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONIOENCODING=utf-8 \
+    PORT=8000
+
+WORKDIR /app
+
+# Install system dependencies (build tools, curl)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Pre-download SentenceTransformer all-MiniLM-L6-v2 model for instant warmup ($0.00 local CPU)
+RUN python -c "from chromadb.utils import embedding_functions; embedding_functions.SentenceTransformerEmbeddingFunction(model_name='all-MiniLM-L6-v2')"
+
+# Copy backend source code
+COPY backend ./backend
+COPY data_store ./data_store
+
+# Expose FastAPI port
+EXPOSE 8000
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8000/ || exit 1
+
+# Launch uvicorn server
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

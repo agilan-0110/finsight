@@ -124,6 +124,169 @@ def complete_tutorial(
     return {"message": "Tutorial status updated", "tutorial_completed": True}
 
 
+# ---------- User Profile & Onboarding Endpoints ----------
+
+class ProfileIn(BaseModel):
+    experience_level: Optional[str] = "completely_new"
+    primary_goal: Optional[str] = "wealth"
+    time_horizon: Optional[str] = "5-10yrs"
+    monthly_investment: Optional[float] = 2000.0
+    risk_reaction: Optional[str] = "wait_understand"
+    onboarding_completed: Optional[bool] = True
+
+
+@app.get("/profile")
+def get_profile(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    profile = crud.get_user_profile(db, user.id)
+    if not profile:
+        return {
+            "id": None,
+            "user_id": user.id,
+            "experience_level": "completely_new",
+            "primary_goal": "wealth",
+            "time_horizon": "5-10yrs",
+            "monthly_investment": 2000.0,
+            "risk_reaction": "wait_understand",
+            "onboarding_completed": False,
+            "created_at": None,
+            "updated_at": None,
+        }
+    return profile.to_dict()
+
+
+@app.post("/profile")
+def save_profile(
+    data: ProfileIn,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    profile = crud.upsert_user_profile(
+        db,
+        user_id=user.id,
+        experience_level=data.experience_level or "completely_new",
+        primary_goal=data.primary_goal or "wealth",
+        time_horizon=data.time_horizon or "5-10yrs",
+        monthly_investment=float(data.monthly_investment or 2000.0),
+        risk_reaction=data.risk_reaction or "wait_understand",
+        onboarding_completed=bool(data.onboarding_completed),
+    )
+    # Sync core preferences into semantic memory so AI Tutor personalizes guidance
+    try:
+        goal_labels = {
+            "wealth": "Long-term wealth building",
+            "retirement": "Retirement savings",
+            "education": "Higher education funding",
+            "purchase": "Major life purchase/home",
+            "income": "Regular dividend/interest income",
+            "safety": "Protecting capital and emergency buffer",
+            "unsure": "Exploring investment avenues",
+        }
+        exp_labels = {
+            "completely_new": "Complete beginner to investing",
+            "know_basics": "Understands fundamental investing basics",
+            "already_invest": "Active investor with existing holdings",
+        }
+        risk_labels = {
+            "sell": "Cautious/risk-averse (uncomfortable with market declines)",
+            "wait_understand": "Moderate risk tolerance (prefers to hold and understand fluctuations)",
+            "fluctuate_comfortable": "High risk tolerance (understands market fluctuations and long-term horizon)",
+        }
+        g_desc = goal_labels.get(profile.primary_goal, profile.primary_goal)
+        e_desc = exp_labels.get(profile.experience_level, profile.experience_level)
+        r_desc = risk_labels.get(profile.risk_reaction, profile.risk_reaction)
+
+        memory_store.add_user_memory(f"User investment experience: {e_desc}", category="profile")
+        memory_store.add_user_memory(f"Primary investment goal: {g_desc}, target horizon: {profile.time_horizon}", category="goal")
+        memory_store.add_user_memory(f"Monthly investable capacity: INR {profile.monthly_investment:,.0f}, risk attitude: {r_desc}", category="risk")
+    except Exception as e:
+        print(f"Memory sync non-fatal error: {e}")
+
+    return profile.to_dict()
+
+
+# ---------- Financial Goals Endpoints ----------
+
+class GoalIn(BaseModel):
+    title: str
+    target_amount: float
+    target_years: Optional[int] = 5
+    monthly_contribution: Optional[float] = 0.0
+    category: Optional[str] = "wealth"
+
+
+@app.get("/goals")
+def get_goals(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    goals = crud.get_user_goals(db, user.id)
+    return [g.to_dict() for g in goals]
+
+
+@app.post("/goals")
+def create_goal(
+    data: GoalIn,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    goal = crud.create_user_goal(
+        db,
+        user_id=user.id,
+        title=data.title,
+        target_amount=data.target_amount,
+        target_years=data.target_years or 5,
+        monthly_contribution=data.monthly_contribution or 0.0,
+        category=data.category or "wealth",
+    )
+    return goal.to_dict()
+
+
+@app.delete("/goals/{goal_id}")
+def delete_goal(
+    goal_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    success = crud.delete_user_goal(db, user_id=user.id, goal_id=goal_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    return {"message": "Goal deleted successfully"}
+
+
+# ---------- Learning Progress Endpoints ----------
+
+class LearningProgressIn(BaseModel):
+    lesson_id: str
+    quiz_score: Optional[int] = 100
+
+
+@app.get("/learning/progress")
+def get_learning_progress(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    records = crud.get_user_learning_progress(db, user.id)
+    return [r.to_dict() for r in records]
+
+
+@app.post("/learning/progress")
+def save_learning_progress(
+    data: LearningProgressIn,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    rec = crud.record_learning_progress(
+        db,
+        user_id=user.id,
+        lesson_id=data.lesson_id,
+        quiz_score=data.quiz_score or 100
+    )
+    return rec.to_dict()
+
+
 # ---------- Market Data Endpoints (Public) ----------
 
 @app.get("/price/{ticker}")
@@ -286,6 +449,7 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     response: str
+    remembered: list[str] = []
 
 
 @app.post("/chat", response_model=ChatResponse)
@@ -294,8 +458,8 @@ def chat(
     user: Optional[User] = Depends(get_current_user_optional)
 ):
     user_id = user.id if user else None
-    reply = get_chat_response(request.message, user_id=user_id)
-    return ChatResponse(response=reply)
+    reply, remembered = get_chat_response(request.message, user_id=user_id, return_remembered=True)
+    return ChatResponse(response=reply, remembered=remembered)
 
 
 @app.get("/chat/history")
@@ -384,27 +548,55 @@ class MemoryIn(BaseModel):
 
 
 @app.get("/memories")
-def list_memories():
-    return memory_store.get_all_memories()
+def list_memories(user: Optional[User] = Depends(get_current_user_optional)):
+    user_id = user.id if user else None
+    return memory_store.get_all_memories(user_id=user_id)
 
 
 @app.post("/memories")
-def create_memory(data: MemoryIn):
-    mid = memory_store.add_user_memory(data.memory, category=data.category)
+def create_memory(
+    data: MemoryIn,
+    user: Optional[User] = Depends(get_current_user_optional)
+):
+    user_id = user.id if user else None
+    mid = memory_store.add_user_memory(data.memory, category=data.category, user_id=user_id)
     return {"id": mid, "message": "Memory saved successfully"}
 
 
+@app.put("/memories/{memory_id}")
+def update_memory(
+    memory_id: str,
+    data: MemoryIn,
+    user: Optional[User] = Depends(get_current_user_optional)
+):
+    user_id = user.id if user else None
+    success = memory_store.update_user_memory(
+        memory_id=memory_id,
+        new_fact=data.memory,
+        category=data.category,
+        user_id=user_id,
+    )
+    if not success:
+        raise HTTPException(status_code=404, detail="Memory not found or update failed")
+    return {"message": "Memory updated successfully"}
+
+
 @app.delete("/memories/{memory_id}")
-def delete_memory(memory_id: str):
-    success = memory_store.delete_memory(memory_id)
+def delete_memory(
+    memory_id: str,
+    user: Optional[User] = Depends(get_current_user_optional)
+):
+    user_id = user.id if user else None
+    success = memory_store.delete_memory(memory_id, user_id=user_id)
     if not success:
         raise HTTPException(status_code=404, detail="Memory not found")
     return {"message": "Memory deleted"}
 
 
 @app.delete("/memories")
-def clear_memories():
-    count = memory_store.clear_all_memories()
+def clear_memories(user: Optional[User] = Depends(get_current_user_optional)):
+    user_id = user.id if user else None
+    count = memory_store.clear_all_memories(user_id=user_id)
     return {"message": f"Cleared {count} memories"}
 
 

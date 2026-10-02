@@ -17,6 +17,8 @@ import {
 import { api, type StockSearchResult, type User } from "../api/client";
 
 interface NavbarProps {
+  activeTab?: string;
+  onSelectTab?: (tab: string) => void;
   isConnected: boolean;
   onRefresh: () => void;
   isRefreshing: boolean;
@@ -33,6 +35,8 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
+  activeTab = "home",
+  onSelectTab,
   isConnected,
   onRefresh,
   isRefreshing,
@@ -189,20 +193,31 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Middle Navigation Tabs (Desktop) */}
-      <nav className="hidden xl:flex items-center font-headline text-sm font-semibold tracking-tight gap-1">
-        <a className="border-b-2 border-primary text-on-surface font-semibold pb-4 pt-4 px-3" href="#dashboard">
-          Dashboard
-        </a>
-        <a className="text-on-surface-variant hover:text-on-surface pb-4 pt-4 px-3 transition-colors" href="#holdings">
-          Holdings
-        </a>
-        <a className="text-on-surface-variant hover:text-on-surface pb-4 pt-4 px-3 transition-colors" href="#performance">
-          Performance
-        </a>
-        <a className="text-on-surface-variant hover:text-on-surface pb-4 pt-4 px-3 transition-colors" href="#analytics">
-          Analytics
-        </a>
-      </nav>
+      {onSelectTab && (
+        <nav className="hidden xl:flex items-center font-headline text-xs font-semibold tracking-tight gap-1">
+          {[
+            { id: "home", label: "Home" },
+            { id: "explore", label: "Explore" },
+            { id: "learn", label: "Learn" },
+            { id: "portfolio", label: "Portfolio" },
+            { id: "plan", label: "Plan" },
+            { id: "assistant", label: "AI Assistant" },
+          ].map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onSelectTab(item.id)}
+              className={`px-3 py-1.5 rounded-lg transition-all ${
+                activeTab === item.id
+                  ? "bg-primary text-on-primary font-bold shadow-sm"
+                  : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+      )}
 
       {/* Right Actions Cluster */}
       <div className="flex items-center gap-3">

@@ -1,14 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
-import { api, authStorage, type PortfolioAnalytics, type User } from "./api/client";
+import {
+  api,
+  authStorage,
+  type PortfolioAnalytics,
+  type User,
+  type UserProfile,
+} from "./api/client";
 import { LandingPage } from "./components/LandingPage";
 import { Sidebar } from "./components/Sidebar";
 import { Navbar } from "./components/Navbar";
-import { PortfolioSummary } from "./components/PortfolioSummary";
-import { PortfolioPerformanceCurve } from "./components/PortfolioPerformanceCurve";
-import { HoldingsTable } from "./components/HoldingsTable";
-import { SectorChart } from "./components/SectorChart";
-import { AIRebalancingCard } from "./components/AIRebalancingCard";
-import { StockDeepDive } from "./components/StockDeepDive";
+import { HomeView } from "./components/HomeView";
+import { ExploreView } from "./components/ExploreView";
+import { LearnView } from "./components/LearnView";
+import { PortfolioView } from "./components/PortfolioView";
+import { PlanView } from "./components/PlanView";
 import { AIChatPanel } from "./components/AIChatPanel";
 import { AlertsModal } from "./components/AlertsModal";
 import { MemoriesModal } from "./components/MemoriesModal";
@@ -16,6 +21,8 @@ import { AuthModal } from "./components/AuthModal";
 import { BrokerUploadModal } from "./components/BrokerUploadModal";
 import { StockMarketAcademyModal } from "./components/StockMarketAcademyModal";
 import { OnboardingChoiceModal } from "./components/OnboardingChoiceModal";
+import { OnboardingModal } from "./components/OnboardingModal";
+import { ExplainModal } from "./components/ExplainModal";
 import { CheckCircle, AlertTriangle, X } from "lucide-react";
 
 export function App() {
@@ -26,18 +33,26 @@ export function App() {
   const [isSendingDigest, setIsSendingDigest] = useState<boolean>(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
-  // User state
+  // User state & Profile
   const [currentUser, setCurrentUser] = useState<User | null>(authStorage.getUser());
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
 
-  // Navigation & Modals state
-  const [activeTab, setActiveTab] = useState<string>("dashboard");
+  // Navigation State (6 Primary Sections)
+  const [activeTab, setActiveTab] = useState<string>("home");
+
+  // Modals state
   const [alertsOpen, setAlertsOpen] = useState<boolean>(false);
   const [memoriesOpen, setMemoriesOpen] = useState<boolean>(false);
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
   const [brokerUploadOpen, setBrokerUploadOpen] = useState<boolean>(false);
   const [academyOpen, setAcademyOpen] = useState<boolean>(false);
   const [onboardingChoiceOpen, setOnboardingChoiceOpen] = useState<boolean>(false);
+  const [onboardingModalOpen, setOnboardingModalOpen] = useState<boolean>(false);
+
+  // Universal Explainer Modal
+  const [explainOpen, setExplainOpen] = useState<boolean>(false);
+  const [explainTermKey, setExplainTermKey] = useState<string>("pe_ratio");
 
   const [prefillAlertTicker, setPrefillAlertTicker] = useState<string | undefined>(undefined);
   const [aiPrompt, setAiPrompt] = useState<string | undefined>(undefined);
@@ -75,6 +90,17 @@ export function App() {
     }
   }, []);
 
+  const loadProfile = useCallback(async () => {
+    try {
+      const profile = await api.getProfile();
+      setUserProfile(profile);
+      return profile;
+    } catch {
+      setUserProfile(null);
+      return null;
+    }
+  }, []);
+
   // Fetch logged in profile if token exists
   useEffect(() => {
     const token = authStorage.getToken();
@@ -83,6 +109,7 @@ export function App() {
         .then((user) => {
           setCurrentUser(user);
           loadData(false);
+          loadProfile();
         })
         .catch(() => {
           authStorage.clear();
@@ -91,7 +118,7 @@ export function App() {
     } else {
       setCurrentUser(null);
     }
-  }, [loadData]);
+  }, [loadData, loadProfile]);
 
   // Periodic refresh when user is logged in
   useEffect(() => {
@@ -103,18 +130,20 @@ export function App() {
     return () => clearInterval(interval);
   }, [currentUser, loadData]);
 
-  const handleAuthSuccess = (user: User, isNewUser: boolean) => {
+  const handleAuthSuccess = async (user: User, isNewUser: boolean) => {
     setCurrentUser(user);
     showToast(`Welcome ${user.full_name}! Account active.`);
     loadData(false);
-    if (isNewUser) {
-      setOnboardingChoiceOpen(true);
+    const p = await loadProfile();
+    if (isNewUser || !p?.onboarding_completed) {
+      setOnboardingModalOpen(true);
     }
   };
 
   const handleLogout = () => {
     api.logout();
     setCurrentUser(null);
+    setUserProfile(null);
     setAnalytics(null);
     showToast("Signed out successfully.");
   };
@@ -122,13 +151,14 @@ export function App() {
   const handleImportSuccess = (count: number) => {
     showToast(`Successfully imported ${count} positions into your portfolio!`);
     loadData(false);
+    setActiveTab("portfolio");
   };
 
   const handleAcademyCompleted = () => {
     if (currentUser) {
       setCurrentUser({ ...currentUser, tutorial_completed: true });
     }
-    showToast("Market Academy completed! You're ready to research & invest.");
+    showToast("Market Academy preview completed! You're ready to research & invest.");
   };
 
   const handleAddHolding = async (holding: {
@@ -165,12 +195,9 @@ export function App() {
     }
   };
 
-  const handleAskAI = (ticker: string) => {
-    setAiPrompt(`Provide institutional financial analysis for ${ticker} on NSE. Assess fundamentals, valuation ratios, growth catalysts, and key downside risks.`);
-    const chatEl = document.getElementById("ai-chat-section");
-    if (chatEl) {
-      chatEl.scrollIntoView({ behavior: "smooth" });
-    }
+  const handleAskAI = (prompt: string) => {
+    setAiPrompt(prompt);
+    setActiveTab("assistant");
   };
 
   const handleOpenAlert = (ticker: string) => {
@@ -178,12 +205,14 @@ export function App() {
     setAlertsOpen(true);
   };
 
+  const handleOpenExplain = (termKey: string) => {
+    setExplainTermKey(termKey);
+    setExplainOpen(true);
+  };
+
   const handleSelectStockFromNav = (ticker: string) => {
     setSelectedDeepDiveTicker(ticker);
-    const deepDiveEl = document.getElementById("stock-deep-dive-section");
-    if (deepDiveEl) {
-      deepDiveEl.scrollIntoView({ behavior: "smooth" });
-    }
+    setActiveTab("explore");
   };
 
   // If user is NOT logged in, show the institutional Landing Page!
@@ -238,10 +267,10 @@ export function App() {
     );
   }
 
-  // Once user IS logged in, render the Private User Dashboard!
+  // Once user IS logged in, render the Private User Companion Dashboard!
   return (
-    <div className="bg-surface font-body text-on-surface antialiased min-h-screen flex selection:bg-primary-container selection:text-on-primary-container">
-      {/* Stitch Anchored Left Side Navigation Bar */}
+    <div className="bg-surface font-body text-on-surface antialiased min-h-screen flex selection:bg-primary/20 selection:text-primary">
+      {/* 6-Hub Left Side Navigation Bar */}
       <Sidebar
         activeTab={activeTab}
         onSelectTab={setActiveTab}
@@ -251,13 +280,14 @@ export function App() {
           setAlertsOpen(true);
         }}
         onOpenBrokerUpload={() => setBrokerUploadOpen(true)}
-        onOpenAcademy={() => setAcademyOpen(true)}
       />
 
-      {/* Main Application Wrapper (Padded left for sidebar) */}
+      {/* Main Application Wrapper (Padded left for sidebar on desktop) */}
       <div className="flex-1 flex flex-col lg:pl-64 min-w-0">
-        {/* Stitch Anchored Top Navigation Bar */}
+        {/* Top Navigation Bar with stock search and tab pills */}
         <Navbar
+          activeTab={activeTab}
+          onSelectTab={setActiveTab}
           isConnected={isConnected}
           onRefresh={() => loadData(false)}
           isRefreshing={isRefreshing}
@@ -272,7 +302,7 @@ export function App() {
           currentUser={currentUser}
           onOpenAuth={() => setAuthModalOpen(true)}
           onOpenBrokerUpload={() => setBrokerUploadOpen(true)}
-          onOpenAcademy={() => setAcademyOpen(true)}
+          onOpenAcademy={() => setActiveTab("learn")}
           onLogout={handleLogout}
         />
 
@@ -294,70 +324,101 @@ export function App() {
           </div>
         )}
 
-        {/* Stitch Main Content Canvas */}
+        {/* Dynamic 6-Hub Content Canvas */}
         <main className="flex-1 p-6 md:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
-          {/* Executive Summary Metric Banner */}
-          <PortfolioSummary analytics={analytics} loading={loading} />
+          {/* HUB 1: HOME */}
+          {activeTab === "home" && (
+            <HomeView
+              currentUser={currentUser}
+              userProfile={userProfile}
+              analytics={analytics}
+              onStartOnboarding={() => setOnboardingModalOpen(true)}
+              onNavigateTab={setActiveTab}
+              onOpenBrokerUpload={() => setBrokerUploadOpen(true)}
+              onAskAI={handleAskAI}
+              onOpenExplain={handleOpenExplain}
+            />
+          )}
 
-          {/* Main Layout Grid (Split 65% / 35%) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Left Column (65% width: 8 cols in 12-col grid) */}
-            <div className="lg:col-span-8 space-y-6">
-              {/* 1. Interactive Portfolio Performance Chart Card */}
-              <PortfolioPerformanceCurve analytics={analytics} />
-
-              {/* 2. Holdings & Assets Table Card */}
-              <HoldingsTable
-                holdings={analytics?.holdings || []}
-                onAddHolding={handleAddHolding}
-                onDeleteHolding={handleDeleteHolding}
-                onAskAI={handleAskAI}
-                onOpenBrokerUpload={() => setBrokerUploadOpen(true)}
-              />
-
-              {/* 3. Lower Analytics Row: Sector Allocation & AI Rebalancing Engine */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <SectorChart
-                  sectors={analytics?.sectors || {}}
-                  diversificationScore={analytics?.diversification_score || 0}
-                />
-                <AIRebalancingCard onAskAI={handleAskAI} />
-              </div>
-            </div>
-
-            {/* Right Column (35% width: 4 cols in 12-col grid) - FinSight AI Co-Pilot Panel */}
-            <div className="lg:col-span-4 lg:sticky lg:top-20">
-              <AIChatPanel
-                initialPrompt={aiPrompt}
-                onClearInitialPrompt={() => setAiPrompt(undefined)}
-              />
-            </div>
-          </div>
-
-          {/* NSE Stock Deep Dive & Valuation Explorer */}
-          <div className="pt-2">
-            <StockDeepDive
+          {/* HUB 2: EXPLORE */}
+          {activeTab === "explore" && (
+            <ExploreView
               onAskAI={handleAskAI}
               onOpenAlert={handleOpenAlert}
-              externalTicker={selectedDeepDiveTicker}
+              onOpenExplain={handleOpenExplain}
+              selectedTicker={selectedDeepDiveTicker}
             />
-          </div>
+          )}
+
+          {/* HUB 3: LEARN (ACADEMY 2.0) */}
+          {activeTab === "learn" && (
+            <LearnView
+              onAskAI={handleAskAI}
+              onOpenExplain={handleOpenExplain}
+            />
+          )}
+
+          {/* HUB 4: PORTFOLIO */}
+          {activeTab === "portfolio" && (
+            <PortfolioView
+              analytics={analytics}
+              loading={loading}
+              onAddHolding={handleAddHolding}
+              onDeleteHolding={handleDeleteHolding}
+              onAskAI={handleAskAI}
+              onOpenBrokerUpload={() => setBrokerUploadOpen(true)}
+              onOpenExplain={handleOpenExplain}
+            />
+          )}
+
+          {/* HUB 5: PLAN */}
+          {activeTab === "plan" && (
+            <PlanView onAskAI={handleAskAI} />
+          )}
+
+          {/* HUB 6: AI ASSISTANT */}
+          {activeTab === "assistant" && (
+            <div className="max-w-5xl mx-auto">
+              <AIChatPanel
+                fullPageMode={true}
+                initialPrompt={aiPrompt}
+                onClearInitialPrompt={() => setAiPrompt(undefined)}
+                onOpenMemories={() => setMemoriesOpen(true)}
+              />
+            </div>
+          )}
         </main>
 
-        {/* Footer */}
+        {/* Global Footer */}
         <footer className="border-t border-outline-variant/30 bg-surface-container-low/40 py-6 px-8 text-center text-xs text-on-surface-variant">
           <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="font-semibold text-on-surface">
-              FinSight Intelligence Enterprise v4.2 • User: {currentUser.full_name} ({currentUser.email})
+              FinSight • AI Investment Learning &amp; Portfolio Companion
             </p>
             <p className="text-[11px] text-outline font-medium">
-              Multi-tenant isolated portfolio • {currentUser.primary_broker.toUpperCase()} Sync
+              Understand before you invest • Zero trading tips • Strict $0.00 Cost Principle
             </p>
           </div>
         </footer>
       </div>
 
-      {/* Modals */}
+      {/* Global Modals */}
+      <OnboardingModal
+        isOpen={onboardingModalOpen}
+        onClose={() => setOnboardingModalOpen(false)}
+        onCompleted={(p) => {
+          setUserProfile(p);
+          showToast("Investment Profile created! Welcome to your learning journey.");
+        }}
+      />
+
+      <ExplainModal
+        isOpen={explainOpen}
+        onClose={() => setExplainOpen(false)}
+        termKey={explainTermKey}
+        onAskAI={handleAskAI}
+      />
+
       <AlertsModal
         isOpen={alertsOpen}
         onClose={() => setAlertsOpen(false)}

@@ -3,7 +3,7 @@
  * Base URL defaults to http://127.0.0.1:8000
  */
 
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? "" : "http://127.0.0.1:8000");
 
 export interface User {
   id: number;
@@ -11,6 +11,41 @@ export interface User {
   full_name: string;
   primary_broker: string;
   tutorial_completed: boolean;
+  profile?: UserProfile | null;
+}
+
+export interface UserProfile {
+  id?: number | null;
+  user_id?: number;
+  experience_level: "completely_new" | "know_basics" | "already_invest";
+  primary_goal: "wealth" | "retirement" | "education" | "purchase" | "income" | "safety" | "unsure";
+  time_horizon: "<1yr" | "1-3yrs" | "3-5yrs" | "5-10yrs" | "10+yrs";
+  monthly_investment: number;
+  risk_reaction: "sell" | "wait_understand" | "fluctuate_comfortable";
+  onboarding_completed: boolean;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface FinancialGoal {
+  id: number;
+  user_id?: number;
+  title: string;
+  target_amount: number;
+  target_years: number;
+  monthly_contribution: number;
+  category: "wealth" | "education" | "retirement" | "purchase" | "emergency" | "other";
+  status: "active" | "completed";
+  created_at?: string | null;
+}
+
+export interface LearningProgress {
+  id?: number;
+  user_id?: number;
+  lesson_id: string;
+  quiz_score: number;
+  completed: boolean;
+  completed_at?: string | null;
 }
 
 export interface AuthResponse {
@@ -102,6 +137,7 @@ export interface ChatMessage {
   role: "user" | "assistant";
   message: string;
   timestamp?: string;
+  remembered?: string[];
 }
 
 export interface AlertItem {
@@ -283,7 +319,7 @@ export const api = {
 
   // Chat
   sendMessage: (message: string) =>
-    request<{ response: string }>("/chat", { method: "POST", body: JSON.stringify({ message }) }),
+    request<{ response: string; remembered?: string[] }>("/chat", { method: "POST", body: JSON.stringify({ message }) }),
   getChatHistory: (limit: number = 30) => request<ChatMessage[]>(`/chat/history?limit=${limit}`),
   clearChatHistory: () => request<{ message: string }>("/chat/history", { method: "DELETE" }),
 
@@ -299,6 +335,24 @@ export const api = {
   getMemories: () => request<MemoryItem[]>("/memories"),
   createMemory: (memory: { memory: string; category?: string }) =>
     request<{ id: string; message: string }>("/memories", { method: "POST", body: JSON.stringify(memory) }),
+  updateMemory: (id: string, memory: { memory: string; category?: string }) =>
+    request<{ message: string }>(`/memories/${id}`, { method: "PUT", body: JSON.stringify(memory) }),
   deleteMemory: (id: string) => request<{ message: string }>(`/memories/${id}`, { method: "DELETE" }),
   clearMemories: () => request<{ message: string }>("/memories", { method: "DELETE" }),
+
+  // User Profile & Onboarding
+  getProfile: () => request<UserProfile>("/profile"),
+  saveProfile: (profile: Partial<UserProfile>) =>
+    request<UserProfile>("/profile", { method: "POST", body: JSON.stringify(profile) }),
+
+  // Financial Goals
+  getGoals: () => request<FinancialGoal[]>("/goals"),
+  createGoal: (goal: { title: string; target_amount: number; target_years?: number; monthly_contribution?: number; category?: string }) =>
+    request<FinancialGoal>("/goals", { method: "POST", body: JSON.stringify(goal) }),
+  deleteGoal: (id: number) => request<{ message: string }>(`/goals/${id}`, { method: "DELETE" }),
+
+  // Learning Progress
+  getLearningProgress: () => request<LearningProgress[]>("/learning/progress"),
+  saveLearningProgress: (progress: { lesson_id: string; quiz_score?: number }) =>
+    request<LearningProgress>("/learning/progress", { method: "POST", body: JSON.stringify(progress) }),
 };

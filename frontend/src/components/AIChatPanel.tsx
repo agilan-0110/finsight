@@ -7,27 +7,88 @@ import {
   Loader2,
   RefreshCw,
   Lightbulb,
-  ShieldAlert,
+  GraduationCap,
+  Search,
+  PieChart,
+  Compass,
+  Brain,
 } from "lucide-react";
 
 interface AIChatPanelProps {
   initialPrompt?: string;
   onClearInitialPrompt?: () => void;
+  fullPageMode?: boolean;
+  onOpenMemories?: () => void;
 }
 
-const SUGGESTED_QUERIES = [
-  "Analyze Tata Motors",
-  "Run Risk Stress Test",
-  "Why is Tech dropping?",
-  "Tax Loss Harvesting",
-];
+type AssistantMode = "learn" | "research" | "portfolio" | "plan";
+
+const MODE_CONFIG: Record<AssistantMode, {
+  label: string;
+  badge: string;
+  icon: React.ReactNode;
+  subtitle: string;
+  prompts: string[];
+}> = {
+  learn: {
+    label: "🎓 Learn / Tutor",
+    badge: "Tutor Mode",
+    icon: <GraduationCap className="w-4 h-4" />,
+    subtitle: "Jargon-free concepts, analogies & beginner lessons",
+    prompts: [
+      "Explain P/E ratio with a real example",
+      "Why does inflation destroy idle cash?",
+      "Index Fund vs Active Mutual Fund",
+      "Explain Compounding like I'm 15",
+    ],
+  },
+  research: {
+    label: "🔎 Research",
+    badge: "Equity Analyst",
+    icon: <Search className="w-4 h-4" />,
+    subtitle: "Company fundamentals, valuation & financial metrics",
+    prompts: [
+      "Analyze Tata Motors fundamentals",
+      "Is HDFC Bank valuation historically fair?",
+      "Compare TCS vs Infosys profitability",
+      "Explain Reliance Industries debt level",
+    ],
+  },
+  portfolio: {
+    label: "📊 Portfolio",
+    badge: "Health Advisor",
+    icon: <PieChart className="w-4 h-4" />,
+    subtitle: "Diversification health, sector risks & rebalancing",
+    prompts: [
+      "Analyze my portfolio diversification",
+      "Why is my portfolio concentrated?",
+      "Explain my current P&L and risk exposure",
+      "How can I balance my sector allocation?",
+    ],
+  },
+  plan: {
+    label: "🧭 Plan",
+    badge: "Goal Navigator",
+    icon: <Compass className="w-4 h-4" />,
+    subtitle: "Horizon mapping, SIP amounts & life goals",
+    prompts: [
+      "I have ₹2,000/month. What should I explore first?",
+      "How do I balance an emergency fund with investing?",
+      "Illustrate an 8-year plan for ₹5 Lakh",
+      "Should I invest in Gold or Index funds for 10 years?",
+    ],
+  },
+};
 
 export const AIChatPanel: React.FC<AIChatPanelProps> = ({
   initialPrompt,
   onClearInitialPrompt,
+  fullPageMode = false,
+  onOpenMemories,
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
+  const [activeMode, setActiveMode] = useState<AssistantMode>("learn");
   const [loading, setLoading] = useState<boolean>(false);
   const [fetchingHistory, setFetchingHistory] = useState<boolean>(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -39,7 +100,7 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
   const fetchHistory = async () => {
     setFetchingHistory(true);
     try {
-      const history = await api.getChatHistory(30);
+      const history = await api.getChatHistory(40);
       setMessages(history);
     } catch {
       // ignore
@@ -64,12 +125,24 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
   }, [initialPrompt, onClearInitialPrompt]);
 
   const handleSend = async (textToSend?: string) => {
-    const message = (textToSend || inputMessage).trim();
-    if (!message || loading) return;
+    const rawMessage = (textToSend || inputMessage).trim();
+    if (!rawMessage || loading) return;
+
+    // Prefix prompt with contextual mode tag so backend AI calibrates tone
+    let messageWithMode = rawMessage;
+    if (activeMode === "learn") {
+      messageWithMode = `[MODE: TUTOR - Explain simply with analogies, zero stock-tip signals] ${rawMessage}`;
+    } else if (activeMode === "research") {
+      messageWithMode = `[MODE: RESEARCH - Fundamental financial analysis, valuation ratios, no buy/sell calls] ${rawMessage}`;
+    } else if (activeMode === "portfolio") {
+      messageWithMode = `[MODE: PORTFOLIO - Educational diversification assessment, explain health & risks] ${rawMessage}`;
+    } else if (activeMode === "plan") {
+      messageWithMode = `[MODE: PLAN - Long-term financial planning & category exploration] ${rawMessage}`;
+    }
 
     const userMsg: ChatMessage = {
       role: "user",
-      message,
+      message: rawMessage,
       timestamp: new Date().toISOString(),
     };
 
@@ -78,11 +151,12 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
     setLoading(true);
 
     try {
-      const res = await api.sendMessage(message);
+      const res = await api.sendMessage(messageWithMode);
       const assistantMsg: ChatMessage = {
         role: "assistant",
         message: res.response,
         timestamp: new Date().toISOString(),
+        remembered: res.remembered && res.remembered.length > 0 ? res.remembered : undefined,
       };
       setMessages((prev) => [...prev, assistantMsg]);
     } catch (err: any) {
@@ -151,203 +225,220 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
     );
   };
 
+  const currentConfig = MODE_CONFIG[activeMode];
+
   return (
-    <div id="ai-chat-section" className="bg-surface-container-lowest rounded-xl border border-outline-variant/40 shadow-stitch flex flex-col h-[700px] overflow-hidden">
-      {/* Stitch Panel Header */}
-      <div className="p-4 border-b border-outline-variant/20 flex items-center justify-between bg-surface-container-low/40 rounded-t-xl">
+    <div
+      id="ai-chat-section"
+      className={`bg-surface-container-lowest rounded-2xl border border-outline-variant/40 shadow-sm flex flex-col overflow-hidden ${
+        fullPageMode ? "h-[calc(100vh-140px)] min-h-[600px]" : "h-[720px]"
+      }`}
+    >
+      {/* Panel Header */}
+      <div className="p-4 border-b border-outline-variant/30 flex items-center justify-between bg-surface-container-low/40">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-primary text-on-primary flex items-center justify-center shadow-xs">
+          <div className="w-8 h-8 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-sm">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
             <div className="font-headline text-sm font-bold text-on-surface flex items-center gap-1.5">
-              <span>FinSight Co-Pilot</span>
-              <span className="text-[10px] text-primary bg-primary-container px-1.5 py-0.2 rounded font-semibold">
-                AI
+              <span>FinSight AI Co-Pilot</span>
+              <span className="text-[10px] text-primary bg-primary/10 px-2 py-0.5 rounded-full font-semibold">
+                {currentConfig.badge}
               </span>
             </div>
-            <div className="text-[10px] text-on-surface-variant flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
-              <span>Gemma-27b • Institutional Quant</span>
+            <div className="text-[11px] text-on-surface-variant">
+              {currentConfig.subtitle}
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
+          {onOpenMemories && (
+            <button
+              onClick={onOpenMemories}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-outline-variant/50 hover:bg-surface-container text-xs font-semibold text-on-surface transition-colors shadow-2xs mr-1"
+              title="Inspect and manage what FinSight knows about you"
+            >
+              <Brain className="w-3.5 h-3.5 text-primary" />
+              <span className="hidden sm:inline">Memory Bank</span>
+            </button>
+          )}
           <button
             onClick={fetchHistory}
             disabled={fetchingHistory}
-            className="p-1.5 rounded-md hover:bg-surface-container text-on-surface-variant transition-colors"
+            className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors"
             title="Refresh History"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${fetchingHistory ? "animate-spin text-primary" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${fetchingHistory ? "animate-spin" : ""}`} />
           </button>
           <button
             onClick={handleClearHistory}
-            className="p-1.5 rounded-md hover:bg-surface-container text-on-surface-variant hover:text-error transition-colors"
-            title="Clear Chat History"
+            className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-error transition-colors"
+            title="Clear Chat Session"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
-      {/* Stitch Scrollable Conversation & Insights Feed */}
-      <div className="flex-1 p-4 overflow-y-auto space-y-4 text-xs">
-        {/* Stitch Proactive Intelligence Card */}
-        <div className="p-3.5 rounded-xl bg-surface-container-low border border-outline-variant/30 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="font-semibold text-on-surface flex items-center gap-1.5">
-              <Lightbulb className="w-3.5 h-3.5 text-primary" />
-              <span>Daily Market Intelligence</span>
-            </span>
-            <span className="text-[10px] text-on-surface-variant font-mono">08:45 AM</span>
-          </div>
-          <p className="text-on-surface-variant text-[11px] leading-relaxed">
-            Portfolio beta stands at <strong className="text-on-surface">0.84</strong>, reflecting a defensive yet high-alpha stance. Overnight earnings in Tech index caused a +1.4% sentiment tailwind. Your inflation hedge via energy is offsetting rising crude price volatility.
-          </p>
-        </div>
-
-        {/* Stitch AI Assistant Bubble (Tata Motors preview) */}
-        <div className="flex gap-2.5 items-start">
-          <div className="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 text-[11px] font-bold mt-0.5">
-            AI
-          </div>
-          <div className="p-3.5 rounded-xl rounded-tl-sm bg-surface-container text-on-surface space-y-2 max-w-[92%] leading-relaxed border border-outline-variant/20">
-            <p className="font-semibold text-[11px] text-on-surface">Tata Motors (NSE: TATAMOTORS) Assessment:</p>
-            <p className="text-[11px] text-on-surface-variant">
-              Tata Motors is outperforming domestic auto peers by <strong className="text-on-surface">+3.2%</strong> following Q4 commercial EV delivery beats and Jaguar Land Rover margin expansion to 8.8%.
-            </p>
-            <div className="p-2 rounded bg-surface-container-lowest border border-outline-variant/30 text-[10px] space-y-1">
-              <div className="flex justify-between">
-                <span className="text-on-surface-variant">Recommended Action:</span>
-                <span className="font-semibold text-on-surface">Hold &amp; Accumulate</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-on-surface-variant">Target Upside:</span>
-                <span className="font-semibold text-primary">+12.6% (₹1,105)</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-on-surface-variant">Stop Loss Trigger:</span>
-                <span className="font-semibold text-outline">₹910.00</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Stitch Risk Stress Test Card */}
-        <div className="p-3.5 rounded-xl bg-surface-container-lowest border border-outline-variant/40 space-y-2.5 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 font-bold text-on-surface text-xs">
-              <ShieldAlert className="w-4 h-4 text-outline" />
-              <span>Monte Carlo Stress Simulation</span>
-            </div>
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-secondary-container text-on-secondary-container">
-              Low Risk
-            </span>
-          </div>
-          <p className="text-[11px] text-on-surface-variant leading-relaxed">
-            In a simulated 15% broader market selloff scenario, FinSight models project portfolio drawdown at <strong className="text-on-surface">-3.2%</strong> vs benchmark <strong className="text-error">-7.8%</strong>.
-          </p>
-          <div className="space-y-1 text-[10px]">
-            <div className="flex justify-between text-on-surface-variant">
-              <span>FinSight Active Hedge</span>
-              <span className="font-bold text-on-surface font-mono">-3.2% max drawdown</span>
-            </div>
-            <div className="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
-              <div className="w-[32%] h-full bg-primary rounded-full"></div>
-            </div>
-          </div>
-        </div>
-
-        {/* Dynamic Chat Messages */}
-        {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`flex flex-col ${
-              msg.role === "user" ? "items-end" : "items-start"
+      {/* 4 Assistant Modes Switcher */}
+      <div className="px-4 py-2 bg-surface-container-low/20 border-b border-outline-variant/20 flex items-center gap-1.5 overflow-x-auto">
+        {(Object.keys(MODE_CONFIG) as AssistantMode[]).map((mode) => (
+          <button
+            key={mode}
+            type="button"
+            onClick={() => setActiveMode(mode)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-label font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+              activeMode === mode
+                ? "bg-primary text-on-primary shadow-sm"
+                : "bg-surface-container-lowest text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
             }`}
           >
+            {MODE_CONFIG[mode].icon}
+            <span>{MODE_CONFIG[mode].label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Suggested Quick Prompts */}
+      <div className="p-3 bg-surface-container-low/40 border-b border-outline-variant/20 flex flex-wrap gap-1.5 items-center">
+        <Lightbulb className="w-3 h-3 text-amber-500 mr-1" />
+        <span className="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-wider mr-1">
+          Try:
+        </span>
+        {currentConfig.prompts.map((p, idx) => (
+          <button
+            key={idx}
+            type="button"
+            onClick={() => handleSend(p)}
+            className="px-2.5 py-1 rounded-md bg-surface-container-lowest border border-outline-variant/30 text-on-surface text-[11px] font-body hover:border-primary hover:text-primary transition-all shadow-2xs"
+          >
+            {p}
+          </button>
+        ))}
+      </div>
+
+      {/* Messages Scroll Area */}
+      <div className="flex-1 p-4 overflow-y-auto space-y-4">
+        {messages.length === 0 && !loading && (
+          <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3 text-on-surface-variant">
+            <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+              <GraduationCap className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="font-headline font-bold text-sm text-on-surface">
+                FinSight Tutor Ready
+              </p>
+              <p className="text-xs text-on-surface-variant max-w-sm mt-1">
+                Ask about financial terms, how mutual funds work, valuation ratios, or how to allocate your monthly savings.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {messages.map((msg, index) => (
+          <div
+            key={index}
+            className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}
+          >
             <div
-              className={`max-w-[88%] rounded-xl p-3.5 shadow-2xs ${
+              className={`max-w-[85%] p-3.5 rounded-2xl ${
                 msg.role === "user"
-                  ? "bg-primary text-on-primary rounded-br-sm"
-                  : "bg-surface-container text-on-surface border border-outline-variant/20 rounded-tl-sm"
+                  ? "bg-primary text-on-primary rounded-tr-xs"
+                  : "bg-surface-container-low text-on-surface border border-outline-variant/30 rounded-tl-xs"
               }`}
             >
-              {msg.role === "user" ? (
-                <p className="text-xs leading-relaxed font-body">{msg.message}</p>
-              ) : (
+              {msg.role === "assistant" ? (
                 renderFormattedMessage(msg.message)
+              ) : (
+                <p className="text-xs font-body leading-relaxed">{msg.message}</p>
               )}
             </div>
-            <span className="text-[10px] text-on-surface-variant mt-1 px-1 font-mono">
-              {msg.role === "user" ? "You" : "FinSight AI"} •{" "}
-              {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}
+
+            {/* ChatGPT / Gemini Memory Updated Notification Badge */}
+            {msg.role === "assistant" && msg.remembered && msg.remembered.length > 0 && (
+              <div className="mt-1.5 max-w-[85%] p-2.5 rounded-xl bg-primary-container/20 border border-primary/20 flex items-start gap-2 text-xs animate-in fade-in duration-200">
+                <Brain className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" />
+                <div className="flex-1 space-y-0.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-bold text-primary text-[11px] font-headline">
+                      Memory updated
+                    </span>
+                    {onOpenMemories && (
+                      <button
+                        onClick={onOpenMemories}
+                        className="text-[10px] text-primary hover:underline font-bold px-1.5 py-0.5 rounded hover:bg-primary/10 transition-colors"
+                      >
+                        Manage
+                      </button>
+                    )}
+                  </div>
+                  <ul className="text-on-surface-variant text-[11px] list-disc list-inside space-y-0.5">
+                    {msg.remembered.map((fact, fIdx) => (
+                      <li key={fIdx} className="leading-tight">{fact}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            <span className="text-[10px] text-outline mt-1 px-1">
+              {msg.role === "user" ? "You" : "FinSight"}
             </span>
           </div>
         ))}
 
         {loading && (
-          <div className="flex items-start gap-2.5">
-            <div className="p-3.5 rounded-xl bg-surface-container text-on-surface border border-outline-variant/20 flex items-center gap-2 text-xs">
-              <Loader2 className="w-4 h-4 animate-spin text-primary" />
-              <span>Analyzing portfolio data & generating response...</span>
+          <div className="flex flex-col items-start space-y-1">
+            <div className="p-3.5 rounded-2xl bg-surface-container-low border border-outline-variant/30 rounded-tl-xs flex items-center gap-2">
+              <Loader2 className="w-4 h-4 text-primary animate-spin" />
+              <span className="text-xs font-body text-on-surface-variant">
+                Synthesizing financial explanation...
+              </span>
             </div>
           </div>
         )}
+
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Stitch Suggested Queries Chips */}
-      <div className="p-3 border-t border-outline-variant/20 bg-surface-container-low/30 space-y-1.5">
-        <span className="text-[10px] font-semibold text-outline uppercase tracking-wider block">
-          Suggested Queries
-        </span>
-        <div className="flex flex-wrap gap-1.5">
-          {SUGGESTED_QUERIES.map((query, idx) => (
-            <button
-              key={idx}
-              onClick={() => handleSend(query)}
-              className="px-2.5 py-1 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface text-[11px] font-medium border border-outline-variant/30 transition-colors"
-            >
-              {query}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Stitch AI Input Prompt Box at Bottom */}
-      <div className="p-3 border-t border-outline-variant/20 bg-surface-container-lowest rounded-b-xl">
+      {/* Input Composer */}
+      <div className="p-3 border-t border-outline-variant/30 bg-surface-container-low/40">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSend();
           }}
-          className="relative flex items-center"
+          className="flex items-center gap-2"
         >
           <input
             type="text"
+            placeholder={
+              activeMode === "learn"
+                ? "Ask a concept question (e.g. 'What is ROE and why does it matter?')..."
+                : activeMode === "research"
+                ? "Ask about a company (e.g. 'Analyze Infosys fundamentals')..."
+                : activeMode === "portfolio"
+                ? "Ask about your portfolio health and diversification..."
+                : "Ask about goals and asset allocation..."
+            }
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
-            placeholder="Ask FinSight Co-Pilot anything about your holdings..."
-            className="w-full pl-3 pr-14 py-2.5 text-xs rounded-lg bg-surface-container-low border border-outline-variant/40 text-on-surface placeholder:text-outline focus:outline-none focus:ring-1 focus:ring-primary focus:bg-surface-container-lowest transition-all font-medium"
+            disabled={loading}
+            className="flex-1 px-4 py-2.5 rounded-xl border border-outline-variant/40 bg-surface-container-lowest text-xs text-on-surface placeholder:text-outline focus:outline-none focus:border-primary transition-colors disabled:opacity-50"
           />
-          <div className="absolute right-1.5 flex items-center gap-1">
-            <button
-              type="submit"
-              disabled={!inputMessage.trim() || loading}
-              className="w-7 h-7 rounded-md bg-primary hover:bg-primary-dim text-on-primary flex items-center justify-center transition-colors shadow-xs disabled:opacity-50"
-              title="Send Query"
-            >
-              <Send className="w-3.5 h-3.5" />
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={loading || !inputMessage.trim()}
+            className="p-2.5 rounded-xl bg-primary text-on-primary hover:opacity-90 transition-opacity disabled:opacity-40 shadow-sm"
+          >
+            <Send className="w-4 h-4" />
+          </button>
         </form>
-        <div className="flex items-center justify-between text-[10px] text-outline mt-1.5 px-1">
-          <span>Enterprise compliance verified</span>
-          <span>Context: Full Portfolio</span>
-        </div>
+        <p className="text-[10px] text-outline text-center mt-2 italic">
+          *Educational analysis only. FinSight does not offer buy/sell stock tips or financial advisory.
+        </p>
       </div>
     </div>
   );

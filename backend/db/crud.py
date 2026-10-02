@@ -5,7 +5,7 @@ Supports per-user isolation for Portfolio, ChatHistory, and Alerts.
 
 from typing import Optional
 from sqlalchemy.orm import Session
-from backend.db.models import User, Portfolio, ChatHistory, Alert
+from backend.db.models import User, Portfolio, ChatHistory, Alert, UserProfile, FinancialGoal, LearningProgress
 
 
 def normalize_ticker(ticker: str) -> str:
@@ -196,3 +196,114 @@ def get_all_alerts(db: Session, limit: int = 50, user_id: Optional[int] = None) 
     if user_id is not None:
         query = query.filter(Alert.user_id == user_id)
     return query.order_by(Alert.id.desc()).limit(limit).all()
+
+
+# ---------- User Profile & Onboarding ----------
+
+def get_user_profile(db: Session, user_id: int) -> Optional[UserProfile]:
+    return db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
+
+
+def upsert_user_profile(
+    db: Session,
+    user_id: int,
+    experience_level: str = "completely_new",
+    primary_goal: str = "wealth",
+    time_horizon: str = "5-10yrs",
+    monthly_investment: float = 2000.0,
+    risk_reaction: str = "wait_understand",
+    onboarding_completed: bool = True
+) -> UserProfile:
+    profile = get_user_profile(db, user_id)
+    if profile:
+        profile.experience_level = experience_level
+        profile.primary_goal = primary_goal
+        profile.time_horizon = time_horizon
+        profile.monthly_investment = monthly_investment
+        profile.risk_reaction = risk_reaction
+        profile.onboarding_completed = onboarding_completed
+    else:
+        profile = UserProfile(
+            user_id=user_id,
+            experience_level=experience_level,
+            primary_goal=primary_goal,
+            time_horizon=time_horizon,
+            monthly_investment=monthly_investment,
+            risk_reaction=risk_reaction,
+            onboarding_completed=onboarding_completed
+        )
+        db.add(profile)
+    db.commit()
+    db.refresh(profile)
+    return profile
+
+
+# ---------- Financial Goals ----------
+
+def get_user_goals(db: Session, user_id: int) -> list[FinancialGoal]:
+    return db.query(FinancialGoal).filter(FinancialGoal.user_id == user_id).order_by(FinancialGoal.id.asc()).all()
+
+
+def create_user_goal(
+    db: Session,
+    user_id: int,
+    title: str,
+    target_amount: float,
+    target_years: int = 5,
+    monthly_contribution: float = 0.0,
+    category: str = "wealth"
+) -> FinancialGoal:
+    goal = FinancialGoal(
+        user_id=user_id,
+        title=title,
+        target_amount=target_amount,
+        target_years=target_years,
+        monthly_contribution=monthly_contribution,
+        category=category,
+        status="active"
+    )
+    db.add(goal)
+    db.commit()
+    db.refresh(goal)
+    return goal
+
+
+def delete_user_goal(db: Session, user_id: int, goal_id: int) -> bool:
+    goal = db.query(FinancialGoal).filter(FinancialGoal.id == goal_id, FinancialGoal.user_id == user_id).first()
+    if not goal:
+        return False
+    db.delete(goal)
+    db.commit()
+    return True
+
+
+# ---------- Learning Progress ----------
+
+def get_user_learning_progress(db: Session, user_id: int) -> list[LearningProgress]:
+    return db.query(LearningProgress).filter(LearningProgress.user_id == user_id).all()
+
+
+def record_learning_progress(
+    db: Session,
+    user_id: int,
+    lesson_id: str,
+    quiz_score: int = 100
+) -> LearningProgress:
+    record = db.query(LearningProgress).filter(
+        LearningProgress.user_id == user_id,
+        LearningProgress.lesson_id == lesson_id
+    ).first()
+    if record:
+        record.quiz_score = max(record.quiz_score, quiz_score)
+        record.completed = True
+    else:
+        record = LearningProgress(
+            user_id=user_id,
+            lesson_id=lesson_id,
+            quiz_score=quiz_score,
+            completed=True
+        )
+        db.add(record)
+    db.commit()
+    db.refresh(record)
+    return record
