@@ -7,7 +7,6 @@ import {
   type UserProfile,
 } from "./api/client";
 import { LandingPage } from "./components/LandingPage";
-import { Sidebar } from "./components/Sidebar";
 import { Navbar } from "./components/Navbar";
 import { HomeView } from "./components/HomeView";
 import { ExploreView } from "./components/ExploreView";
@@ -269,23 +268,9 @@ export function App() {
 
   // Once user IS logged in, render the Private User Companion Dashboard!
   return (
-    <div className="bg-surface font-body text-on-surface antialiased min-h-screen flex selection:bg-primary/20 selection:text-primary">
-      {/* 6-Hub Left Side Navigation Bar */}
-      <Sidebar
-        activeTab={activeTab}
-        onSelectTab={setActiveTab}
-        onOpenMemories={() => setMemoriesOpen(true)}
-        onOpenAlerts={() => {
-          setPrefillAlertTicker(undefined);
-          setAlertsOpen(true);
-        }}
-        onOpenBrokerUpload={() => setBrokerUploadOpen(true)}
-      />
-
-      {/* Main Application Wrapper (Padded left for sidebar on desktop) */}
-      <div className="flex-1 flex flex-col lg:pl-64 min-w-0">
-        {/* Top Navigation Bar with stock search and tab pills */}
-        <Navbar
+    <div className="bg-background font-body text-on-surface antialiased min-h-screen flex flex-col selection:bg-primary/20 selection:text-primary">
+      {/* Top Navigation Bar with Stitch brand sprout and clean hub links */}
+      <Navbar
           activeTab={activeTab}
           onSelectTab={setActiveTab}
           isConnected={isConnected}
@@ -400,9 +385,8 @@ export function App() {
             </p>
           </div>
         </footer>
-      </div>
 
-      {/* Global Modals */}
+        {/* Global Modals */}
       <OnboardingModal
         isOpen={onboardingModalOpen}
         onClose={() => setOnboardingModalOpen(false)}

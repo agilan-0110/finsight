@@ -321,6 +321,30 @@
 
 ---
 
+### 13. Stitch "Warm Clarity" User-Friendly Redesign & UX Simplification
+- **Goal:** Transform the intimidating, complex Wall Street UI into a calm, welcoming, user-friendly digital companion using Stitch (`projects/2270664409167173206`, design system `"Warm Clarity"`).
+- **Actions:**
+  - **Eliminated Layout Clutter:** Removed redundant left-sidebar and `lg:pl-64` padding that squished desktop layouts. Converted to a clean, full-width top masthead navigation bar.
+  - **Stitch "Warm Clarity" Palette:**
+    - Botanical Emerald (`#0f766e`), Luminous Mint (`#14b8a6`), Warm Amber milestones (`#f59e0b`), and soft Slate canvas (`#f8fafc`).
+    - Typography paired **Manrope** for bold, friendly displays with **Plus Jakarta Sans** for fatigue-free reading.
+  - **Stitch Brand Masthead (`Navbar.tsx`):**
+    - Brand Sprout logo 🌱 + *"FinSight — Learn & Grow"*.
+    - Prominent 6-hub navigation tabs (`Home`, `Explore`, `Academy`, `Portfolio`, `Plan`, `AI Tutor`).
+    - Quick stock/fund search with live autocomplete, monthly budget pill (`Beginner • ₹2,000/mo`), Memory Bank button, alerts bell, and profile menu.
+  - **Inviting Home Hub (`HomeView.tsx`):**
+    - **Warm Hero:** Friendly greeting with streak counters, active goal chip, and reassurance banner.
+    - **Your Investment Journey (5-step Roadmap):** Gamified visual milestone track from Money Basics (✅) to Understanding Risk (⚡ in progress) to First Peaceful SIP.
+    - **Everyday Analogies Grid:** 4 clear cards with real-world mental models:
+      - Fixed Deposit: *"The Safe Vault 🛡️"* (Guaranteed 7.1%, zero market risk)
+      - Nifty 50 Index Fund: *"The Growth Engine 🚀"* (Top 50 companies, min ₹500/mo)
+      - Sovereign Gold: *"The Inflation Shield ⚓"* (RBI backed, 2.5% bonus interest)
+      - Government Securities: *"Sovereign Guarantee 🏛️"* (0.00% default risk)
+    - **Interactive Savings Growth Simulator:** Sliders for monthly savings and years with instant visual bars comparing principal vs compound interest.
+    - **AI Investment Tutor Card:** Welcoming speech bubble with single-click starter questions.
+
+---
+
 ## 📊 Current Project Status
 
 | Phase | Description | Status |
@@ -337,6 +361,7 @@
 | **Phase 8.8**| FinSight Beginner Transformation: 6 Hubs, Academy 2.0, Calculators & Tutor | ✅ Complete |
 | **Phase 8.9**| ChatGPT & Gemini Style Memory Dossier, Zero-Leak Isolation & UI Bank | ✅ Complete |
 | **Phase 9** | Production Hardening & Docker Containerization (Compose + Nginx) | ✅ Complete |
+| **Phase 10**| Stitch "Warm Clarity" User-Friendly Redesign & Companion UX | ✅ Complete |
 
 ---
 

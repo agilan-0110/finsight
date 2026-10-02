@@ -3,16 +3,15 @@ import {
   Bell,
   Brain,
   RefreshCw,
-  Send,
   Search,
   Loader2,
   X,
-  Sliders,
   UploadCloud,
-  GraduationCap,
   LogOut,
   User as UserIcon,
   ChevronDown,
+  Sprout,
+  Menu,
 } from "lucide-react";
 import { api, type StockSearchResult, type User } from "../api/client";
 
@@ -37,18 +36,14 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   activeTab = "home",
   onSelectTab,
-  isConnected,
   onRefresh,
   isRefreshing,
   onOpenAlerts,
   onOpenMemories,
-  onSendDigest,
-  isSendingDigest,
   onSelectStock,
   currentUser,
   onOpenAuth,
   onOpenBrokerUpload,
-  onOpenAcademy,
   onLogout,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -56,6 +51,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [isSearching, setIsSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
@@ -82,18 +78,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 
     if (val.trim().length < 2) {
       setSearchResults([]);
-      setShowDropdown(false);
       setIsSearching(false);
+      setShowDropdown(false);
       return;
     }
 
     setIsSearching(true);
-    setShowDropdown(true);
-
     searchDebounceRef.current = setTimeout(async () => {
       try {
         const results = await api.searchStocks(val.trim());
-        setSearchResults(results);
+        setSearchResults(results.slice(0, 5));
+        setShowDropdown(true);
       } catch {
         setSearchResults([]);
       } finally {
@@ -118,266 +113,260 @@ export const Navbar: React.FC<NavbarProps> = ({
     return name.slice(0, 2).toUpperCase();
   };
 
+  const NAV_ITEMS = [
+    { id: "home", label: "Home", icon: "🏠" },
+    { id: "explore", label: "Explore Investments", icon: "🔎" },
+    { id: "learn", label: "Academy", icon: "📚" },
+    { id: "portfolio", label: "My Portfolio", icon: "📊" },
+    { id: "plan", label: "Plan Goals", icon: "🧭" },
+    { id: "assistant", label: "AI Tutor", icon: "🤖" },
+  ];
+
   return (
-    <header className="w-full px-6 flex justify-between items-center h-16 sticky top-0 z-40 bg-surface-container-lowest/95 backdrop-blur-sm border-b border-outline-variant/40">
-      {/* Left: Mobile Brand & Global Search Bar from Stitch */}
-      <div className="flex items-center gap-6 flex-1 max-w-2xl">
-        <div className="flex items-center gap-2 lg:hidden">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary font-headline font-bold text-sm">
-            <span>F</span>
-          </div>
-          <span className="font-headline text-lg font-bold tracking-tight text-on-surface">FinSight</span>
-        </div>
-
-        {/* Global Search Input with Stitch Autocomplete */}
-        <div ref={searchContainerRef} className="relative w-full max-w-lg hidden sm:block">
-          <div className="relative flex items-center">
-            <Search className="absolute left-3 text-outline w-4 h-4 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              onFocus={() => {
-                if (searchResults.length > 0) setShowDropdown(true);
-              }}
-              placeholder="Search stocks by company (Tata Motors, Reliance...) or ticker"
-              className="w-full pl-9 pr-8 py-2 text-xs font-medium rounded-lg bg-surface-container-low border border-outline-variant/50 text-on-surface placeholder:text-outline focus:outline-none focus:ring-1 focus:ring-primary focus:bg-surface-container-lowest transition-all"
-            />
-            {isSearching ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-outline absolute right-2.5" />
-            ) : searchQuery ? (
-              <button
-                onClick={() => {
-                  setSearchQuery("");
-                  setSearchResults([]);
-                  setShowDropdown(false);
-                }}
-                className="absolute right-2.5 text-outline hover:text-on-surface p-0.5"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            ) : null}
-          </div>
-
-          {/* Autocomplete Dropdown from Stitch */}
-          {showDropdown && searchResults.length > 0 && (
-            <div className="absolute left-0 right-0 mt-1.5 bg-surface-container-lowest border border-outline-variant/40 rounded-xl shadow-stitch-lg p-2 z-50 max-h-72 overflow-y-auto">
-              <div className="px-2 py-1 text-[11px] font-semibold text-outline uppercase tracking-wider">
-                Quick Results
-              </div>
-              {searchResults.map((stock) => (
-                <div
-                  key={stock.symbol}
-                  onClick={() => handleChooseStock(stock)}
-                  className="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container cursor-pointer transition-colors"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded bg-secondary-container flex items-center justify-center font-bold text-[10px] text-on-secondary-container uppercase">
-                      {stock.symbol.slice(0, 2)}
-                    </div>
-                    <div>
-                      <div className="font-semibold text-xs text-on-surface flex items-center gap-1.5">
-                        {stock.symbol} <span className="text-[10px] font-normal text-on-surface-variant">NSE</span>
-                      </div>
-                      <div className="text-[11px] text-on-surface-variant truncate max-w-xs">{stock.name}</div>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-semibold text-primary px-2 py-0.5 rounded bg-primary-container/60">
-                    Analyze
-                  </span>
-                </div>
-              ))}
+    <header className="w-full sticky top-0 z-40 bg-surface/95 backdrop-blur-md border-b border-outline-variant/60 shadow-stitch-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-18">
+        {/* Left: Stitch Sprout Logo & Brand */}
+        <div className="flex items-center gap-6">
+          <button
+            onClick={() => onSelectTab && onSelectTab("home")}
+            className="flex items-center gap-2.5 text-left group"
+          >
+            <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:scale-105 transition-transform shadow-xs">
+              <Sprout className="w-5 h-5 text-primary" />
             </div>
+            <div className="flex flex-col">
+              <span className="font-headline text-lg font-extrabold tracking-tight text-on-surface leading-none">
+                FinSight
+              </span>
+              <span className="text-[10px] font-semibold text-secondary tracking-wide mt-0.5 font-label">
+                Learn &amp; Grow
+              </span>
+            </div>
+          </button>
+
+          {/* Desktop Navigation Links */}
+          {onSelectTab && (
+            <nav className="hidden lg:flex items-center gap-1 ml-2 font-headline text-xs font-bold">
+              {NAV_ITEMS.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => onSelectTab(item.id)}
+                  className={`px-3.5 py-2 rounded-xl transition-all duration-150 flex items-center gap-1.5 ${
+                    activeTab === item.id
+                      ? "bg-primary text-on-primary shadow-xs font-extrabold"
+                      : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
+                  }`}
+                >
+                  <span>{item.icon}</span>
+                  <span>{item.label}</span>
+                </button>
+              ))}
+            </nav>
           )}
         </div>
-      </div>
 
-      {/* Middle Navigation Tabs (Desktop) */}
-      {onSelectTab && (
-        <nav className="hidden xl:flex items-center font-headline text-xs font-semibold tracking-tight gap-1">
-          {[
-            { id: "home", label: "Home" },
-            { id: "explore", label: "Explore" },
-            { id: "learn", label: "Learn" },
-            { id: "portfolio", label: "Portfolio" },
-            { id: "plan", label: "Plan" },
-            { id: "assistant", label: "AI Assistant" },
-          ].map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => onSelectTab(item.id)}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                activeTab === item.id
-                  ? "bg-primary text-on-primary font-bold shadow-sm"
-                  : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
-      )}
+        {/* Right Cluster: Search, Status Pill, Memory Bank, Alerts, Profile */}
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          {/* Quick Stock Search */}
+          <div ref={searchContainerRef} className="relative hidden xl:block w-48 focus-within:w-64 transition-all duration-200">
+            <div className="relative flex items-center">
+              <Search className="absolute left-2.5 text-outline w-3.5 h-3.5 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                onFocus={() => {
+                  if (searchResults.length > 0) setShowDropdown(true);
+                }}
+                placeholder="Search stocks / funds..."
+                className="w-full pl-8 pr-7 py-1.5 text-xs font-medium rounded-xl bg-surface-container-low border border-outline-variant/60 text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:bg-surface transition-all shadow-xs"
+              />
+              {isSearching ? (
+                <Loader2 className="w-3 h-3 animate-spin text-outline absolute right-2.5" />
+              ) : searchQuery ? (
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSearchResults([]);
+                    setShowDropdown(false);
+                  }}
+                  className="absolute right-2 text-outline hover:text-on-surface p-0.5"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              ) : null}
+            </div>
 
-      {/* Right Actions Cluster */}
-      <div className="flex items-center gap-3">
-        {/* AI Agent Status Pill */}
-        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container border border-outline-variant/30 text-xs font-medium text-on-surface">
-          <span className={`w-2 h-2 rounded-full ${isConnected ? "bg-primary animate-pulse" : "bg-error"}`}></span>
-          <span>{isConnected ? "Active • Gemma-27b" : "Disconnected"}</span>
-        </div>
-
-        {/* Statement Import Button */}
-        <button
-          onClick={onOpenBrokerUpload}
-          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant/50 text-xs font-semibold text-on-surface hover:bg-surface-container transition-colors"
-          title="Upload statement from Zerodha, Groww, AngelOne, Upstox"
-        >
-          <UploadCloud className="w-3.5 h-3.5 text-primary" />
-          <span>Import Statement</span>
-        </button>
-
-        {/* Stock Market Academy Button */}
-        <button
-          onClick={onOpenAcademy}
-          className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant/50 text-xs font-semibold text-on-surface hover:bg-surface-container transition-colors"
-          title="Stock Market Basics & Educational Tutorial"
-        >
-          <GraduationCap className="w-3.5 h-3.5 text-secondary" />
-          <span>Academy</span>
-        </button>
-
-        {/* Telegram Digest Button */}
-        <button
-          onClick={onSendDigest}
-          disabled={isSendingDigest}
-          className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant/50 text-xs font-semibold text-on-surface hover:bg-surface-container transition-colors disabled:opacity-50"
-          title="Send Executive Digest to Telegram"
-        >
-          <Send className={`w-3.5 h-3.5 text-primary ${isSendingDigest ? "animate-spin" : ""}`} />
-          <span>Digest</span>
-        </button>
-
-        {/* Quick Action Rebalance Trigger */}
-        <a
-          href="#rebalance-section"
-          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary-dim text-on-primary text-xs font-semibold shadow-sm transition-all active:scale-[0.99]"
-        >
-          <Sliders className="w-3.5 h-3.5" />
-          <span>Rebalance</span>
-        </a>
-
-        {/* Notification Bell, Memories & Refresh */}
-        <div className="flex items-center gap-1">
-          <button
-            onClick={onOpenAlerts}
-            className="relative p-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
-            title="Price Alerts"
-          >
-            <Bell className="w-4 h-4" />
-          </button>
-
-          <button
-            onClick={onOpenMemories}
-            className="p-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors hidden sm:block"
-            title="Active Memories"
-          >
-            <Brain className="w-4 h-4" />
-          </button>
-
-          <button
-            onClick={onRefresh}
-            disabled={isRefreshing}
-            className="p-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
-            title="Refresh Data"
-          >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-primary" : ""}`} />
-          </button>
-        </div>
-
-        <div className="h-6 w-px bg-outline-variant/40 mx-1 hidden sm:block"></div>
-
-        {/* User Account or Sign In */}
-        {currentUser ? (
-          <div ref={userMenuRef} className="relative">
-            <button
-              onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-2 pl-1 p-1 rounded-xl hover:bg-surface-container transition-colors"
-            >
-              <div className="w-8 h-8 rounded-full ring-2 ring-primary/30 overflow-hidden bg-primary-container flex items-center justify-center text-xs font-bold text-on-primary-container shadow-stitch-sm">
-                {getUserInitials(currentUser.full_name)}
-              </div>
-              <div className="hidden xl:flex flex-col text-left">
-                <span className="text-xs font-semibold text-on-surface leading-tight max-w-[120px] truncate">
-                  {currentUser.full_name}
-                </span>
-                <span className="text-[10px] text-on-surface-variant leading-none capitalize">
-                  {currentUser.primary_broker} Investor
-                </span>
-              </div>
-              <ChevronDown className="w-3.5 h-3.5 text-outline hidden xl:block" />
-            </button>
-
-            {/* Dropdown Menu */}
-            {showUserMenu && (
-              <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-surface-container-lowest border border-outline-variant/40 shadow-stitch-lg py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-                <div className="px-4 py-2 border-b border-outline-variant/30">
-                  <p className="text-xs font-bold text-on-surface truncate">{currentUser.full_name}</p>
-                  <p className="text-[11px] text-on-surface-variant truncate">{currentUser.email}</p>
-                  <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-primary-container text-on-primary-container capitalize">
-                    {currentUser.primary_broker} Account
-                  </span>
+            {/* Autocomplete Dropdown */}
+            {showDropdown && searchResults.length > 0 && (
+              <div className="absolute left-0 right-0 mt-1.5 bg-surface border border-outline-variant/60 rounded-xl shadow-stitch-lg p-2 z-50 max-h-72 overflow-y-auto">
+                <div className="px-2 py-1 text-[10px] font-bold text-outline uppercase tracking-wider">
+                  Quick Results
                 </div>
+                {searchResults.map((stock) => (
+                  <div
+                    key={stock.symbol}
+                    onClick={() => handleChooseStock(stock)}
+                    className="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container cursor-pointer transition-colors"
+                  >
+                    <div>
+                      <div className="font-bold text-xs text-on-surface">
+                        {stock.symbol}
+                      </div>
+                      <div className="text-[11px] text-on-surface-variant truncate max-w-[160px]">{stock.name}</div>
+                    </div>
+                    <span className="text-[10px] font-bold text-primary px-2 py-0.5 rounded bg-primary/10">
+                      Explore
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
-                <div className="py-1">
+          {/* Monthly Status Badge */}
+          <div className="hidden sm:flex items-center gap-1.5 bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-full text-xs font-bold text-primary shadow-2xs">
+            <Sprout size={13} className="text-secondary" />
+            <span>Beginner • ₹2,000/mo</span>
+          </div>
+
+          {/* Action Icons */}
+          <div className="flex items-center gap-1">
+            {/* Memory Bank Button */}
+            <button
+              onClick={onOpenMemories}
+              className="p-2 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors"
+              title="FinSight Memory Bank (ChatGPT/Gemini Style)"
+            >
+              <Brain className="w-4 h-4" />
+            </button>
+
+            {/* Price Alerts Bell */}
+            <button
+              onClick={onOpenAlerts}
+              className="p-2 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors relative"
+              title="Price &amp; Risk Alerts"
+            >
+              <Bell className="w-4 h-4" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-tertiary ring-2 ring-surface"></span>
+            </button>
+
+            {/* Refresh */}
+            <button
+              onClick={onRefresh}
+              disabled={isRefreshing}
+              className="p-2 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors"
+              title="Refresh Market Data"
+            >
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-primary" : ""}`} />
+            </button>
+          </div>
+
+          <div className="h-6 w-px bg-outline-variant/60 mx-0.5 hidden sm:block"></div>
+
+          {/* User Account / Profile */}
+          {currentUser ? (
+            <div ref={userMenuRef} className="relative">
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="flex items-center gap-2 p-1 rounded-xl hover:bg-surface-container transition-colors"
+              >
+                <div className="w-8 h-8 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center text-xs font-bold text-primary shadow-xs">
+                  {getUserInitials(currentUser.full_name)}
+                </div>
+                <ChevronDown className="w-3.5 h-3.5 text-outline hidden sm:block" />
+              </button>
+
+              {showUserMenu && (
+                <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-surface border border-outline-variant/60 shadow-stitch-lg py-2 z-50 text-xs">
+                  <div className="px-4 py-2 border-b border-outline-variant/40">
+                    <p className="font-bold text-on-surface truncate">{currentUser.full_name}</p>
+                    <p className="text-[11px] text-on-surface-variant truncate">{currentUser.email}</p>
+                    <span className="inline-block mt-1 text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full capitalize">
+                      {currentUser.primary_broker} Investor
+                    </span>
+                  </div>
+
                   <button
                     onClick={() => {
                       setShowUserMenu(false);
                       onOpenBrokerUpload();
                     }}
-                    className="w-full px-4 py-2 text-left text-xs font-semibold text-on-surface hover:bg-surface-container flex items-center gap-2.5 transition-colors"
+                    className="w-full text-left px-4 py-2.5 text-on-surface hover:bg-surface-container flex items-center gap-2 font-medium"
                   >
-                    <UploadCloud className="w-4 h-4 text-primary" />
-                    <span>Upload Broker Statement</span>
+                    <UploadCloud className="w-3.5 h-3.5 text-primary" />
+                    <span>Import Broker Statement</span>
                   </button>
 
                   <button
                     onClick={() => {
                       setShowUserMenu(false);
-                      onOpenAcademy();
+                      onOpenMemories();
                     }}
-                    className="w-full px-4 py-2 text-left text-xs font-semibold text-on-surface hover:bg-surface-container flex items-center gap-2.5 transition-colors"
+                    className="w-full text-left px-4 py-2.5 text-on-surface hover:bg-surface-container flex items-center gap-2 font-medium"
                   >
-                    <GraduationCap className="w-4 h-4 text-secondary" />
-                    <span>Stock Market Academy</span>
+                    <Brain className="w-3.5 h-3.5 text-primary" />
+                    <span>Agent Memory Bank</span>
                   </button>
-                </div>
 
-                <div className="border-t border-outline-variant/30 pt-1">
+                  <div className="border-t border-outline-variant/40 my-1"></div>
+
                   <button
                     onClick={() => {
                       setShowUserMenu(false);
                       onLogout();
                     }}
-                    className="w-full px-4 py-2 text-left text-xs font-semibold text-error hover:bg-error-container/40 flex items-center gap-2.5 transition-colors"
+                    className="w-full text-left px-4 py-2.5 text-error hover:bg-error-container/20 flex items-center gap-2 font-semibold"
                   >
-                    <LogOut className="w-4 h-4" />
+                    <LogOut className="w-3.5 h-3.5" />
                     <span>Sign Out</span>
                   </button>
                 </div>
-              </div>
-            )}
-          </div>
-        ) : (
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={onOpenAuth}
+              className="px-3.5 py-1.5 rounded-xl bg-primary text-on-primary font-bold text-xs hover:bg-primary-dim transition-all shadow-xs flex items-center gap-1.5"
+            >
+              <UserIcon className="w-3.5 h-3.5" />
+              <span>Sign In</span>
+            </button>
+          )}
+
+          {/* Mobile Menu Trigger */}
           <button
-            onClick={onOpenAuth}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary hover:bg-primary-dim text-on-primary font-semibold text-xs shadow-sm transition-all active:scale-[0.99]"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 rounded-xl lg:hidden text-on-surface hover:bg-surface-container"
           >
-            <UserIcon className="w-3.5 h-3.5" />
-            <span>Sign In</span>
+            <Menu className="w-5 h-5" />
           </button>
-        )}
+        </div>
       </div>
+
+      {/* Mobile Navigation Drawer */}
+      {mobileMenuOpen && onSelectTab && (
+        <div className="lg:hidden border-t border-outline-variant/40 bg-surface px-4 py-3 space-y-1">
+          {NAV_ITEMS.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => {
+                onSelectTab(item.id);
+                setMobileMenuOpen(false);
+              }}
+              className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 ${
+                activeTab === item.id
+                  ? "bg-primary text-on-primary"
+                  : "text-on-surface hover:bg-surface-container"
+              }`}
+            >
+              <span>{item.icon}</span>
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </header>
   );
 };
