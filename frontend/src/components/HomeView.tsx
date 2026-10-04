@@ -120,12 +120,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
           Good morning, {userName}
         </h1>
         <p className="text-sm text-secondary">
-          You are on track. 3-minute lesson remaining in{" "}
-          <span className="text-on-surface font-semibold">Step 2: Understanding Risk</span>.
+          Here is your portfolio overview and wealth planning snapshot for today.
         </p>
       </section>
 
-      {/* 2. Primary Focus Hero ('The One Next Step') */}
+      {/* 2. Primary Focus Hero */}
       <section className="bg-surface border border-outline-variant/60 rounded-2xl p-6 sm:p-8 relative overflow-hidden transition-all duration-200 hover:border-outline-variant shadow-stitch-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2.5 max-w-2xl">
@@ -133,32 +132,32 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-surface-container-low border border-outline-variant/40">
               <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
               <span className="text-[11px] font-semibold tracking-wider text-primary uppercase">
-                Next Lesson
+                Investment Snapshot
               </span>
             </div>
 
             {/* Title */}
             <h2 className="font-headline text-xl sm:text-2xl font-bold text-on-surface tracking-tight">
-              Why Markets Drop (and why it is normal)
+              Smart, Jargon-Free Financial Decision Making
             </h2>
 
             {/* Meta Row */}
             <p className="text-xs text-secondary flex flex-wrap items-center gap-2">
-              <span>Lesson 2 of 5</span>
+              <span>Goal: {goalTitle}</span>
               <span className="text-outline-variant">•</span>
-              <span>3 min read</span>
+              <span>Target: ₹{monthlyGoal.toLocaleString("en-IN")}/mo</span>
               <span className="text-outline-variant">•</span>
-              <span>Beginner friendly</span>
+              <span>Disciplined Execution</span>
             </p>
           </div>
 
           {/* Clean Action CTA */}
           <div className="flex items-center self-start md:self-center">
             <button
-              onClick={() => onNavigateTab("learn")}
+              onClick={() => onNavigateTab("explore")}
               className="inline-flex items-center gap-2 bg-on-surface text-surface hover:bg-primary hover:text-on-primary transition-all duration-150 px-5 py-2.5 rounded-lg text-xs font-semibold tracking-tight shadow-stitch-sm"
             >
-              <span>Read Lesson</span>
+              <span>Explore Options</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -168,7 +167,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <div className="mt-5 pt-3.5 border-t border-outline-variant/40 flex items-start gap-3 bg-surface-container-low/50 p-3 rounded-xl border border-outline-variant/30">
           <div className="w-0.5 h-4 bg-primary shrink-0 mt-0.5"></div>
           <p className="text-xs text-secondary">
-            <strong className="text-on-surface font-semibold">Core takeaway:</strong> Market corrections are historical features of wealth compounding, not systematic errors.
+            <strong className="text-on-surface font-semibold">Guiding Principle:</strong> Build lasting wealth with regular compounding and balanced diversification, avoiding market noise and speculative trading.
           </p>
         </div>
       </section>
@@ -211,26 +210,27 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </p>
         </div>
 
-        {/* Metric 3: Curriculum Progress */}
+        {/* Metric 3: Portfolio Health & Allocation */}
         <div className="p-6 flex flex-col justify-between space-y-3">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-secondary tracking-wide uppercase">
-                Foundation Curriculum
-              </span>
-              <span className="text-xs font-bold text-on-surface">40%</span>
-            </div>
-            <div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
-              <div className="bg-primary h-full rounded-full transition-all duration-500" style={{ width: "40%" }}></div>
+          <div className="space-y-1">
+            <span className="text-[11px] font-semibold text-secondary tracking-wide uppercase">
+              Portfolio Overview
+            </span>
+            <div className="font-headline text-xl font-bold text-on-surface tracking-tight">
+              {holdingsCount > 0 ? (
+                <span>₹{totalPortfolioValue.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</span>
+              ) : (
+                <span className="text-secondary text-base font-normal">No holdings yet</span>
+              )}
             </div>
           </div>
           <div className="text-xs text-secondary flex items-center justify-between">
-            <span>2 of 5 lessons completed</span>
+            <span>{holdingsCount > 0 ? `${holdingsCount} positions active` : "Start tracking positions"}</span>
             <button
-              onClick={() => onNavigateTab("learn")}
+              onClick={() => onNavigateTab("portfolio")}
               className="text-primary hover:underline text-xs font-semibold"
             >
-              View Academy
+              View Portfolio
             </button>
           </div>
         </div>

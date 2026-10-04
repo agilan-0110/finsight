@@ -28,7 +28,6 @@ interface NavbarProps {
   currentUser: User | null;
   onOpenAuth: () => void;
   onOpenBrokerUpload: () => void;
-  onOpenAcademy: () => void;
   onLogout: () => void;
 }
 
@@ -115,7 +114,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   const NAV_ITEMS = [
     { id: "home", label: "Home" },
     { id: "explore", label: "Explore" },
-    { id: "learn", label: "Academy" },
     { id: "portfolio", label: "Portfolio" },
     { id: "plan", label: "Plan" },
     { id: "assistant", label: "AI Tutor" },

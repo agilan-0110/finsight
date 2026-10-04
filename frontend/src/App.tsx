@@ -10,7 +10,6 @@ import { LandingPage } from "./components/LandingPage";
 import { Navbar } from "./components/Navbar";
 import { HomeView } from "./components/HomeView";
 import { ExploreView } from "./components/ExploreView";
-import { LearnView } from "./components/LearnView";
 import { PortfolioView } from "./components/PortfolioView";
 import { PlanView } from "./components/PlanView";
 import { AIChatPanel } from "./components/AIChatPanel";
@@ -18,7 +17,6 @@ import { AlertsModal } from "./components/AlertsModal";
 import { MemoriesModal } from "./components/MemoriesModal";
 import { AuthModal } from "./components/AuthModal";
 import { BrokerUploadModal } from "./components/BrokerUploadModal";
-import { StockMarketAcademyModal } from "./components/StockMarketAcademyModal";
 import { OnboardingChoiceModal } from "./components/OnboardingChoiceModal";
 import { OnboardingModal } from "./components/OnboardingModal";
 import { ExplainModal } from "./components/ExplainModal";
@@ -37,7 +35,7 @@ export function App() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
 
-  // Navigation State (6 Primary Sections)
+  // Navigation State (5 Primary Sections: home, explore, portfolio, plan, assistant)
   const [activeTab, setActiveTab] = useState<string>("home");
 
   // Modals state
@@ -45,7 +43,6 @@ export function App() {
   const [memoriesOpen, setMemoriesOpen] = useState<boolean>(false);
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
   const [brokerUploadOpen, setBrokerUploadOpen] = useState<boolean>(false);
-  const [academyOpen, setAcademyOpen] = useState<boolean>(false);
   const [onboardingChoiceOpen, setOnboardingChoiceOpen] = useState<boolean>(false);
   const [onboardingModalOpen, setOnboardingModalOpen] = useState<boolean>(false);
 
@@ -153,13 +150,6 @@ export function App() {
     setActiveTab("portfolio");
   };
 
-  const handleAcademyCompleted = () => {
-    if (currentUser) {
-      setCurrentUser({ ...currentUser, tutorial_completed: true });
-    }
-    showToast("Market Academy preview completed! You're ready to research & invest.");
-  };
-
   const handleAddHolding = async (holding: {
     ticker: string;
     quantity: number;
@@ -227,7 +217,6 @@ export function App() {
             setAuthMode("register");
             setAuthModalOpen(true);
           }}
-          onOpenAcademy={() => setAcademyOpen(true)}
         />
 
         {/* Auth Modal */}
@@ -236,13 +225,6 @@ export function App() {
           onClose={() => setAuthModalOpen(false)}
           onAuthSuccess={handleAuthSuccess}
           initialMode={authMode}
-        />
-
-        {/* Stock Market Academy Modal */}
-        <StockMarketAcademyModal
-          isOpen={academyOpen}
-          onClose={() => setAcademyOpen(false)}
-          onCompleted={() => showToast("Market Academy preview completed! Sign in to start tracking.")}
         />
 
         {/* Floating Toast Notification */}
@@ -287,7 +269,6 @@ export function App() {
           currentUser={currentUser}
           onOpenAuth={() => setAuthModalOpen(true)}
           onOpenBrokerUpload={() => setBrokerUploadOpen(true)}
-          onOpenAcademy={() => setActiveTab("learn")}
           onLogout={handleLogout}
         />
 
@@ -335,15 +316,7 @@ export function App() {
             />
           )}
 
-          {/* HUB 3: LEARN (ACADEMY) */}
-          {activeTab === "learn" && (
-            <LearnView
-              onAskAI={handleAskAI}
-              onOpenExplain={handleOpenExplain}
-            />
-          )}
-
-          {/* HUB 4: PORTFOLIO */}
+          {/* HUB 3: PORTFOLIO */}
           {activeTab === "portfolio" && (
             <PortfolioView
               analytics={analytics}
@@ -356,12 +329,12 @@ export function App() {
             />
           )}
 
-          {/* HUB 5: PLAN */}
+          {/* HUB 4: PLAN */}
           {activeTab === "plan" && (
             <PlanView onAskAI={handleAskAI} />
           )}
 
-          {/* HUB 6: AI ASSISTANT */}
+          {/* HUB 5: AI ASSISTANT */}
           {activeTab === "assistant" && (
             <div className="max-w-[1080px] mx-auto">
               <AIChatPanel
@@ -429,18 +402,12 @@ export function App() {
         onImportSuccess={handleImportSuccess}
       />
 
-      <StockMarketAcademyModal
-        isOpen={academyOpen}
-        onClose={() => setAcademyOpen(false)}
-        onCompleted={handleAcademyCompleted}
-      />
-
       <OnboardingChoiceModal
         isOpen={onboardingChoiceOpen}
         onClose={() => setOnboardingChoiceOpen(false)}
         user={currentUser}
         onChooseUpload={() => setBrokerUploadOpen(true)}
-        onChooseTutorial={() => setAcademyOpen(true)}
+        onChooseExplore={() => setActiveTab("explore")}
       />
     </div>
   );
