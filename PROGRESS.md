@@ -345,6 +345,23 @@
 
 ---
 
+### 14. Home Screen Decluttering & Zen Beginner UX
+- **Goal:** Resolve congestion on the Home screen by eliminating redundant feature dumping, restoring visual breathing room, and providing a singular, focused user journey.
+- **Actions:**
+  - **Eliminated Feature Dumping:** Removed the redundant 2-slider compounding calculator (belongs in `Plan`), the 4 large asset detail sheets (belong in `Explore`), the 5-card wide roadmap list, and the full chat form (belongs in `AI Tutor`).
+  - **Single Focused "Next Step" Spotlight:** Replaced overwhelming multi-feature clutter with one clear primary card: *"Today's Next Step: Lesson 2 — Understanding Risk & Dips"* with a direct `[Resume 3-Min Lesson →]` button.
+  - **3 Crisp Summary Cards:**
+    1. *Your Investment Profile:* Primary goal (e.g. Long-term Wealth), monthly target (₹2,000/mo), risk comfort, with quick profile edit trigger.
+    2. *Next Action:* The single active lesson or milestone to tackle today.
+    3. *Portfolio Health:* Simple balance display with diversification badge and quick link to portfolio analytics.
+  - **3 Clean Gateway Cards:**
+    - 🔎 *Investment Options* $\to$ Route to Explore
+    - 🧭 *Plan & Simulate Goals* $\to$ Route to Plan
+    - 🤖 *Ask AI Tutor* $\to$ Route to AI Assistant
+  - **Codebase Cleanliness:** Reduced `HomeView.tsx` from 715 congested lines down to 250 focused lines; Vite bundle size reduced.
+
+---
+
 ## 📊 Current Project Status
 
 | Phase | Description | Status |
