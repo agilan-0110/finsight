@@ -2,7 +2,8 @@ import React from "react";
 import type { User, UserProfile, PortfolioAnalytics } from "../api/client";
 import {
   ArrowRight,
-  BookOpen,
+  ArrowUpRight,
+  CheckCircle2,
   Compass,
   PieChart,
   Search,
@@ -29,7 +30,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onStartOnboarding,
   onNavigateTab,
   onOpenBrokerUpload,
-  onAskAI,
+  onAskAI: _onAskAI,
 }) => {
   const userName = currentUser?.full_name?.split(" ")[0] || "Friend";
   const isOnboarded = userProfile?.onboarding_completed ?? false;
@@ -50,41 +51,38 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const holdingsCount = analytics?.holdings_count || 0;
 
   // =========================================================================
-  // STATE A: NEW USER ONBOARDING WELCOME (Clean, zero clutter)
+  // STATE A: NEW USER ONBOARDING (Clean, minimal, peaceful)
   // =========================================================================
   if (!isOnboarded) {
     return (
-      <div className="max-w-3xl mx-auto space-y-6 py-6 sm:py-10 animate-in fade-in duration-200">
-        <div className="bg-surface rounded-3xl p-8 sm:p-10 border border-outline-variant/60 shadow-stitch text-center space-y-6">
-          <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 text-primary mx-auto flex items-center justify-center text-2xl shadow-xs">
+      <div className="max-w-[760px] mx-auto py-8 sm:py-14 animate-in fade-in duration-200">
+        <div className="bg-surface rounded-2xl p-8 sm:p-12 border border-outline-variant/60 shadow-stitch text-center space-y-6">
+          <div className="w-12 h-12 rounded-xl bg-surface-container-low border border-outline-variant/60 text-primary mx-auto flex items-center justify-center text-xl">
             🌱
           </div>
 
-          <div className="space-y-2 max-w-lg mx-auto">
-            <h1 className="font-headline text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight">
-              Welcome to FinSight, {userName}!
+          <div className="space-y-2 max-w-md mx-auto">
+            <h1 className="font-headline text-2xl sm:text-3xl font-bold text-on-surface tracking-tight">
+              Welcome to FinSight, {userName}
             </h1>
-            <p className="text-sm sm:text-base text-on-surface-variant leading-relaxed">
-              We help you understand investment options before putting money at risk.
-              No trading jargon, no stock tips — just steady confidence.
+            <p className="text-sm text-secondary leading-relaxed">
+              A calm space to understand your investments before putting hard-earned money at risk.
+              No trading noise, no stock tips — just steady clarity.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-xl mx-auto text-left pt-2">
-            <div className="p-3.5 rounded-xl bg-surface-container-low border border-outline-variant/40 space-y-1">
-              <span className="text-base">🎓</span>
-              <p className="font-bold text-xs text-on-surface">Zero Finance Background</p>
-              <p className="text-[11px] text-on-surface-variant">Explained in simple everyday analogies.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left pt-2">
+            <div className="p-4 rounded-xl bg-surface border border-outline-variant/40 space-y-1">
+              <p className="font-semibold text-xs text-on-surface">Zero Jargon</p>
+              <p className="text-[11px] text-secondary">Explained in simple, everyday real-life analogies.</p>
             </div>
-            <div className="p-3.5 rounded-xl bg-surface-container-low border border-outline-variant/40 space-y-1">
-              <span className="text-base">💰</span>
-              <p className="font-bold text-xs text-on-surface">Any Budget Friendly</p>
-              <p className="text-[11px] text-on-surface-variant">Start learning with ₹500 to ₹5,000/month.</p>
+            <div className="p-4 rounded-xl bg-surface border border-outline-variant/40 space-y-1">
+              <p className="font-semibold text-xs text-on-surface">Any Budget</p>
+              <p className="text-[11px] text-secondary">Learn to allocate from ₹500 to ₹5,000/month.</p>
             </div>
-            <div className="p-3.5 rounded-xl bg-surface-container-low border border-outline-variant/40 space-y-1">
-              <span className="text-base">🛡️</span>
-              <p className="font-bold text-xs text-on-surface">Understand Risk First</p>
-              <p className="text-[11px] text-on-surface-variant">Know how to protect your hard-earned savings.</p>
+            <div className="p-4 rounded-xl bg-surface border border-outline-variant/40 space-y-1">
+              <p className="font-semibold text-xs text-on-surface">Safety First</p>
+              <p className="text-[11px] text-secondary">Understand how market dips work before investing.</p>
             </div>
           </div>
 
@@ -92,7 +90,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <button
               type="button"
               onClick={onStartOnboarding}
-              className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-primary hover:bg-primary-dim text-on-primary font-headline font-bold text-sm shadow-stitch transition-all flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-6 py-3 rounded-lg bg-primary hover:bg-primary-dim text-on-primary font-semibold text-xs shadow-stitch-sm transition-all flex items-center justify-center gap-2"
             >
               <span>Build My 2-Minute Profile</span>
               <ArrowRight className="w-4 h-4" />
@@ -100,9 +98,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <button
               type="button"
               onClick={onOpenBrokerUpload}
-              className="w-full sm:w-auto px-5 py-3.5 rounded-xl border border-outline-variant/60 hover:bg-surface-container-low text-on-surface text-xs font-bold transition-colors flex items-center justify-center gap-1.5"
+              className="w-full sm:w-auto px-5 py-3 rounded-lg border border-outline-variant/60 hover:bg-surface-container-low text-on-surface text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
             >
-              <UploadCloud className="w-4 h-4 text-primary" />
+              <UploadCloud className="w-4 h-4 text-secondary" />
               <span>Connect Existing Portfolio</span>
             </button>
           </div>
@@ -112,209 +110,262 @@ export const HomeView: React.FC<HomeViewProps> = ({
   }
 
   // =========================================================================
-  // STATE B: RETURNING USER (Clean, spacious, 4 clear focal areas)
+  // STATE B: RETURNING USER (Stitch "Quiet Prudence" Minimalist Layout)
   // =========================================================================
   return (
-    <div className="max-w-5xl mx-auto space-y-6 py-2 sm:py-4 animate-in fade-in duration-200 font-body">
-      {/* 1. TOP HEADER & GREETING */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="font-headline text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight">
-            Welcome back, {userName} 👋
-          </h1>
-          <p className="text-xs sm:text-sm text-on-surface-variant mt-0.5">
-            Here is your financial snapshot and your next step today.
-          </p>
-        </div>
+    <div className="max-w-[1080px] mx-auto space-y-8 py-4 sm:py-6 animate-in fade-in duration-200">
+      {/* 1. Header & Welcome */}
+      <section className="space-y-1">
+        <h1 className="font-headline text-2xl font-bold text-on-surface tracking-tight">
+          Good morning, {userName}
+        </h1>
+        <p className="text-sm text-secondary">
+          You are on track. 3-minute lesson remaining in{" "}
+          <span className="text-on-surface font-semibold">Step 2: Understanding Risk</span>.
+        </p>
+      </section>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onStartOnboarding}
-            className="px-3.5 py-1.5 rounded-xl border border-outline-variant/60 hover:bg-surface-container-low text-on-surface text-xs font-semibold transition-colors flex items-center gap-1.5"
-            title="Edit your financial profile and goals"
-          >
-            <Compass className="w-3.5 h-3.5 text-primary" />
-            <span>Edit Profile</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onNavigateTab("learn")}
-            className="px-4 py-1.5 rounded-xl bg-primary hover:bg-primary-dim text-on-primary text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
-          >
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>Continue Lesson</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 2. THE THREE CORE CARDS (Profile, Learning Progress, Portfolio Snapshot) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Card A: Financial DNA */}
-        <div className="p-5 rounded-2xl bg-surface border border-outline-variant/60 shadow-stitch flex flex-col justify-between space-y-3">
-          <div className="space-y-1">
-            <span className="text-[11px] font-bold text-primary uppercase tracking-wider flex items-center gap-1.5 font-headline">
-              <Compass className="w-3.5 h-3.5" />
-              Your Investment Profile
-            </span>
-            <div className="font-headline font-bold text-base text-on-surface">
-              {goalTitle}
+      {/* 2. Primary Focus Hero ('The One Next Step') */}
+      <section className="bg-surface border border-outline-variant/60 rounded-2xl p-6 sm:p-8 relative overflow-hidden transition-all duration-200 hover:border-outline-variant shadow-stitch-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2.5 max-w-2xl">
+            {/* Tag / Category */}
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-surface-container-low border border-outline-variant/40">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
+              <span className="text-[11px] font-semibold tracking-wider text-primary uppercase">
+                Next Lesson
+              </span>
             </div>
-            <p className="text-xs text-on-surface-variant">
-              Investing target: <strong className="text-on-surface">₹{monthlyGoal.toLocaleString("en-IN")}/mo</strong>
+
+            {/* Title */}
+            <h2 className="font-headline text-xl sm:text-2xl font-bold text-on-surface tracking-tight">
+              Why Markets Drop (and why it is normal)
+            </h2>
+
+            {/* Meta Row */}
+            <p className="text-xs text-secondary flex flex-wrap items-center gap-2">
+              <span>Lesson 2 of 5</span>
+              <span className="text-outline-variant">•</span>
+              <span>3 min read</span>
+              <span className="text-outline-variant">•</span>
+              <span>Beginner friendly</span>
             </p>
           </div>
 
-          <div className="pt-2 border-t border-outline-variant/30 flex items-center justify-between text-[11px]">
-            <span className="text-on-surface-variant">Risk Understanding:</span>
-            <span className="font-bold text-primary capitalize">
+          {/* Clean Action CTA */}
+          <div className="flex items-center self-start md:self-center">
+            <button
+              onClick={() => onNavigateTab("learn")}
+              className="inline-flex items-center gap-2 bg-on-surface text-surface hover:bg-primary hover:text-on-primary transition-all duration-150 px-5 py-2.5 rounded-lg text-xs font-semibold tracking-tight shadow-stitch-sm"
+            >
+              <span>Read Lesson</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Educational Accent Bar */}
+        <div className="mt-5 pt-3.5 border-t border-outline-variant/40 flex items-start gap-3 bg-surface-container-low/50 p-3 rounded-xl border border-outline-variant/30">
+          <div className="w-0.5 h-4 bg-primary shrink-0 mt-0.5"></div>
+          <p className="text-xs text-secondary">
+            <strong className="text-on-surface font-semibold">Core takeaway:</strong> Market corrections are historical features of wealth compounding, not systematic errors.
+          </p>
+        </div>
+      </section>
+
+      {/* 3. 3 Quiet Metrics (Hairline dividers, borderless minimal row) */}
+      <section className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-outline-variant/50 bg-surface border border-outline-variant/60 rounded-2xl overflow-hidden shadow-stitch-sm">
+        {/* Metric 1: Monthly Target */}
+        <div className="p-6 flex flex-col justify-between space-y-3">
+          <div className="space-y-1">
+            <span className="text-[11px] font-semibold text-secondary tracking-wide uppercase">
+              Target for {goalTitle}
+            </span>
+            <div className="font-headline text-xl font-bold text-on-surface tracking-tight">
+              ₹{monthlyGoal.toLocaleString("en-IN")}{" "}
+              <span className="text-xs text-secondary font-normal">/ month</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-primary font-medium">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>Disciplined monthly pacing</span>
+          </div>
+        </div>
+
+        {/* Metric 2: Risk Comfort */}
+        <div className="p-6 flex flex-col justify-between space-y-3">
+          <div className="space-y-1">
+            <span className="text-[11px] font-semibold text-secondary tracking-wide uppercase">
+              Risk Comfort
+            </span>
+            <div className="font-headline text-xl font-bold text-on-surface tracking-tight">
               {userProfile?.risk_reaction === "sell"
                 ? "Conservative"
                 : userProfile?.risk_reaction === "fluctuate_comfortable"
                 ? "Growth-Oriented"
                 : "Moderate"}
-            </span>
+            </div>
           </div>
+          <p className="text-xs text-secondary">
+            Comfortable with small dips for long-term growth
+          </p>
         </div>
 
-        {/* Card B: Next Action / Active Lesson */}
-        <div className="p-5 rounded-2xl bg-surface border-2 border-primary/40 shadow-stitch flex flex-col justify-between space-y-3 relative">
-          <div className="space-y-1">
+        {/* Metric 3: Curriculum Progress */}
+        <div className="p-6 flex flex-col justify-between space-y-3">
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-primary uppercase tracking-wider flex items-center gap-1.5 font-headline">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-                Next Step
+              <span className="text-[11px] font-semibold text-secondary tracking-wide uppercase">
+                Foundation Curriculum
               </span>
-              <span className="text-[11px] font-bold text-primary">Lesson 2</span>
+              <span className="text-xs font-bold text-on-surface">40%</span>
             </div>
-            <div className="font-headline font-bold text-base text-on-surface">
-              Understanding Risk &amp; Dips
+            <div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+              <div className="bg-primary h-full rounded-full transition-all duration-500" style={{ width: "40%" }}></div>
             </div>
-            <p className="text-xs text-on-surface-variant leading-relaxed">
-              Why market declines are normal seasonal discounts, not disasters.
-            </p>
           </div>
-
-          <button
-            type="button"
-            onClick={() => onNavigateTab("learn")}
-            className="w-full py-2 px-3 rounded-xl bg-primary hover:bg-primary-dim text-on-primary font-bold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
-          >
-            <span>Resume 3-Min Lesson</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-
-        {/* Card C: Portfolio Overview */}
-        <div className="p-5 rounded-2xl bg-surface border border-outline-variant/60 shadow-stitch flex flex-col justify-between space-y-3">
-          <div className="space-y-1">
-            <span className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider flex items-center gap-1.5 font-headline">
-              <PieChart className="w-3.5 h-3.5 text-primary" />
-              Portfolio Health
-            </span>
-            <div className="font-headline font-bold text-base text-on-surface">
-              {holdingsCount > 0 ? (
-                <span>₹{totalPortfolioValue.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</span>
-              ) : (
-                <span className="text-on-surface-variant text-sm font-normal">Ready to Start</span>
-              )}
-            </div>
-            <p className="text-xs text-on-surface-variant">
-              {holdingsCount > 0
-                ? `${holdingsCount} active positions tracked`
-                : "No holdings imported yet. Learn before investing."}
-            </p>
-          </div>
-
-          <div className="pt-2 border-t border-outline-variant/30 flex items-center justify-between">
-            <span className="text-[11px] text-on-surface-variant">
-              {holdingsCount > 0 ? "Diversification:" : "Status:"}
-            </span>
+          <div className="text-xs text-secondary flex items-center justify-between">
+            <span>2 of 5 lessons completed</span>
             <button
-              onClick={() => onNavigateTab("portfolio")}
-              className="text-xs font-bold text-primary hover:underline flex items-center gap-0.5"
+              onClick={() => onNavigateTab("learn")}
+              className="text-primary hover:underline text-xs font-semibold"
             >
-              <span>{holdingsCount > 0 ? "View Details" : "Track Portfolio"}</span>
-              <ArrowRight className="w-3 h-3" />
+              View Academy
             </button>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* 3. QUICK JUMP GATEWAYS (3 clean, non-intrusive cards) */}
-      <div className="space-y-3 pt-2">
-        <h2 className="font-headline text-sm font-bold text-on-surface uppercase tracking-wider">
-          Explore FinSight
-        </h2>
+      {/* 4. Modular Quick Navigation (2x2 Clean Grid, Hairline Border, Soft Hover) */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="font-headline text-sm font-bold text-on-surface">
+            Explore Core Capabilities
+          </h3>
+          <span className="text-[11px] text-secondary font-medium">Self-paced &amp; ad-free</span>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Hub 1: Explore Assets */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Module 1: Explore Assets */}
           <div
             onClick={() => onNavigateTab("explore")}
-            className="p-5 rounded-2xl bg-surface border border-outline-variant/50 hover:border-primary/50 shadow-stitch-sm hover:shadow-stitch cursor-pointer transition-all space-y-2 group"
+            className="group block p-5 bg-surface border border-outline-variant/60 rounded-2xl hover:border-outline-variant transition-all duration-150 cursor-pointer shadow-stitch-sm"
           >
-            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
-              <Search className="w-4 h-4" />
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                <Search className="w-4 h-4" />
+              </div>
+              <div className="space-y-1 flex-1">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-headline text-sm font-bold text-on-surface group-hover:text-primary transition-colors">
+                    Explore Investment Options
+                  </h4>
+                  <ArrowUpRight className="w-4 h-4 text-secondary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </div>
+                <p className="text-xs text-secondary leading-relaxed">
+                  Understand Index Funds, FDs, Gold, and Bonds without jargon or promotional bias.
+                </p>
+              </div>
             </div>
-            <h3 className="font-headline font-bold text-sm text-on-surface group-hover:text-primary transition-colors flex items-center justify-between">
-              <span>Investment Options</span>
-              <ArrowRight className="w-3.5 h-3.5 text-outline group-hover:translate-x-1 transition-transform" />
-            </h3>
-            <p className="text-xs text-on-surface-variant leading-relaxed">
-              Understand Fixed Deposits, Nifty Index Funds, Sovereign Gold, and Bonds with plain analogies.
-            </p>
           </div>
 
-          {/* Hub 2: Goal Simulator */}
+          {/* Module 2: Plan Savings */}
           <div
             onClick={() => onNavigateTab("plan")}
-            className="p-5 rounded-2xl bg-surface border border-outline-variant/50 hover:border-primary/50 shadow-stitch-sm hover:shadow-stitch cursor-pointer transition-all space-y-2 group"
+            className="group block p-5 bg-surface border border-outline-variant/60 rounded-2xl hover:border-outline-variant transition-all duration-150 cursor-pointer shadow-stitch-sm"
           >
-            <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center font-bold">
-              <TrendingUp className="w-4 h-4" />
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                <TrendingUp className="w-4 h-4" />
+              </div>
+              <div className="space-y-1 flex-1">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-headline text-sm font-bold text-on-surface group-hover:text-primary transition-colors">
+                    Plan Your Savings
+                  </h4>
+                  <ArrowUpRight className="w-4 h-4 text-secondary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </div>
+                <p className="text-xs text-secondary leading-relaxed">
+                  See how monthly contributions compound over 5–10 years with interactive sliders.
+                </p>
+              </div>
             </div>
-            <h3 className="font-headline font-bold text-sm text-on-surface group-hover:text-primary transition-colors flex items-center justify-between">
-              <span>Plan &amp; Simulate Goals</span>
-              <ArrowRight className="w-3.5 h-3.5 text-outline group-hover:translate-x-1 transition-transform" />
-            </h3>
-            <p className="text-xs text-on-surface-variant leading-relaxed">
-              See how regular ₹{monthlyGoal.toLocaleString("en-IN")}/month compounding grows into ₹10+ Lakh.
-            </p>
           </div>
 
-          {/* Hub 3: AI Financial Tutor */}
+          {/* Module 3: Ask AI */}
           <div
             onClick={() => onNavigateTab("assistant")}
-            className="p-5 rounded-2xl bg-surface border border-outline-variant/50 hover:border-primary/50 shadow-stitch-sm hover:shadow-stitch cursor-pointer transition-all space-y-2 group"
+            className="group block p-5 bg-surface border border-outline-variant/60 rounded-2xl hover:border-outline-variant transition-all duration-150 cursor-pointer shadow-stitch-sm"
           >
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-primary flex items-center justify-center font-bold">
-              <MessageSquare className="w-4 h-4" />
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                <MessageSquare className="w-4 h-4" />
+              </div>
+              <div className="space-y-1 flex-1">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-headline text-sm font-bold text-on-surface group-hover:text-primary transition-colors">
+                    Ask FinSight AI Tutor
+                  </h4>
+                  <ArrowUpRight className="w-4 h-4 text-secondary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </div>
+                <p className="text-xs text-secondary leading-relaxed">
+                  Ask any financial question in plain everyday English with verified historical citations.
+                </p>
+              </div>
             </div>
-            <h3 className="font-headline font-bold text-sm text-on-surface group-hover:text-primary transition-colors flex items-center justify-between">
-              <span>Ask AI Tutor</span>
-              <ArrowRight className="w-3.5 h-3.5 text-outline group-hover:translate-x-1 transition-transform" />
-            </h3>
-            <p className="text-xs text-on-surface-variant leading-relaxed">
-              Have a doubt? Ask about inflation, mutual funds, or how profits work in plain English.
-            </p>
+          </div>
+
+          {/* Module 4: My Portfolio */}
+          <div
+            onClick={() => onNavigateTab("portfolio")}
+            className="group block p-5 bg-surface border border-outline-variant/60 rounded-2xl hover:border-outline-variant transition-all duration-150 cursor-pointer shadow-stitch-sm"
+          >
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                <PieChart className="w-4 h-4" />
+              </div>
+              <div className="space-y-1 flex-1">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-headline text-sm font-bold text-on-surface group-hover:text-primary transition-colors">
+                    My Portfolio
+                  </h4>
+                  <ArrowUpRight className="w-4 h-4 text-secondary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </div>
+                <p className="text-xs text-secondary leading-relaxed">
+                  {holdingsCount > 0
+                    ? `Tracking ${holdingsCount} positions (₹${totalPortfolioValue.toLocaleString("en-IN", { maximumFractionDigits: 0 })}). View asset allocation.`
+                    : "Track simulated holdings, asset allocation health, and diversification."}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* 4. COMPACT MINDFUL FINANCE TIP */}
-      <div className="p-4 rounded-xl bg-surface-container-low border border-outline-variant/40 flex items-center justify-between gap-3 text-xs text-on-surface">
-        <div className="flex items-center gap-2.5">
-          <span className="text-base">💡</span>
-          <p className="text-on-surface-variant">
-            <strong className="text-on-surface">Beginner Rule:</strong> Building wealth is not about timing the market; it is about steady patience and time in the market.
+      {/* 5. Minimalist Quick Action Strip */}
+      <div className="p-4 rounded-xl bg-surface border border-outline-variant/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-stitch-sm">
+        <div className="flex items-center gap-2">
+          <Compass className="w-4 h-4 text-primary shrink-0" />
+          <p className="text-secondary">
+            <strong className="text-on-surface font-semibold">Your Profile:</strong> {goalTitle} • Target ₹{monthlyGoal.toLocaleString("en-IN")}/mo
           </p>
         </div>
-        <button
-          onClick={() => onAskAI("What does 'Time in the market beats timing the market' mean?")}
-          className="text-primary hover:underline font-bold text-[11px] whitespace-nowrap hidden sm:inline"
-        >
-          Ask AI Tutor Why →
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onStartOnboarding}
+            className="text-secondary hover:text-on-surface font-medium hover:underline text-xs"
+          >
+            Adjust Profile
+          </button>
+          <span className="text-outline-variant">•</span>
+          <button
+            onClick={onOpenBrokerUpload}
+            className="text-primary hover:underline font-semibold text-xs flex items-center gap-1"
+          >
+            <UploadCloud className="w-3.5 h-3.5" />
+            <span>Upload Broker Statement</span>
+          </button>
+        </div>
       </div>
     </div>
   );

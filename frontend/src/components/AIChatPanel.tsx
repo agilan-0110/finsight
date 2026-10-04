@@ -230,24 +230,24 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
   return (
     <div
       id="ai-chat-section"
-      className={`bg-surface-container-lowest rounded-2xl border border-outline-variant/40 shadow-sm flex flex-col overflow-hidden ${
+      className={`bg-surface rounded-xl border border-outline-variant/60 shadow-stitch-sm flex flex-col overflow-hidden ${
         fullPageMode ? "h-[calc(100vh-140px)] min-h-[600px]" : "h-[720px]"
       }`}
     >
       {/* Panel Header */}
-      <div className="p-4 border-b border-outline-variant/30 flex items-center justify-between bg-surface-container-low/40">
+      <div className="p-4 border-b border-outline-variant/40 flex items-center justify-between bg-surface">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-sm">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 text-primary flex items-center justify-center">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
             <div className="font-headline text-sm font-bold text-on-surface flex items-center gap-1.5">
-              <span>FinSight AI Co-Pilot</span>
-              <span className="text-[10px] text-primary bg-primary/10 px-2 py-0.5 rounded-full font-semibold">
+              <span>FinSight AI Tutor</span>
+              <span className="text-[10px] text-primary bg-primary/10 px-2 py-0.5 rounded font-semibold">
                 {currentConfig.badge}
               </span>
             </div>
-            <div className="text-[11px] text-on-surface-variant">
+            <div className="text-[11px] text-secondary">
               {currentConfig.subtitle}
             </div>
           </div>
@@ -257,7 +257,7 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
           {onOpenMemories && (
             <button
               onClick={onOpenMemories}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-outline-variant/50 hover:bg-surface-container text-xs font-semibold text-on-surface transition-colors shadow-2xs mr-1"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-outline-variant/60 hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-colors mr-1"
               title="Inspect and manage what FinSight knows about you"
             >
               <Brain className="w-3.5 h-3.5 text-primary" />
@@ -267,14 +267,14 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
           <button
             onClick={fetchHistory}
             disabled={fetchingHistory}
-            className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors"
+            className="p-1.5 rounded-lg hover:bg-surface-container-low text-secondary hover:text-on-surface transition-colors"
             title="Refresh History"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${fetchingHistory ? "animate-spin" : ""}`} />
           </button>
           <button
             onClick={handleClearHistory}
-            className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-error transition-colors"
+            className="p-1.5 rounded-lg hover:bg-surface-container-low text-secondary hover:text-error transition-colors"
             title="Clear Chat Session"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -283,16 +283,16 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
       </div>
 
       {/* 4 Assistant Modes Switcher */}
-      <div className="px-4 py-2 bg-surface-container-low/20 border-b border-outline-variant/20 flex items-center gap-1.5 overflow-x-auto">
+      <div className="px-4 py-2 bg-surface-container-low/40 border-b border-outline-variant/40 flex items-center gap-1.5 overflow-x-auto">
         {(Object.keys(MODE_CONFIG) as AssistantMode[]).map((mode) => (
           <button
             key={mode}
             type="button"
             onClick={() => setActiveMode(mode)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-label font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1 rounded-md text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
               activeMode === mode
-                ? "bg-primary text-on-primary shadow-sm"
-                : "bg-surface-container-lowest text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
+                ? "bg-primary text-on-primary shadow-stitch-sm"
+                : "bg-surface text-secondary hover:text-on-surface hover:bg-surface-container-low border border-outline-variant/40"
             }`}
           >
             {MODE_CONFIG[mode].icon}
@@ -302,9 +302,9 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
       </div>
 
       {/* Suggested Quick Prompts */}
-      <div className="p-3 bg-surface-container-low/40 border-b border-outline-variant/20 flex flex-wrap gap-1.5 items-center">
-        <Lightbulb className="w-3 h-3 text-amber-500 mr-1" />
-        <span className="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-wider mr-1">
+      <div className="p-3 bg-surface border-b border-outline-variant/40 flex flex-wrap gap-1.5 items-center">
+        <Lightbulb className="w-3 h-3 text-tertiary mr-1" />
+        <span className="text-[10px] font-semibold text-secondary uppercase tracking-wider mr-1">
           Try:
         </span>
         {currentConfig.prompts.map((p, idx) => (
@@ -312,7 +312,7 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
             key={idx}
             type="button"
             onClick={() => handleSend(p)}
-            className="px-2.5 py-1 rounded-md bg-surface-container-lowest border border-outline-variant/30 text-on-surface text-[11px] font-body hover:border-primary hover:text-primary transition-all shadow-2xs"
+            className="px-2.5 py-1 rounded-md bg-surface-container-low border border-outline-variant/40 text-on-surface text-[11px] hover:border-primary hover:text-primary transition-all shadow-stitch-sm"
           >
             {p}
           </button>

@@ -145,66 +145,66 @@ export const PlanView: React.FC<PlanViewProps> = ({ onAskAI: _onAskAI }) => {
   const simulatedPortfolioDropPercent = ((simulatedNetLoss / baseVirtualPortfolio) * 100).toFixed(1);
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
+    <div className="max-w-[1080px] mx-auto space-y-6 py-4 animate-in fade-in duration-200">
       {/* Header and Tool Switcher */}
-      <div className="p-6 rounded-3xl bg-surface-container-lowest border border-outline-variant/40 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-headline text-2xl font-bold text-on-surface">
-            Financial Planning &amp; Calculators 🧭
+          <h1 className="font-headline text-2xl font-bold text-on-surface tracking-tight">
+            Financial Planning
           </h1>
-          <p className="font-body text-xs text-on-surface-variant">
-            Plan real-life goals, visualize compounding, and understand inflation before investing.
+          <p className="text-xs sm:text-sm text-secondary">
+            Plan goals, visualize compounding, and understand inflation before investing.
           </p>
         </div>
 
-        {/* Navigation Selector */}
-        <div className="flex flex-wrap items-center p-1 bg-surface-container-low rounded-xl border border-outline-variant/30 text-xs font-label font-semibold">
+        {/* Minimal Navigation Selector */}
+        <div className="flex flex-wrap items-center p-1 bg-surface-container-low rounded-lg border border-outline-variant/50 text-xs font-semibold">
           <button
             onClick={() => setActiveTab("goals")}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`px-3 py-1.5 rounded-md transition-all ${
               activeTab === "goals"
-                ? "bg-surface-container-lowest text-primary shadow-sm font-bold"
-                : "text-on-surface-variant hover:text-on-surface"
+                ? "bg-surface text-primary shadow-stitch-sm font-bold"
+                : "text-secondary hover:text-on-surface"
             }`}
           >
             Goal Simulator
           </button>
           <button
             onClick={() => setActiveTab("compounding")}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`px-3 py-1.5 rounded-md transition-all ${
               activeTab === "compounding"
-                ? "bg-surface-container-lowest text-primary shadow-sm font-bold"
-                : "text-on-surface-variant hover:text-on-surface"
+                ? "bg-surface text-primary shadow-stitch-sm font-bold"
+                : "text-secondary hover:text-on-surface"
             }`}
           >
             Compounding (SIP)
           </button>
           <button
             onClick={() => setActiveTab("inflation")}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`px-3 py-1.5 rounded-md transition-all ${
               activeTab === "inflation"
-                ? "bg-surface-container-lowest text-primary shadow-sm font-bold"
-                : "text-on-surface-variant hover:text-on-surface"
+                ? "bg-surface text-primary shadow-stitch-sm font-bold"
+                : "text-secondary hover:text-on-surface"
             }`}
           >
             Inflation Reality
           </button>
           <button
             onClick={() => setActiveTab("emergency")}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`px-3 py-1.5 rounded-md transition-all ${
               activeTab === "emergency"
-                ? "bg-surface-container-lowest text-primary shadow-sm font-bold"
-                : "text-on-surface-variant hover:text-on-surface"
+                ? "bg-surface text-primary shadow-stitch-sm font-bold"
+                : "text-secondary hover:text-on-surface"
             }`}
           >
             Emergency Reserve
           </button>
           <button
             onClick={() => setActiveTab("simulator")}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`px-3 py-1.5 rounded-md transition-all ${
               activeTab === "simulator"
-                ? "bg-surface-container-lowest text-primary shadow-sm font-bold"
-                : "text-on-surface-variant hover:text-on-surface"
+                ? "bg-surface text-primary shadow-stitch-sm font-bold"
+                : "text-secondary hover:text-on-surface"
             }`}
           >
             Risk Simulator

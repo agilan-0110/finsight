@@ -55,24 +55,24 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
+    <div className="max-w-[1080px] mx-auto space-y-6 py-4 animate-in fade-in duration-200">
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-3xl bg-surface-container-lowest border border-outline-variant/40 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-headline text-2xl font-bold text-on-surface">
-            Portfolio Health &amp; Holdings 📊
+          <h1 className="font-headline text-2xl font-bold text-on-surface tracking-tight">
+            Portfolio Health
           </h1>
-          <p className="font-body text-xs text-on-surface-variant">
-            Track real-time market value, plain-English diversification health, and risk exposure.
+          <p className="text-xs sm:text-sm text-secondary">
+            Track real-time market value, diversification health, and risk exposure in plain English.
           </p>
         </div>
 
         <button
           onClick={onOpenBrokerUpload}
-          className="px-4 py-2.5 rounded-xl bg-primary text-on-primary font-label text-xs font-semibold hover:opacity-90 transition-opacity flex items-center gap-2 shadow-sm self-start sm:self-auto"
+          className="px-3.5 py-2 rounded-lg bg-primary hover:bg-primary-dim text-on-primary text-xs font-semibold shadow-stitch-sm transition-all flex items-center gap-1.5 self-start sm:self-auto"
         >
-          <UploadCloud className="w-4 h-4" />
-          <span>Import Broker Statement</span>
+          <UploadCloud className="w-3.5 h-3.5" />
+          <span>Import Statement</span>
         </button>
       </div>
 
@@ -81,69 +81,68 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
 
       {/* 2. Plain-English Portfolio Explanation Card */}
       {holdingsCount > 0 && (
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-primary/5 via-surface-container-lowest to-surface-container-low border border-primary/20 shadow-sm space-y-4">
+        <div className="p-5 rounded-xl bg-surface border border-outline-variant/60 shadow-stitch-sm space-y-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-primary font-headline font-bold text-sm">
+            <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-wide">
               <Shield className="w-4 h-4" />
-              <span>Plain-English Portfolio Health Analysis</span>
+              <span>Diversification Health</span>
             </div>
             <button
               onClick={() => onOpenExplain("diversification")}
-              className="text-xs font-label text-primary font-semibold hover:underline flex items-center gap-1"
+              className="text-xs text-primary font-semibold hover:underline flex items-center gap-1"
             >
               <HelpCircle className="w-3.5 h-3.5" />
               <span>What is Diversification?</span>
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-body">
-            <div className="p-4 rounded-xl bg-surface-container-lowest border border-outline-variant/30 space-y-1">
-              <span className="font-headline font-bold text-on-surface block">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+            <div className="p-3.5 rounded-lg bg-surface-container-low border border-outline-variant/40 space-y-1">
+              <span className="font-semibold text-on-surface block">
                 Investments &amp; Sectors
               </span>
-              <p className="text-on-surface-variant leading-relaxed">
-                Your portfolio contains <strong className="text-on-surface">{holdingsCount} investments</strong> spread across{" "}
-                <strong className="text-on-surface">{sectorCount} independent sectors</strong>.
+              <p className="text-secondary leading-relaxed">
+                Your portfolio contains <strong className="text-on-surface">{holdingsCount} investments</strong> across{" "}
+                <strong className="text-on-surface">{sectorCount} sectors</strong>.
               </p>
             </div>
 
-            <div className="p-4 rounded-xl bg-surface-container-lowest border border-outline-variant/30 space-y-1">
-              <span className="font-headline font-bold text-on-surface block">
-                Largest Sector Concentration
+            <div className="p-3.5 rounded-lg bg-surface-container-low border border-outline-variant/40 space-y-1">
+              <span className="font-semibold text-on-surface block">
+                Sector Concentration
               </span>
-              <p className="text-on-surface-variant leading-relaxed">
-                Your largest sector (<strong className="text-on-surface">{largestSectorName}</strong>) represents{" "}
+              <p className="text-secondary leading-relaxed">
+                Largest sector (<strong className="text-on-surface">{largestSectorName}</strong>) is{" "}
                 <strong className={largestSectorPercent > 40 ? "text-error" : "text-primary"}>
                   {largestSectorPercent.toFixed(1)}%
-                </strong>{" "}
-                of your equity holdings.
-                {largestSectorPercent > 40 ? " ⚠️ High concentration risk." : " Balanced exposure."}
+                </strong>.
+                {largestSectorPercent > 40 ? " ⚠️ High concentration." : " Balanced."}
               </p>
             </div>
 
-            <div className="p-4 rounded-xl bg-surface-container-lowest border border-outline-variant/30 space-y-1">
-              <span className="font-headline font-bold text-on-surface block">
-                Largest Single Position
+            <div className="p-3.5 rounded-lg bg-surface-container-low border border-outline-variant/40 space-y-1">
+              <span className="font-semibold text-on-surface block">
+                Largest Position
               </span>
-              <p className="text-on-surface-variant leading-relaxed">
-                Your largest individual holding (<strong className="text-on-surface">{largestHoldingName}</strong>) represents{" "}
+              <p className="text-secondary leading-relaxed">
+                Holding (<strong className="text-on-surface">{largestHoldingName}</strong>) represents{" "}
                 <strong className={largestHoldingWeight > 25 ? "text-error" : "text-gain"}>
                   {largestHoldingWeight.toFixed(1)}%
                 </strong>{" "}
-                of your total portfolio capital.
+                of total capital.
               </p>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-outline-variant/20 text-xs">
-            <p className="font-body text-on-surface-variant">
-              💡 <strong>Recommendation:</strong> A resilient portfolio limits any single company to &lt;15% and any single sector to &lt;30%.
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-outline-variant/40 text-xs">
+            <p className="text-secondary">
+              💡 <strong className="text-on-surface">Rule of thumb:</strong> Healthy portfolios keep individual companies under 15% and sectors under 30%.
             </p>
             <button
               onClick={() => onAskAI("Analyze my portfolio diversification and tell me what risks I should be aware of as a beginner.")}
-              className="text-primary font-label font-semibold inline-flex items-center gap-1 hover:underline whitespace-nowrap"
+              className="text-primary font-semibold inline-flex items-center gap-1 hover:underline whitespace-nowrap"
             >
-              <span>Ask AI Tutor to Review Health</span>
+              <span>Ask AI Tutor Review</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>

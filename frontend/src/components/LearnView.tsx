@@ -86,63 +86,58 @@ export const LearnView: React.FC<LearnViewProps> = ({
   );
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
+    <div className="max-w-[1080px] mx-auto space-y-6 py-4 animate-in fade-in duration-200">
       {/* Header and Level Selector */}
-      <div className="p-6 rounded-3xl bg-surface-container-lowest border border-outline-variant/40 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <h1 className="font-headline text-2xl font-bold text-on-surface">
-              FinSight Academy 📚
-            </h1>
-            <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary font-label text-xs font-semibold">
-              Interactive
-            </span>
-          </div>
-          <p className="font-body text-xs text-on-surface-variant">
-            A 5-level curriculum taking you from zero financial knowledge to confident portfolio ownership.
+          <h1 className="font-headline text-2xl font-bold text-on-surface tracking-tight">
+            FinSight Academy
+          </h1>
+          <p className="text-xs sm:text-sm text-secondary">
+            A self-paced curriculum from zero financial jargon to steady investment clarity.
           </p>
         </div>
 
         {/* Learning progress meter */}
-        <div className="flex items-center gap-4 p-3 rounded-2xl bg-surface-container-low border border-outline-variant/30">
+        <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-surface border border-outline-variant/60 shadow-stitch-sm">
           <div className="text-right">
-            <span className="font-label text-xs font-bold text-on-surface block">
-              {completedCount} of {totalLessons} Lessons Done
+            <span className="text-xs font-bold text-on-surface block">
+              {completedCount} of {totalLessons} Done
             </span>
-            <span className="font-body text-[11px] text-outline">
-              {progressPercent}% Academy Progress
+            <span className="text-[11px] text-secondary">
+              {progressPercent}% Complete
             </span>
           </div>
-          <div className="w-12 h-12 rounded-full border-4 border-surface-container-high border-t-primary flex items-center justify-center font-headline font-bold text-xs text-primary">
+          <div className="w-10 h-10 rounded-full border-2 border-surface-container border-t-primary flex items-center justify-center font-bold text-xs text-primary">
             {progressPercent}%
           </div>
         </div>
       </div>
 
-      {/* Tabs: Curriculum vs Glossary */}
-      <div className="flex items-center gap-2 border-b border-outline-variant/30 pb-2">
+      {/* Minimal Tabs: Curriculum vs Glossary */}
+      <div className="flex items-center p-1 bg-surface-container-low rounded-lg border border-outline-variant/50 w-fit text-xs font-semibold">
         <button
           onClick={() => {
             setActiveTab("curriculum");
             setSelectedLesson(null);
           }}
-          className={`px-4 py-2 rounded-xl font-label text-xs font-semibold transition-all ${
+          className={`px-3.5 py-1.5 rounded-md transition-all ${
             activeTab === "curriculum"
-              ? "bg-primary text-on-primary shadow-sm"
-              : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
+              ? "bg-surface text-primary shadow-stitch-sm font-bold"
+              : "text-secondary hover:text-on-surface"
           }`}
         >
           Curriculum &amp; Quizzes
         </button>
         <button
           onClick={() => setActiveTab("glossary")}
-          className={`px-4 py-2 rounded-xl font-label text-xs font-semibold transition-all ${
+          className={`px-3.5 py-1.5 rounded-md transition-all ${
             activeTab === "glossary"
-              ? "bg-primary text-on-primary shadow-sm"
-              : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
+              ? "bg-surface text-primary shadow-stitch-sm font-bold"
+              : "text-secondary hover:text-on-surface"
           }`}
         >
-          Beginner Glossary ({Object.keys(FINANCIAL_TERMS).length} Terms)
+          Glossary ({Object.keys(FINANCIAL_TERMS).length} Terms)
         </button>
       </div>
 
@@ -159,18 +154,19 @@ export const LearnView: React.FC<LearnViewProps> = ({
             ].map((lvl) => {
               const countInLvl = ACADEMY_LESSONS.filter((l) => l.level === lvl.level).length;
               const doneInLvl = ACADEMY_LESSONS.filter((l) => l.level === lvl.level && completedLessonIds.has(l.id)).length;
+              const isSelected = selectedLevel === lvl.level;
               return (
                 <button
                   key={lvl.level}
                   onClick={() => setSelectedLevel(lvl.level)}
-                  className={`px-4 py-2.5 rounded-xl text-left border transition-all ${
-                    selectedLevel === lvl.level
-                      ? "border-primary bg-primary/10 text-primary shadow-sm font-bold"
-                      : "border-outline-variant/40 bg-surface-container-lowest text-on-surface-variant hover:border-outline"
+                  className={`px-3.5 py-2 rounded-lg text-left border transition-all ${
+                    isSelected
+                      ? "border-primary bg-primary/10 text-primary font-bold shadow-stitch-sm"
+                      : "border-outline-variant/60 bg-surface text-secondary hover:border-outline-variant"
                   }`}
                 >
-                  <span className="font-headline text-xs block">{lvl.name}</span>
-                  <span className="font-label text-[10px] text-outline block mt-0.5">
+                  <span className="text-xs block font-semibold">{lvl.name}</span>
+                  <span className="text-[10px] text-secondary block mt-0.5">
                     {doneInLvl}/{countInLvl} completed
                   </span>
                 </button>
@@ -186,18 +182,18 @@ export const LearnView: React.FC<LearnViewProps> = ({
                 <div
                   key={lesson.id}
                   onClick={() => handleSelectLesson(lesson)}
-                  className={`p-5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-4 hover:shadow-stitch ${
+                  className={`p-5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between space-y-3 shadow-stitch-sm ${
                     isDone
-                      ? "bg-surface-container-lowest border-gain/30"
-                      : "bg-surface-container-lowest border-outline-variant/40 hover:border-primary/50"
+                      ? "bg-surface border-gain/40"
+                      : "bg-surface border-outline-variant/60 hover:border-outline-variant"
                   }`}
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-label font-bold bg-surface-container text-on-surface-variant uppercase">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-surface-container-low text-secondary border border-outline-variant/40 uppercase">
                         {lesson.levelTitle.split("—")[0]}
                       </span>
-                      <div className="flex items-center gap-1.5 text-outline text-xs">
+                      <div className="flex items-center gap-1.5 text-secondary text-xs">
                         <Clock className="w-3 h-3" />
                         <span>{lesson.durationMinutes} min</span>
                       </div>
@@ -206,24 +202,24 @@ export const LearnView: React.FC<LearnViewProps> = ({
                     <h3 className="font-headline font-bold text-sm text-on-surface hover:text-primary transition-colors">
                       {lesson.title}
                     </h3>
-                    <p className="font-body text-xs text-on-surface-variant leading-relaxed">
+                    <p className="text-xs text-secondary leading-relaxed">
                       {lesson.summary}
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-outline-variant/20">
+                  <div className="flex items-center justify-between pt-3 border-t border-outline-variant/40">
                     {isDone ? (
-                      <span className="inline-flex items-center gap-1.5 text-xs font-label font-semibold text-gain">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gain">
                         <CheckCircle2 className="w-4 h-4" />
                         <span>Completed</span>
                       </span>
                     ) : (
-                      <span className="text-xs font-label font-semibold text-primary">
+                      <span className="text-xs font-semibold text-primary">
                         Start Lesson →
                       </span>
                     )}
 
-                    <span className="font-label text-[11px] text-outline">
+                    <span className="text-[11px] text-secondary">
                       Includes Mini-Quiz
                     </span>
                   </div>

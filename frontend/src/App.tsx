@@ -309,8 +309,8 @@ export function App() {
           </div>
         )}
 
-        {/* Dynamic 6-Hub Content Canvas */}
-        <main className="flex-1 p-6 md:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
+        {/* Dynamic 6-Hub Content Canvas (Centered Nordic Restraint) */}
+        <main className="flex-1 px-4 sm:px-6 py-6 max-w-[1200px] w-full mx-auto">
           {/* HUB 1: HOME */}
           {activeTab === "home" && (
             <HomeView
@@ -335,7 +335,7 @@ export function App() {
             />
           )}
 
-          {/* HUB 3: LEARN (ACADEMY 2.0) */}
+          {/* HUB 3: LEARN (ACADEMY) */}
           {activeTab === "learn" && (
             <LearnView
               onAskAI={handleAskAI}
@@ -363,7 +363,7 @@ export function App() {
 
           {/* HUB 6: AI ASSISTANT */}
           {activeTab === "assistant" && (
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-[1080px] mx-auto">
               <AIChatPanel
                 fullPageMode={true}
                 initialPrompt={aiPrompt}
@@ -374,14 +374,16 @@ export function App() {
           )}
         </main>
 
-        {/* Global Footer */}
-        <footer className="border-t border-outline-variant/30 bg-surface-container-low/40 py-6 px-8 text-center text-xs text-on-surface-variant">
-          <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="font-semibold text-on-surface">
-              FinSight • AI Investment Learning &amp; Portfolio Companion
-            </p>
-            <p className="text-[11px] text-outline font-medium">
-              Understand before you invest • Zero trading tips • Strict $0.00 Cost Principle
+        {/* Global Footer (Stitch Quiet Prudence) */}
+        <footer className="w-full bg-surface border-t border-outline-variant/40 py-6">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-secondary">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-on-surface">FinSight</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>
+              <span>Investment Learning &amp; Portfolio Companion</span>
+            </div>
+            <p className="text-[11px] text-secondary">
+              Understand before you invest • Zero trading advice • Local AI Memory
             </p>
           </div>
         </footer>

@@ -38,46 +38,46 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
   );
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
+    <div className="max-w-[1080px] mx-auto space-y-6 py-4 animate-in fade-in duration-200">
       {/* Header and Mode Selector */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-3xl bg-surface-container-lowest border border-outline-variant/40 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-headline text-2xl font-bold text-on-surface">
-            Investment Knowledge Explorer 🔎
+          <h1 className="font-headline text-2xl font-bold text-on-surface tracking-tight">
+            Investment Explorer
           </h1>
-          <p className="font-body text-xs text-on-surface-variant">
-            Understand your options, compare asset classes, and research Indian equities before investing.
+          <p className="text-xs sm:text-sm text-secondary">
+            Understand your options, compare asset classes, and research Indian equities without jargon.
           </p>
         </div>
 
-        {/* View Switcher Tabs */}
-        <div className="flex items-center p-1 bg-surface-container-low rounded-xl border border-outline-variant/30 text-xs font-label font-semibold">
+        {/* Minimal View Switcher Tabs */}
+        <div className="flex items-center p-1 bg-surface-container-low rounded-lg border border-outline-variant/50 text-xs font-semibold">
           <button
             onClick={() => setActiveTab("catalog")}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`px-3 py-1.5 rounded-md transition-all ${
               activeTab === "catalog"
-                ? "bg-surface-container-lowest text-primary shadow-sm font-bold"
-                : "text-on-surface-variant hover:text-on-surface"
+                ? "bg-surface text-primary shadow-stitch-sm font-bold"
+                : "text-secondary hover:text-on-surface"
             }`}
           >
             All 10 Categories
           </button>
           <button
             onClick={() => setActiveTab("compare")}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`px-3 py-1.5 rounded-md transition-all ${
               activeTab === "compare"
-                ? "bg-surface-container-lowest text-primary shadow-sm font-bold"
-                : "text-on-surface-variant hover:text-on-surface"
+                ? "bg-surface text-primary shadow-stitch-sm font-bold"
+                : "text-secondary hover:text-on-surface"
             }`}
           >
             Compare Products
           </button>
           <button
             onClick={() => setActiveTab("stock_explorer")}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`px-3 py-1.5 rounded-md transition-all ${
               activeTab === "stock_explorer"
-                ? "bg-surface-container-lowest text-primary shadow-sm font-bold"
-                : "text-on-surface-variant hover:text-on-surface"
+                ? "bg-surface text-primary shadow-stitch-sm font-bold"
+                : "text-secondary hover:text-on-surface"
             }`}
           >
             NSE Stock Research
@@ -90,71 +90,71 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
         <div className="space-y-6">
           {/* Search bar */}
           <div className="relative max-w-md">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-outline" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary" />
             <input
               type="text"
               placeholder="Filter categories (e.g. index fund, gold, bonds)..."
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-outline-variant/40 bg-surface-container-lowest text-xs text-on-surface placeholder:text-outline focus:outline-none focus:border-primary transition-colors"
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-outline-variant/60 bg-surface text-xs text-on-surface placeholder:text-secondary focus:outline-none focus:border-primary transition-colors shadow-stitch-sm"
             />
           </div>
 
           {/* Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredCategories.map((item) => (
               <div
                 key={item.id}
-                className="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/40 shadow-sm hover:border-primary/40 hover:shadow-stitch transition-all flex flex-col justify-between space-y-4"
+                className="p-5 rounded-xl bg-surface border border-outline-variant/60 shadow-stitch-sm hover:border-outline-variant transition-all flex flex-col justify-between space-y-4"
               >
                 <div className="space-y-3">
                   {/* Top tag & icon */}
                   <div className="flex items-center justify-between">
-                    <span className="text-3xl">{item.icon}</span>
-                    <span className="px-2.5 py-1 rounded-md bg-surface-container text-on-surface-variant font-label text-[10px] font-bold uppercase tracking-wider">
+                    <span className="text-2xl">{item.icon}</span>
+                    <span className="px-2 py-0.5 rounded bg-surface-container-low text-secondary text-[10px] font-semibold uppercase tracking-wider border border-outline-variant/40">
                       {item.categoryTag}
                     </span>
                   </div>
 
                   <div>
-                    <h3 className="font-headline font-bold text-base text-on-surface">
+                    <h3 className="font-headline font-bold text-sm text-on-surface">
                       {item.name}
                     </h3>
-                    <p className="font-body text-xs text-on-surface-variant mt-1 leading-relaxed">
+                    <p className="text-xs text-secondary mt-1 leading-relaxed">
                       {item.shortDesc}
                     </p>
                   </div>
 
                   {/* Standardized Metrics Pills */}
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-outline-variant/20 text-[11px] font-label">
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-outline-variant/40 text-[11px]">
                     <div>
-                      <span className="text-outline block">Typical Horizon</span>
+                      <span className="text-secondary block">Typical Horizon</span>
                       <span className="font-semibold text-on-surface">{item.typicalHorizon}</span>
                     </div>
                     <div>
-                      <span className="text-outline block">Complexity</span>
+                      <span className="text-secondary block">Complexity</span>
                       <span className={`font-semibold ${item.complexity === "Low" ? "text-gain" : item.complexity === "Medium" ? "text-amber-600" : "text-error"}`}>
                         {item.complexity}
                       </span>
                     </div>
                     <div>
-                      <span className="text-outline block">Market Risk</span>
+                      <span className="text-secondary block">Market Risk</span>
                       <span className="font-semibold text-on-surface">{item.marketRisk}</span>
                     </div>
                     <div>
-                      <span className="text-outline block">Diversification</span>
+                      <span className="text-secondary block">Diversification</span>
                       <span className="font-semibold text-on-surface">{item.diversification}</span>
                     </div>
                   </div>
 
                   {/* Learn Before Investing checklist preview */}
                   <div className="pt-2">
-                    <span className="font-label text-[10px] uppercase font-bold text-outline tracking-wider block mb-1">
+                    <span className="text-[10px] uppercase font-semibold text-secondary tracking-wider block mb-1">
                       Learn before investing:
                     </span>
                     <ul className="space-y-1">
                       {item.keyTakeaways.slice(0, 3).map((takeaway, idx) => (
-                        <li key={idx} className="flex items-center gap-1.5 text-xs text-on-surface-variant font-body">
+                        <li key={idx} className="flex items-center gap-1.5 text-xs text-secondary">
                           <CheckCircle className="w-3 h-3 text-gain flex-shrink-0" />
                           <span>{takeaway}</span>
                         </li>
@@ -166,7 +166,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedCategory(item)}
-                  className="w-full py-2.5 rounded-xl bg-surface-container-low hover:bg-primary hover:text-on-primary text-on-surface font-label text-xs font-semibold border border-outline-variant/30 transition-all flex items-center justify-center gap-1.5 group"
+                  className="w-full py-2 rounded-lg bg-surface-container-low hover:bg-primary hover:text-on-primary text-on-surface text-xs font-semibold border border-outline-variant/40 transition-all flex items-center justify-center gap-1.5 group"
                 >
                   <span>Understand {item.name}</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
